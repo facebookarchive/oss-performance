@@ -66,11 +66,11 @@ Wordpress
   5: Some other popular post
   3: Some other not quite as popular post
 
-  The long tail was generated with:
+
+The long tail was generated with:
 
     <?php
-
-    for ($i = 0; $i <= 52; ++$i) {
+      for ($i = 0; $i <= 52; ++$i) {
       printf("http://localhost:__HTTP_PORT__/?p=%d\n", mt_rand(1,52));
     }
 
