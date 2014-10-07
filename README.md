@@ -84,16 +84,4 @@ demonstration data - this was used to create the database dump included here.
 Contributing
 ============
 
-We would greatly appreciate PRs that:
-
-- Replace fake data with real-world data. Please be careful to
-  anonymize/sanitize any user data before putting your pull request on github.
-- Add additional targets - we're particularly interested in MediaWiki, Laravel,
-  and Drupal.
-- Improve the performance of any supported engine. In practice, this probably
-  means configuration changes.
-
-All targets should be representative of actual usuage, visiting a variety of
-pages, with access patterns based on visitor logs. Additional dependencies/code
-should also be minimized - for example, the Wordpress target does not depend
-on any plugins (though one was used to generate the test data).
+Please see the CONTRIBUTING.md file for details.
