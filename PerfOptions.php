@@ -9,6 +9,10 @@
  *
  */
 
+require_once('SugarCRMTarget.php');
+require_once('ToysTarget.php');
+require_once('WordpressTarget.php');
+
 final class PerfOptions {
   public bool $help;
   public bool $verbose;
@@ -25,10 +29,6 @@ final class PerfOptions {
 
   public string $siege;
   public string $nginx;
-
-  public bool $wordpress;
-  public bool $toys;
-  public bool $sugarcrm;
 
   public bool $skipSanityCheck = false;
   public bool $skipVersionChecks = false;
@@ -77,10 +77,6 @@ final class PerfOptions {
       'siege:',
       'nginx:',
 
-      'toys',
-      'wordpress',
-      'sugarcrm-login-page',
-
       'i-am-not-benchmarking',
 
       'hhvm-extra-arguments:',
@@ -103,6 +99,8 @@ final class PerfOptions {
       'daemon-files',  // daemon output goes to files in the temp directory
       'temp-dir:',  // temp directory to use; if absent one in /tmp is made
     };
+    $targets = $this->getTargetDefinitions()->keys();
+    $def->addAll($targets);
     $o = getopt('', $def);
 
     $this->help = array_key_exists('help', $o);
@@ -111,7 +109,7 @@ final class PerfOptions {
         STDERR,
         "Usage: %s \\\n".
         "  --<php5=/path/to/php-cgi|hhvm=/path/to/hhvm>\\\n".
-        "  --<toys|wordpress|sugarcrm-login-page>\n".
+        "  --<".implode('|',$targets).">\n".
         "\n".
         "Options:\n%s",
         $argv[0],
@@ -127,9 +125,6 @@ final class PerfOptions {
     $this->siege = hphp_array_idx($o, 'siege', 'siege');
     $this->nginx = hphp_array_idx($o, 'nginx', 'nginx');
 
-    $this->wordpress = array_key_exists('wordpress', $o);
-    $this->toys = array_key_exists('toys', $o);
-    $this->sugarcrm = array_key_exists('sugarcrm-login-page', $o);
     $this->traceSubProcess = array_key_exists('trace', $o);
 
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
@@ -243,5 +238,38 @@ final class PerfOptions {
     } else {
       return null;
     }
+  }
+
+  <<__Memoize>>
+  public function getTarget(): PerfTarget {
+    $multiple = false;
+    $target = null;
+    $def = $this->getTargetDefinitions();
+    foreach ($def as $flag => $factory) {
+      if (array_key_exists($flag, $this->args)) {
+        if ($target === null) {
+          $target = $factory();
+        } else {
+          $multiple = true;
+        }
+      }
+    }
+    if ($multiple || ($target === null)) {
+      fprintf(
+        STDERR,
+        "You must specify a target with exactly one of the following:\n".
+        implode('', $def->keys()->map($arg ==> '  --'.$arg."\n"))
+      );
+      exit(1);
+    }
+    return $target;
+  }
+
+  private function getTargetDefinitions(): Map<string, (function(): PerfTarget)> {
+    return Map {
+      'toys' => () ==> new ToysTarget(),
+      'wordpress' => () ==> new WordpressTarget($this),
+      'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
+    };
   }
 }

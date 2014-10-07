@@ -17,10 +17,12 @@ require_once('PHPEngine.php');
 final class PHP5Daemon extends PHPEngine {
   use NoEngineStats;
 
+  private PerfTarget $target;
+
   public function __construct(
     private PerfOptions $options,
-    private PerfTarget $target,
   ) {
+    $this->target = $options->getTarget();
     parent::__construct((string) $options->php5);
   }
 

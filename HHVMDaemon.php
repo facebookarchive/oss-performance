@@ -18,10 +18,12 @@ require_once('Process.php');
 final class HHVMDaemon extends PHPEngine {
   use HHVMStats;
 
+  private PerfTarget $target;
+
   public function __construct(
     private PerfOptions $options,
-    private PerfTarget $target,
   ) {
+    $this->target = $options->getTarget();
     parent::__construct((string) $options->hhvm);
 
     if ($options->notBenchmarking) {
