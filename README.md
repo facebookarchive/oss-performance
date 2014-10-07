@@ -35,8 +35,10 @@ Requirements
 - siege
 - unzip
 - A mysql server on 127.0.0.1:3306
+- hhvm
 
-I've been using the current versions available from yum on Centos 6.3.
+I've been using the current versions available from yum on Centos 6.3. HHVM is required
+as this is written in Hack.
 
 The Targets
 ===========
