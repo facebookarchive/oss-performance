@@ -15,9 +15,6 @@ require_once('PHP5Daemon.php');
 require_once('NginxDaemon.php');
 require_once('PerfOptions.php');
 require_once('Siege.php');
-require_once('SugarCRMTarget.php');
-require_once('ToysTarget.php');
-require_once('WordpressTarget.php');
 
 function print_progress(string $out): void {
   $timestamp = strftime('%Y-%m-%d %H:%M:%S');
@@ -33,9 +30,9 @@ function print_progress(string $out): void {
 
 function run_benchmark(
   PerfOptions $options,
-  PerfTarget $target,
-  PHPEngine $php_engine
+  PHPEngine $php_engine,
 ) {
+  $target = $options->getTarget();
   print_progress('Installing framework');
   $target->install();
 
@@ -143,34 +140,13 @@ function perf_main($argv) {
     }
   );
 
-  $target = null;
   $engine = null;
 
-  if ($options->wordpress) {
-    $target = new WordpressTarget($options);
-  }
-  if ($options->toys) {
-    $target = new ToysTarget();
-  }
-  if ($options->sugarcrm) {
-    $target = new SugarCRMTarget($options);
-  }
-  if ($target === null) {
-    fprintf(
-      STDERR,
-      "You must specify a target with one of the following:\n".
-      "  --toys\n".
-      "  --wordpress\n".
-      "  --sugarcrm-login-page\n"
-    );
-    exit(1);
-  }
-
   if ($options->php5) {
-    $engine = new PHP5Daemon($options, $target);
+    $engine = new PHP5Daemon($options);
   }
   if ($options->hhvm) {
-    $engine = new HHVMDaemon($options, $target);
+    $engine = new HHVMDaemon($options);
   }
   if ($engine === null) {
     fprintf(
@@ -181,7 +157,7 @@ function perf_main($argv) {
     exit(1);
   }
 
-  run_benchmark($options, $target, $engine);
+  run_benchmark($options, $engine);
 }
 
 perf_main($argv);
