@@ -86,4 +86,4 @@ demonstration data - this was used to create the database dump included here.
 Contributing
 ============
 
-Please see the CONTRIBUTING.md file for details.
+Please see [CONTRIBUTING.md](https://github.com/hhvm/oss-performance/blob/master/CONTRIBUTING.md) for details.
