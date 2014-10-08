@@ -100,13 +100,4 @@ final class SugarCRMTarget extends PerfTarget {
   public function getSourceRoot(): string {
     return $this->options->tempDir.'/sugarcrm_dev-6.5.16';
   }
-
-  // See PerfTarget::ignorePath() for documentation
-  public function ignorePath(string $path): bool {
-    // Users don't actually request this
-    if (strstr($path, 'wp-cron.php')) {
-      return true;
-    }
-    return false;
-  }
 }
