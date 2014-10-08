@@ -9,6 +9,7 @@
  *
  */
 
+require_once('LaravelTarget.php');
 require_once('SugarCRMTarget.php');
 require_once('ToysTarget.php');
 require_once('WordpressTarget.php');
@@ -265,11 +266,13 @@ final class PerfOptions {
     return $target;
   }
 
-  private function getTargetDefinitions(): Map<string, (function(): PerfTarget)> {
+  private function getTargetDefinitions(
+  ): Map<string, (function(): PerfTarget)> {
     return Map {
       'toys' => () ==> new ToysTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
       'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
+      'laravel-hello-world' => () ==> new LaravelTarget($this),
     };
   }
 }
