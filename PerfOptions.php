@@ -9,6 +9,7 @@
  *
  */
 
+require_once('Drupal7Target.php');
 require_once('SugarCRMTarget.php');
 require_once('ToysTarget.php');
 require_once('WordpressTarget.php');
@@ -267,6 +268,7 @@ final class PerfOptions {
 
   private function getTargetDefinitions(): Map<string, (function(): PerfTarget)> {
     return Map {
+      'drupal7' => () ==> new Drupal7Target($this),
       'toys' => () ==> new ToysTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
       'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
