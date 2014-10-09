@@ -49,6 +49,8 @@ Toys
 Unrealistic microbenchmarks. We do not care about these results - they're only
 here to give a simple, quick target to test that the script works correctly.
 
+'hello, world' is useful for profiling request handling.
+
 Wordpress
 ---------
 
