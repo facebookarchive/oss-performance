@@ -9,6 +9,7 @@
  *
  */
 
+require_once('CodeIgniterTarget.php');
 require_once('LaravelTarget.php');
 require_once('SugarCRMTarget.php');
 require_once('ToysTarget.php');
@@ -269,10 +270,11 @@ final class PerfOptions {
   private function getTargetDefinitions(
   ): Map<string, (function(): PerfTarget)> {
     return Map {
+      'codeigniter-hello-world' => () ==> new CodeIgniterTarget($this),
+      'laravel-hello-world' => () ==> new LaravelTarget($this),
+      'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
       'toys' => () ==> new ToysTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
-      'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
-      'laravel-hello-world' => () ==> new LaravelTarget($this),
     };
   }
 }
