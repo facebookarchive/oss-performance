@@ -11,9 +11,10 @@
 
 require_once('CodeIgniterTarget.php');
 require_once('Drupal7Target.php');
+require_once('FibonacciTarget.php');
+require_once('HelloWorldTarget.php');
 require_once('LaravelTarget.php');
 require_once('SugarCRMTarget.php');
-require_once('ToysTarget.php');
 require_once('WordpressTarget.php');
 
 final class PerfOptions {
@@ -275,7 +276,8 @@ final class PerfOptions {
       'drupal7' => () ==> new Drupal7Target($this),
       'laravel-hello-world' => () ==> new LaravelTarget($this),
       'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
-      'toys' => () ==> new ToysTarget(),
+      'toys-fibonacci' => () ==> new FibonacciTarget(),
+      'toys-hello-world' => () ==> new HelloWorldTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
     };
   }
