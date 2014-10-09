@@ -10,6 +10,7 @@
  */
 
 require_once('CodeIgniterTarget.php');
+require_once('Drupal7Target.php');
 require_once('LaravelTarget.php');
 require_once('SugarCRMTarget.php');
 require_once('ToysTarget.php');
@@ -271,6 +272,7 @@ final class PerfOptions {
   ): Map<string, (function(): PerfTarget)> {
     return Map {
       'codeigniter-hello-world' => () ==> new CodeIgniterTarget($this),
+      'drupal7' => () ==> new Drupal7Target($this),
       'laravel-hello-world' => () ==> new LaravelTarget($this),
       'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
       'toys' => () ==> new ToysTarget(),
