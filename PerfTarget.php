@@ -9,6 +9,8 @@
  *
  */
 
+require_once('Utils.php');
+
 abstract class PerfTarget {
   public function install(): void { }
 
@@ -64,7 +66,9 @@ abstract class PerfTarget {
     );
   }
 
-  final protected function safeCommand(Vector<string> $command): string {
-    return implode(' ', $command->map($x ==> escapeshellarg($x)));
+  public function safeCommand(Vector<string> $command): string {
+    // Temporary - too many pull requests in flight, clean up callers introduced
+    // by them once they're landed
+    return Utils::EscapeCommand($command);
   }
 }

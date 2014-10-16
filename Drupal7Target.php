@@ -12,47 +12,39 @@
 require_once('DatabaseInstaller.php');
 require_once('PerfTarget.php');
 
-final class SugarCRMTarget extends PerfTarget {
+final class Drupal7Target extends PerfTarget {
   public function __construct(
     private PerfOptions $options,
   ) {
   }
 
   protected function getSanityCheckString(): string {
-    return 'User Name:';
+    return 'Read more';
   }
 
   public function install(): void {
     Utils::ExtractTar(
-      __DIR__.'/sugarcrm/sugarcrm_dev-6.5.16.tar.gz',
+      __DIR__.'/drupal7/drupal-7.31.tar.gz',
       $this->options->tempDir,
     );
 
-    copy(
-      __DIR__.'/sugarcrm/config.php',
-      $this->getSourceRoot().'/config.php',
+    Utils::ExtractTar(
+      __DIR__.'/drupal7/demo-static.tar.bz2',
+      $this->getSourceRoot().'/sites/default',
     );
 
-    if ($this->options->skipDatabaseInstall) {
-      return;
-    }
+    copy(
+      'compress.zlib://'.__DIR__.'/drupal7/settings.php.gz',
+      $this->getSourceRoot().'/sites/default/settings.php',
+    );
 
     (new DatabaseInstaller($this->options))
-      ->setDatabaseName('sugarcrm')
-      ->setDumpFile(__DIR__.'/sugarcrm/dbdump.sql.gz')
+      ->setDatabaseName('drupal_bench')
+      ->setDumpFile(__DIR__.'/drupal7/dbdump.sql.gz')
       ->installDatabase();
   }
 
   public function getSourceRoot(): string {
-    return $this->options->tempDir.'/sugarcrm_dev-6.5.16';
-  }
-
-  // See PerfTarget::ignorePath() for documentation
-  public function ignorePath(string $path): bool {
-    // Users don't actually request this
-    if (strstr($path, 'wp-cron.php')) {
-      return true;
-    }
-    return false;
+    return $this->options->tempDir.'/drupal-7.31';
   }
 }
