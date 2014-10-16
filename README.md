@@ -2,7 +2,10 @@ Overview
 ========
 
 The goal is to provide a benchmark suite, testing something representative
-of real-world situations.
+of real-world situations. This suite also includes some unrealistic
+microbenchmarks - comparing the results of these is fairly pointless, however
+they can still be useful to profile, to find optimization opportunities that may
+carry over to a real site.
 
 This script sets up nginx, siege, and PHP5/PHP7/HHVM over FastCGI, over a TCP
 socket. Configuration is as close to identical as possible.
