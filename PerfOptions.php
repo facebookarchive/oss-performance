@@ -9,6 +9,7 @@
  *
  */
 
+require_once('CodeIgniterTarget.php');
 require_once('SugarCRMTarget.php');
 require_once('ToysTarget.php');
 require_once('WordpressTarget.php');
@@ -267,6 +268,7 @@ final class PerfOptions {
 
   private function getTargetDefinitions(): Map<string, (function(): PerfTarget)> {
     return Map {
+      'codeigniter-hello-world' => () ==> new CodeIgniterTarget($this),
       'toys' => () ==> new ToysTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
       'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
