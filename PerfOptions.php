@@ -9,8 +9,9 @@
  *
  */
 
+require_once('FibonacciTarget.php');
+require_once('HelloWorldTarget.php');
 require_once('SugarCRMTarget.php');
-require_once('ToysTarget.php');
 require_once('WordpressTarget.php');
 
 final class PerfOptions {
@@ -267,7 +268,8 @@ final class PerfOptions {
 
   private function getTargetDefinitions(): Map<string, (function(): PerfTarget)> {
     return Map {
-      'toys' => () ==> new ToysTarget(),
+      'toys-fibonacci' => () ==> new FibonacciTarget(),
+      'toys-hello-world' => () ==> new HelloWorldTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
       'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
     };
