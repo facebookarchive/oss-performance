@@ -66,7 +66,6 @@ final class DatabaseInstaller {
   private function createMySQLDatabase(): void {
     $db = $this->databaseName;
     invariant($db !== null, 'Database must be specified');
-    $edb = mysql_real_escape_string($db);
     fprintf(
       STDERR,
       '%s',
@@ -93,6 +92,7 @@ final class DatabaseInstaller {
         'Failed to connect: '.mysql_error()
       );
     }
+    $edb = mysql_real_escape_string($db);
     mysql_query("DROP DATABASE IF EXISTS $edb", $conn);
     mysql_query("CREATE DATABASE $edb", $conn);
     /* In theory, either one of these works, with 127.0.0.1 being the minimal
@@ -103,13 +103,13 @@ final class DatabaseInstaller {
      *   grant
      */
     mysql_query(
-      'GRANT ALL PRIVILEGES ON '.$edb.'.* TO '.$edb.'@"%" '.
-      'IDENTIFIED BY '.$edb,
+      'GRANT ALL PRIVILEGES ON '.$edb.'.* TO "'.$edb.'"@"%" '.
+      'IDENTIFIED BY "'.$edb.'"',
       $conn,
     );
     mysql_query(
-      "GRANT ALL PRIVILEGES ON $edb.* TO $edb@127.0.0.1 ".
-      "IDENTIFIED BY $edb",
+      "GRANT ALL PRIVILEGES ON $edb.* TO '$edb'@127.0.0.1 ".
+      "IDENTIFIED BY '$edb'",
       $conn,
     );
   }
