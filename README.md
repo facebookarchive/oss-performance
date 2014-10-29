@@ -99,7 +99,8 @@ SugarCRM
 --------
 
 Unrealistic microbenchmark: just the 'login' page. Added to confirm a
-reported issue. The upstream installation script provides an option to create
+[reported issue](http://zsuraski.blogspot.com/2014/07/benchmarking-phpng.html). 
+The upstream installation script provides an option to create
 demonstration data - this was used to create the database dump included here.
 
 Laravel
