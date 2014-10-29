@@ -81,11 +81,6 @@ final class DatabaseInstaller {
     }
     fprintf(STDERR, '%s', 'MySQL admin password: ');
     $password = trim(fgets(STDIN));
-    if (!$password) {
-      throw new Exception(
-        'Invalid password - set up the wp_bench database and user manually.'
-      );
-    }
     $conn = mysql_connect('127.0.0.1', $username, $password);
     if ($conn === false) {
       throw new Exception(
