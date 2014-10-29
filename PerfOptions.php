@@ -16,6 +16,7 @@ require_once('HelloWorldTarget.php');
 require_once('LaravelTarget.php');
 require_once('SugarCRMTarget.php');
 require_once('WordpressTarget.php');
+require_once('Magento1Target.php');
 
 final class PerfOptions {
   public bool $help;
@@ -280,6 +281,7 @@ final class PerfOptions {
       'toys-fibonacci' => () ==> new FibonacciTarget(),
       'toys-hello-world' => () ==> new HelloWorldTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
+      'magento1' => () ==> new Magento1Target($this)
     };
   }
 }
