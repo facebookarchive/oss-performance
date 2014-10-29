@@ -109,6 +109,21 @@ Laravel
 Unrealistic microbenchmark: just the 'You have arrived' page from an empty
 installation.
 
+Magento
+-------
+
+- Data is official Magento sample data, however because of its original size we have replaced all images with a compressed HHVM logo and removed all mp3 files.
+- After importing sample data we use the Magento console installer to do the installation for us.
+- URLs are a variety of different pages:
+    - Homepage
+    - Category page
+    - CMS page
+    - Quicksearch
+    - Advanced search
+    - Simple product
+    - Product with options
+    - Product reviews
+
 Contributing
 ============
 

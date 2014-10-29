@@ -15,8 +15,18 @@ require_once('Utils.php');
 final class DatabaseInstaller {
   private ?string $databaseName;
   private ?string $dumpFile;
+  private ?string $username;
+  private ?string $password = null;
 
   public function __construct(private PerfOptions $options): void {
+  }
+
+  public function getUsername() : ?string {
+    return $this->username ? $this->username : $this->databaseName;
+  }
+
+  public function getPassword() : ?string {
+    return $this->password !== null ? $this->password : $this->databaseName;
   }
 
   public function setDatabaseName(string $database_name): this {
@@ -48,7 +58,7 @@ final class DatabaseInstaller {
 
     shell_exec(
       Utils::EscapeCommand(Vector {
-        'zcat',
+        $this->options->dumpIsCompressed ? 'zcat' : 'cat',
         $dump,
       }).
       '|'.
@@ -73,20 +83,15 @@ final class DatabaseInstaller {
       "(mysql -h 127.0.0.1 -p$db -u $db $db). This can be ".
       "fixed for you.\nMySQL admin user (probably 'root'): ",
     );
-    $username = trim(fgets(STDIN));
-    if (!$username) {
+    $this->username = trim(fgets(STDIN));
+    if (!$this->username) {
       throw new Exception(
         'Invalid user - set up the wp_bench database and user manually.'
       );
     }
     fprintf(STDERR, '%s', 'MySQL admin password: ');
-    $password = trim(fgets(STDIN));
-    if (!$password) {
-      throw new Exception(
-        'Invalid password - set up the wp_bench database and user manually.'
-      );
-    }
-    $conn = mysql_connect('127.0.0.1', $username, $password);
+    $this->password = trim(fgets(STDIN));
+    $conn = mysql_connect('127.0.0.1', $this->username, $this->password);
     if ($conn === false) {
       throw new Exception(
         'Failed to connect: '.mysql_error()

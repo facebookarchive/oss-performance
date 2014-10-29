@@ -1,0 +1,9 @@
+http://__HTTP_HOST__:__HTTP_PORT__/
+http://__HTTP_HOST__:__HTTP_PORT__/women.html
+http://__HTTP_HOST__:__HTTP_PORT__/women/new-arrivals.html?apparel_type=35&price=-100&size=79
+http://__HTTP_HOST__:__HTTP_PORT__/about-magento-demo-store/
+http://__HTTP_HOST__:__HTTP_PORT__/catalogsearch/result/?q=boot
+http://__HTTP_HOST__:__HTTP_PORT__/catalogsearch/advanced/result/?name=&description=&price%5Bfrom%5D=5&price%5Bto%5D=100&color%5B%5D=20&size%5B%5D=225&size%5B%5D=230&size%5B%5D=229&size%5B%5D=231&size%5B%5D=81&size%5B%5D=76&size%5B%5D=80&size%5B%5D=79&size%5B%5D=75&size%5B%5D=78&size%5B%5D=77&size%5B%5D=74&size%5B%5D=73&size%5B%5D=72&size%5B%5D=71&size%5B%5D=70&size%5B%5D=69&size%5B%5D=68&size%5B%5D=67&size%5B%5D=66&size%5B%5D=65&size%5B%5D=64&size%5B%5D=63&size%5B%5D=62&size%5B%5D=61&size%5B%5D=60&size%5B%5D=59&size%5B%5D=58&size%5B%5D=57
+http://__HTTP_HOST__:__HTTP_PORT__/tori-tank-576.html
+http://__HTTP_HOST__:__HTTP_PORT__/accessories/jewelry/pearl-stud-earrings.html
+http://__HTTP_HOST__:__HTTP_PORT__/review/product/list/id/554/category/19/
