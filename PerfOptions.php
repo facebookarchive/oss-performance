@@ -37,6 +37,7 @@ final class PerfOptions {
   public bool $skipSanityCheck = false;
   public bool $skipVersionChecks = false;
   public bool $skipDatabaseInstall = false;
+  public bool $dumpIsCompressed = true;
   public bool $traceSubProcess = false;
 
   //

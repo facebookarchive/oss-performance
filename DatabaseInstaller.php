@@ -48,7 +48,7 @@ final class DatabaseInstaller {
 
     shell_exec(
       Utils::EscapeCommand(Vector {
-        'zcat',
+        $this->options->dumpIsCompressed ? 'zcat' : 'cat',
         $dump,
       }).
       '|'.
