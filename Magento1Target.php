@@ -86,10 +86,17 @@ final class Magento1Target extends PerfTarget {
       $this->options->tempDir,
     );
     if (!$this->installSampleData()) {
-      return;
+      throw new Exception('Could not install sample data.');
     }
     $this->setPermissions();
-    $this->getMagentoInstaller()->install();
+
+    $installer = $this->getMagentoInstaller();
+    $installer->install();
+    if ($installer->hasErrors()) {
+      throw new Exception(sprintf("Installation failed: %s\n",
+        implode(PHP_EOL, $installer->getErrors()))
+      );
+    }
   }
 
   private function getInstallerArgs() : array {
