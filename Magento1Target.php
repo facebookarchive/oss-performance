@@ -85,6 +85,14 @@ final class Magento1Target extends PerfTarget {
       __DIR__.'/magento1/magento-1.9.0.1.tar.gz',
       $this->options->tempDir,
     );
+    if ($this->options->skipDatabaseInstall) {
+      copy(
+        __DIR__.'/magento1/local.xml',
+        $this->getSourceRoot().'/app/etc/local.xml',
+      );
+      return;
+    }
+
     if (!$this->installSampleData()) {
       throw new Exception('Could not install sample data.');
     }
