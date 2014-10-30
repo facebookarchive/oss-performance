@@ -14,6 +14,7 @@ abstract class Process {
   protected ?resource $stdin;
   protected ?resource $stdout;
   protected ?string $command;
+  protected bool $suppress_stdout = false;
 
   private static Vector<Process> $processes = Vector {};
 
@@ -49,6 +50,9 @@ abstract class Process {
       ' ',
       $this->getArguments()->map($x ==> escapeshellarg($x)),
     );
+    if ($this->suppress_stdout) {
+      $this->command .= ' >/dev/null';
+    }
     $use_pipe = ($outputFileName === null);
     $spec = [
       0 => ['pipe', 'r'], // stdin

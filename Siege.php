@@ -26,6 +26,7 @@ final class Siege extends Process {
     private RequestMode $mode,
   ) {
     parent::__construct($options->siege);
+    $this->suppress_stdout = true;
 
     if (!$options->skipVersionChecks) {
       $version_line = trim(
@@ -87,7 +88,7 @@ final class Siege extends Process {
           '-r', (string) PerfSettings::WarmupRequests(),
           '-f', $urls_file,
           '--benchmark',
-          '--log=/dev/null',
+          '--log=/dev/null'
         };
       case RequestModes::BENCHMARK:
         return Vector {
@@ -95,7 +96,7 @@ final class Siege extends Process {
           '-t', PerfSettings::BenchmarkTime(),
           '-f', $urls_file,
           '--benchmark',
-          '--log='.$this->logfile,
+          '--log='.$this->logfile
         };
       default:
         invariant_violation(
