@@ -16,7 +16,7 @@ final class DatabaseInstaller {
   private ?string $databaseName;
   private ?string $dumpFile;
   private ?string $username;
-  private ?string $password;
+  private ?string $password = null;
 
   public function __construct(private PerfOptions $options): void {
   }
@@ -26,7 +26,7 @@ final class DatabaseInstaller {
   }
 
   public function getPassword() : ?string {
-    return $this->password ? $this->password : $this->databaseName;
+    return $this->password !== null ? $this->password : $this->databaseName;
   }
 
   public function setDatabaseName(string $database_name): this {
