@@ -26,6 +26,7 @@ final class Siege extends Process {
     private RequestMode $mode,
   ) {
     parent::__construct($options->siege);
+    $this->suppress_stdout = true;
 
     if (!$options->skipVersionChecks) {
       $version_line = trim(
