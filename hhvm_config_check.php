@@ -22,6 +22,7 @@ function feature(
 
 print json_encode(
   [
+    'HHVM_VERSION' => HHVM_VERSION,
     'hhvm.jit' =>
       feature((bool) ini_get('hhvm.jit'), true),
     'hhvm.jit_pseudomain' =>

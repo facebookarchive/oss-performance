@@ -46,6 +46,20 @@ final class HHVMDaemon extends PHPEngine {
     invariant($checks, 'Got invalid output from hhvm_config_check.php');
     $failed = 0;
     foreach ($checks as $name => $data) {
+      if ($name === 'HHVM_VERSION') {
+        if (version_compare($data, '3.4.0') === -1) {
+          fprintf(
+            STDERR,
+            'WARNING: Unable to confirm HHVM is built correctly. This is '.
+            'supported in 3.4.0-dev or later - detected %s. Please make sure '.
+            'that your HHVM build is a release build, and is built against '.
+            "libpcre with JIT support.\n",
+            $data
+          );
+          sleep(2);
+          break;
+        }
+      }
       if (!$data['OK']) {
         $failed++;
         fprintf(
