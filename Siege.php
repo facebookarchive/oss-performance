@@ -32,14 +32,15 @@ final class Siege extends Process {
       $version_line = trim(
         exec(escapeshellarg($options->siege).' --version 2>&1 | head -n 1')
       );
-      if (preg_match('/^SIEGE 3\.0\.[0-7]$/', $version_line)) {
+      if (preg_match('/^SIEGE 3\.0\.[0-8]$/', $version_line)) {
         fprintf(
           STDERR,
           "WARNING: Siege 3.0.0-3.0.7 sends an incorrect HOST header to ports ".
-          "other than :80 and :443. You are using '%s'.\n\n".
-          "You can specify a path to siege 2.7x or >= 3.0.8 with the ".
+          "other than :80 and :443. Siege 3.0.8 sometimes sends full URLs as ".
+          "paths. You are using '%s'.\n\n".
+          "You can specify a path to siege 2.7x or >= 3.0.9 with the ".
           "--siege=/path/to/siege option. If you have patched siege to fix ".
-          "this issue, pass --skip-version-checks.\n",
+          "these issues, pass --skip-version-checks.\n",
           $version_line,
         );
         exit(1);
