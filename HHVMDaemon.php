@@ -88,6 +88,7 @@ final class HHVMDaemon extends PHPEngine {
     return $this->target;
   }
 
+  <<__Override>>
   protected function getArguments(): Vector<string> {
     $args = Vector {
       '-m', 'server',
@@ -96,6 +97,7 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'Eval.Jit=1',
       '-v', 'AdminServer.Port='.PerfSettings::FastCGIAdminPort(),
       '-v', 'Server.StatCache=1',
+      '-d', 'date.timezone=America/Los_Angeles',
     };
     if (count($this->options->hhvmExtraArguments) > 0) {
       $args->addAll($this->options->hhvmExtraArguments);
@@ -103,6 +105,7 @@ final class HHVMDaemon extends PHPEngine {
     return $args;
   }
 
+  <<__Override>>
   public function start(): void {
     parent::startWorker(
       $this->options->daemonOutputFileName('hhvm'),
