@@ -36,9 +36,9 @@ final class NginxDaemon extends Process {
       file_exists($log),
       'access log does not exist, but attempted to clear it'
     );
-    unlink($log);
     $pid = $this->getPid();
     if ($pid !== null) {
+      unlink($log);
       posix_kill($pid, SIGUSR1);
     }
   }
@@ -100,10 +100,27 @@ final class NginxDaemon extends Process {
     return $page_results;
   }
 
+  private function getPidFilePath(): string {
+    return $this->options->tempDir.'/nginx.pid';
+  }
+
+  <<__Override>>
   protected function getArguments(): Vector<string> {
     return Vector {
       '-c', $this->getGeneratedConfigFile(),
+      '-g', 'daemon off;',
+      '-g', 'pid '.$this->getPidFilePath().';',
     };
+  }
+
+  <<__Override>>
+  public function getPid(): ?int {
+    $file = $this->getPidFilePath();
+    if (!file_exists($file)) {
+      return null;
+     }
+     $pid = (int) file_get_contents($file);
+     return $pid ?: null;
   }
 
   protected function getGeneratedConfigFile(): string {

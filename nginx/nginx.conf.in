@@ -4,8 +4,6 @@
 
 worker_processes  5;
 error_log __NGINX_TEMP_DIR__/error.log;
-pid       __NGINX_TEMP_DIR__/nginx.pid;
-daemon off;
 
 events {
   worker_connections  1024;

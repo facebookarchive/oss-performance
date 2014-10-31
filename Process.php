@@ -41,7 +41,7 @@ abstract class Process {
 
   public function startWorker(
     ?string $outputFileName = null,
-    float $delayProcessLaunch = 0.1,
+    float $delayProcessLaunch = 0.5,
     bool $trace = false,
   ): void {
     $executable = $this->getExecutablePath();
@@ -90,12 +90,10 @@ abstract class Process {
   }
 
   public function isRunning(): bool {
-    $proc = $this->process;
-    if ($proc === null) {
-      return false;
+    $pid = $this->getPid();
+    if ($pid !== null) {
+      return (bool) posix_getpgid($this->getPid());
     }
-    $state = proc_get_status($proc);
-    return $state['running'];
   }
 
   public function stop(): void {
@@ -109,7 +107,10 @@ abstract class Process {
     if (is_resource($this->stdout)) {
       pclose($this->stdout);
     }
-    proc_terminate($this->process);
+    $pid = $this->getPid();
+    if ($pid !== null) {
+      posix_kill($pid, SIGTERM);
+    }
   }
 
   public function getPid(): ?int {
