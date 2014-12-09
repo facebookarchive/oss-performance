@@ -15,6 +15,25 @@ require_once('NginxDaemon.php');
 require_once('PerfOptions.php');
 require_once('Siege.php');
 
+function check_cpufreq(): void {
+  $sys_cpu_root = '/sys/devices/system/cpu';
+  if (file_exists($sys_cpu_root)) {
+    foreach (glob($sys_cpu_root.'/*') as $path) {
+      if (preg_match('/cpu[0-9]+/', $path)) {
+        $gov_file = $path.'/cpufreq/scaling_governor';
+        if (file_exists($gov_file)) {
+          $gov = trim(file_get_contents($gov_file));
+          invariant(
+            $gov === 'performance',
+            'Unsuitable CPU speed policy: '.
+              $path.' should contain "performance"'
+          );
+        }
+      }
+    }
+  }
+}
+
 function print_progress(string $out): void {
   $timestamp = strftime('%Y-%m-%d %H:%M:%S');
   $len = max(strlen($out), strlen($timestamp));
@@ -31,6 +50,7 @@ function run_benchmark(
   PerfOptions $options,
   PHPEngine $php_engine,
 ) {
+  check_cpufreq();
   $target = $options->getTarget();
   print_progress('Installing framework');
   $target->install();
