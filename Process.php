@@ -94,6 +94,7 @@ abstract class Process {
     if ($pid !== null) {
       return (bool) posix_getpgid($this->getPid());
     }
+    return false;
   }
 
   public function stop(): void {
