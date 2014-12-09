@@ -148,7 +148,7 @@ final class PerfOptions {
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
-    $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.0);
+    $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);
     $this->delayPhpStartup = $this->getFloat('delay-php-startup', 1.0);
     $this->delayProcessLaunch = $this->getFloat('delay-process-launch', 0.0);
     $this->delayCheckHealth = $this->getFloat('delay-check-health', 1.0);
