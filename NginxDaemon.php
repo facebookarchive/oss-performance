@@ -108,8 +108,11 @@ final class NginxDaemon extends Process {
   protected function getArguments(): Vector<string> {
     return Vector {
       '-c', $this->getGeneratedConfigFile(),
-      '-g', 'daemon off;',
-      '-g', 'pid '.$this->getPidFilePath().';',
+      //
+      // Watch out!  The -g arguments to nginx do not accumulate.
+      // The last one wins, and is the only one evaluated by nginx.
+      //
+      '-g', 'daemon off; '.'pid '.$this->getPidFilePath().'; ',
     };
   }
 
