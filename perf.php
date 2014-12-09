@@ -35,7 +35,7 @@ function check_cpufreq(): void {
 }
 
 function print_progress(string $out): void {
-  $timestamp = strftime('%Y-%m-%d %H:%M:%S');
+  $timestamp = strftime('%Y-%m-%d %H:%M:%S %Z');
   $len = max(strlen($out), strlen($timestamp));
   fprintf(
     STDERR,
@@ -50,6 +50,9 @@ function run_benchmark(
   PerfOptions $options,
   PHPEngine $php_engine,
 ) {
+  // As this is a CLI script, we should use the system timezone. Suppress
+  // the error.
+  error_reporting(error_reporting() ^ E_STRICT);
   check_cpufreq();
   $target = $options->getTarget();
   print_progress('Installing framework');
