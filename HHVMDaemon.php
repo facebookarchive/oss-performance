@@ -94,7 +94,7 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'Eval.Jit=1',
       '-v', 'AdminServer.Port='.PerfSettings::FastCGIAdminPort(),
       '-v', 'Server.StatCache=1',
-      '-d', 'date.timezone=America/Los_Angeles',
+      '-c', __DIR__.'/php.ini',
     };
     if (count($this->options->hhvmExtraArguments) > 0) {
       $args->addAll($this->options->hhvmExtraArguments);
