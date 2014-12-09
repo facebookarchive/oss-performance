@@ -9,14 +9,11 @@
  *
  */
 
-require_once('NoEngineStats.php');
 require_once('PerfOptions.php');
 require_once('PerfSettings.php');
 require_once('PHPEngine.php');
 
 final class PHP5Daemon extends PHPEngine {
-  use NoEngineStats;
-
   private PerfTarget $target;
 
   public function __construct(

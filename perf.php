@@ -10,7 +10,6 @@
  */
 
 require_once('HHVMDaemon.php');
-require_once('HHVMStats.php');
 require_once('PHP5Daemon.php');
 require_once('NginxDaemon.php');
 require_once('PerfOptions.php');
@@ -71,9 +70,6 @@ function run_benchmark(
   invariant(!$siege->isRunning(), 'Siege is still running :/');
   invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
 
-  print_progress('Enabling engine stats collection');
-  $php_engine->enableStats();
-
   print_progress('Clearing nginx access.log');
   $nginx->clearAccessLog();
 
@@ -84,14 +80,10 @@ function run_benchmark(
   $siege->wait();
 
   print_progress('Collecting results');
-  $php_engine_stats = $php_engine->collectStats();
   $siege_stats = $siege->collectStats();
   $nginx_stats = $nginx->collectStats();
 
   $combined_stats = Map { };
-  foreach ($php_engine_stats as $page => $stats) {
-    $combined_stats[$page] = $stats;
-  }
   foreach ($siege_stats as $page => $stats) {
     if ($combined_stats->containsKey($page)) {
       $combined_stats[$page]->setAll($stats);

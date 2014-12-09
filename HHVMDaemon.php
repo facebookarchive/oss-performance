@@ -9,15 +9,12 @@
  *
  */
 
-require_once('HHVMStats.php');
 require_once('PerfOptions.php');
 require_once('PerfSettings.php');
 require_once('PHPEngine.php');
 require_once('Process.php');
 
 final class HHVMDaemon extends PHPEngine {
-  use HHVMStats;
-
   private PerfTarget $target;
 
   public function __construct(
