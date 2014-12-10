@@ -9,7 +9,6 @@
  *
  */
 
-
 final class SugarCRMTarget extends PerfTarget {
   public function __construct(
     private PerfOptions $options,

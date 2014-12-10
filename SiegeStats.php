@@ -9,7 +9,6 @@
  *
  */
 
-
 trait SiegeStats {
   abstract protected function getLogFilePath(): string;
 

@@ -9,7 +9,6 @@
  *
  */
 
-
 final class PerfOptions {
   public bool $help;
   public bool $verbose;
@@ -126,7 +125,6 @@ final class PerfOptions {
     $this->traceSubProcess = array_key_exists('trace', $o);
 
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
-
 
     // If any arguments below here are given, then the "standard
     // semantics" have changed, and any results are potentially not

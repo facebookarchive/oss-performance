@@ -9,7 +9,6 @@
  *
  */
 
-
 final class Siege extends Process {
   use SiegeStats;
 

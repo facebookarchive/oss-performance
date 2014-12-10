@@ -9,7 +9,6 @@
  *
  */
 
-
 final class Magento1Target extends PerfTarget {
   private DatabaseInstaller $installer;
 

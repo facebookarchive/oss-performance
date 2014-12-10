@@ -9,7 +9,6 @@
  *
  */
 
-
 final class Drupal7Target extends PerfTarget {
   public function __construct(
     private PerfOptions $options,

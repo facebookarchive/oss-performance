@@ -9,7 +9,6 @@
  *
  */
 
-
 final class LaravelTarget extends PerfTarget {
   public function __construct(
     private PerfOptions $options,

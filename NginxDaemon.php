@@ -9,7 +9,6 @@
  *
  */
 
-
 final class NginxDaemon extends Process {
 
   public function __construct(

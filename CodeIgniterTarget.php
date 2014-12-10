@@ -9,7 +9,6 @@
  *
  */
 
-
 final class CodeIgniterTarget extends PerfTarget {
   public function __construct(
     private PerfOptions $options,

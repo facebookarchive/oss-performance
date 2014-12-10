@@ -9,7 +9,6 @@
  *
  */
 
-
 final class WordpressTarget extends PerfTarget {
 
   public function __construct(

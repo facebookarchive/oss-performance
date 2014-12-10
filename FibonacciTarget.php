@@ -9,7 +9,6 @@
  *
  */
 
-
 final class FibonacciTarget extends PerfTarget {
   public function getSanityCheckPath(): string {
     return '/fibonacci.php';

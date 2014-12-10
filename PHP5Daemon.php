@@ -9,7 +9,6 @@
  *
  */
 
-
 final class PHP5Daemon extends PHPEngine {
   private PerfTarget $target;
 

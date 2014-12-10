@@ -9,7 +9,6 @@
  *
  */
 
-
 abstract class PerfTarget {
   public function install(): void { }
 

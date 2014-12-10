@@ -9,7 +9,6 @@
  *
  */
 
-
 final class HHVMDaemon extends PHPEngine {
   private PerfTarget $target;
 

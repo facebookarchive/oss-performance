@@ -9,7 +9,6 @@
  *
  */
 
-
 final class DatabaseInstaller {
   private ?string $databaseName;
   private ?string $dumpFile;
