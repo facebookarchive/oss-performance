@@ -171,7 +171,7 @@ final class PerfOptions {
     $argTempDir = $this->getNullableString('temp-dir');
 
     if ($argTempDir === null) {
-      $this->tempDir = tempnam('/dev/shm', 'hhvm-nginx');
+      $this->tempDir = tempnam('/tmp', 'hhvm-nginx');
       // Currently a file - change to a dir
       unlink($this->tempDir);
       mkdir($this->tempDir);
