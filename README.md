@@ -24,6 +24,7 @@ Usage
 
 As a regular user:
 
+    composer.phar install # see https://getcomposer.org/download/
     hhvm perf.php --wordpress --php5=/path/to/bin/php-cgi # also works with php7
     hhvm perf.php --wordpress --hhvm=/path/to/hhvm
 
@@ -34,6 +35,7 @@ requests to the current webserver.
 Requirements
 ============
 
+- composer
 - nginx
 - siege
 - unzip
