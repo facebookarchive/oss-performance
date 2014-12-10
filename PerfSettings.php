@@ -16,11 +16,11 @@ final class PerfSettings {
   // Per concurrent thread - so, total number of requests made during warmup
   // is WarmupRequests * WarmupConcurrency
   public static function WarmupRequests(): int {
-    return 30;
+    return 50;
   }
 
   public static function WarmupConcurrency(): int {
-    return 10;
+    return 1;
   }
 
   public static function BenchmarkTime(): string {
