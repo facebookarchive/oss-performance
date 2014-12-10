@@ -9,11 +9,6 @@
  *
  */
 
-require_once('HHVMDaemon.php');
-require_once('PHP5Daemon.php');
-require_once('NginxDaemon.php');
-require_once('PerfOptions.php');
-require_once('Siege.php');
 
 function check_cpufreq(): void {
   $sys_cpu_root = '/sys/devices/system/cpu';

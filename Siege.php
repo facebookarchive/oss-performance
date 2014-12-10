@@ -9,11 +9,6 @@
  *
  */
 
-require_once('PerfOptions.php');
-require_once('PerfSettings.php');
-require_once('Process.php');
-require_once('RequestMode.php');
-require_once('SiegeStats.php');
 
 final class Siege extends Process {
   use SiegeStats;

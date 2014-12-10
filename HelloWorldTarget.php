@@ -9,7 +9,6 @@
  *
  */
 
-require_once('PerfTarget.php');
 
 final class HelloWorldTarget extends PerfTarget {
   public function getSanityCheckPath(): string {

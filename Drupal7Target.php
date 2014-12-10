@@ -9,8 +9,6 @@
  *
  */
 
-require_once('DatabaseInstaller.php');
-require_once('PerfTarget.php');
 
 final class Drupal7Target extends PerfTarget {
   public function __construct(

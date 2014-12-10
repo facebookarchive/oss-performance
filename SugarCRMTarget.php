@@ -9,8 +9,6 @@
  *
  */
 
-require_once('DatabaseInstaller.php');
-require_once('PerfTarget.php');
 
 final class SugarCRMTarget extends PerfTarget {
   public function __construct(

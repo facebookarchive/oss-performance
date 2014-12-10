@@ -9,8 +9,6 @@
  *
  */
 
-require_once('PerfOptions.php');
-require_once('Utils.php');
 
 final class DatabaseInstaller {
   private ?string $databaseName;

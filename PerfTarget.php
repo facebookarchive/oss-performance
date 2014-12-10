@@ -9,7 +9,6 @@
  *
  */
 
-require_once('Utils.php');
 
 abstract class PerfTarget {
   public function install(): void { }

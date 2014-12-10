@@ -9,10 +9,6 @@
  *
  */
 
-require_once('PerfOptions.php');
-require_once('PerfSettings.php');
-require_once('PHPEngine.php');
-require_once('Process.php');
 
 final class HHVMDaemon extends PHPEngine {
   private PerfTarget $target;

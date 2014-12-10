@@ -9,9 +9,6 @@
  *
  */
 
-require_once('PerfOptions.php');
-require_once('PerfSettings.php');
-require_once('PHPEngine.php');
 
 final class PHP5Daemon extends PHPEngine {
   private PerfTarget $target;

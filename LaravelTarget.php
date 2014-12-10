@@ -9,7 +9,6 @@
  *
  */
 
-require_once('PerfTarget.php');
 
 final class LaravelTarget extends PerfTarget {
   public function __construct(
