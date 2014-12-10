@@ -9,6 +9,8 @@
  *
  */
 
+require_once('vendor/autoload.php');
+
 function check_cpufreq(): void {
   $sys_cpu_root = '/sys/devices/system/cpu';
   if (file_exists($sys_cpu_root)) {
