@@ -26,7 +26,7 @@ function check_cpufreq(): void {
           invariant(
             $gov === 'performance',
             'Unsuitable CPU speed policy: '.
-              $path.' should contain "performance"'
+              $gov_file.' should contain "performance"'
           );
         }
       }
