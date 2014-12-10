@@ -24,13 +24,13 @@ final class LaravelTarget extends PerfTarget {
       'tar',
       '-C', $this->options->tempDir,
       '-zxf',
-      __DIR__.'/laravel/laravel-4.2.0.tar.gz'
+      __DIR__.'/laravel-4.2.0.tar.gz'
     }));
     shell_exec($this->safeCommand(Vector {
       'tar',
       '-C', $this->options->tempDir.'/laravel-4.2.0',
       '-jxf',
-      __DIR__.'/laravel/vendor.tar.bz2'
+      __DIR__.'/vendor.tar.bz2'
     }));
   }
 

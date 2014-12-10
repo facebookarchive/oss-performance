@@ -26,7 +26,7 @@ final class CodeIgniterTarget extends PerfTarget {
       'tar',
       '-C', $this->options->tempDir,
       '-zxf',
-      __DIR__.'/codeigniter/CodeIgniter-2.2.0.tar.gz'
+      __DIR__.'/CodeIgniter-2.2.0.tar.gz'
     }));
 
     $index_path = $this->options->tempDir.'/CodeIgniter-2.2.0/index.php';

@@ -18,6 +18,6 @@ final class FibonacciTarget extends PerfTarget {
     return 'int(10946)';
   }
   public function getSourceRoot(): string {
-    return __DIR__.'/toys';
+    return __DIR__;
   }
 }

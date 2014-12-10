@@ -31,7 +31,10 @@ abstract class PerfTarget {
   }
 
   final public function getURLsFile(): string {
-    return __DIR__.'/'.get_class($this).'.urls';
+    $class = get_class($this);
+    $file = (new ReflectionClass($class))->getFileName();
+    $dir = dirname($file);
+    return $dir.'/'.$class.'.urls';
   }
 
   /*

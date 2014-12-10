@@ -88,7 +88,7 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'Server.Type=fastcgi',
       '-v', 'Eval.Jit=1',
       '-v', 'AdminServer.Port='.PerfSettings::FastCGIAdminPort(),
-      '-c', __DIR__.'/php.ini',
+      '-c', OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
     if (count($this->options->hhvmExtraArguments) > 0) {
       $args->addAll($this->options->hhvmExtraArguments);

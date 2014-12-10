@@ -21,23 +21,23 @@ final class Drupal7Target extends PerfTarget {
 
   public function install(): void {
     Utils::ExtractTar(
-      __DIR__.'/drupal7/drupal-7.31.tar.gz',
+      __DIR__.'/drupal-7.31.tar.gz',
       $this->options->tempDir,
     );
 
     Utils::ExtractTar(
-      __DIR__.'/drupal7/demo-static.tar.bz2',
+      __DIR__.'/demo-static.tar.bz2',
       $this->getSourceRoot().'/sites/default',
     );
 
     copy(
-      'compress.zlib://'.__DIR__.'/drupal7/settings.php.gz',
+      'compress.zlib://'.__DIR__.'/settings.php.gz',
       $this->getSourceRoot().'/sites/default/settings.php',
     );
 
     (new DatabaseInstaller($this->options))
       ->setDatabaseName('drupal_bench')
-      ->setDumpFile(__DIR__.'/drupal7/dbdump.sql.gz')
+      ->setDumpFile(__DIR__.'/dbdump.sql.gz')
       ->installDatabase();
   }
 

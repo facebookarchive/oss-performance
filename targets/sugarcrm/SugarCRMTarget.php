@@ -21,12 +21,12 @@ final class SugarCRMTarget extends PerfTarget {
 
   public function install(): void {
     Utils::ExtractTar(
-      __DIR__.'/sugarcrm/sugarcrm_dev-6.5.16.tar.gz',
+      __DIR__.'/sugarcrm_dev-6.5.16.tar.gz',
       $this->options->tempDir,
     );
 
     copy(
-      __DIR__.'/sugarcrm/config.php',
+      __DIR__.'/config.php',
       $this->getSourceRoot().'/config.php',
     );
 
@@ -36,7 +36,7 @@ final class SugarCRMTarget extends PerfTarget {
 
     (new DatabaseInstaller($this->options))
       ->setDatabaseName('sugarcrm')
-      ->setDumpFile(__DIR__.'/sugarcrm/dbdump.sql.gz')
+      ->setDumpFile(__DIR__.'/dbdump.sql.gz')
       ->installDatabase();
   }
 

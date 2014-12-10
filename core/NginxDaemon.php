@@ -2,7 +2,7 @@
 /*
  *  Copyright (c) 2014, Facebook, Inc.
  *  All rights reserved.
- *
+ 
  *  This source code is licensed under the BSD-style license found in the
  *  LICENSE file in the root directory of this source tree. An additional grant
  *  of patent rights can be found in the PATENTS file in the same directory.
@@ -133,7 +133,7 @@ final class NginxDaemon extends Process {
       '__HTTP_PORT__' => PerfSettings::HttpPort(),
       '__FASTCGI_ADMIN_PORT__' => PerfSettings::FastCGIAdminPort(),
       '__HTTP_ADMIN_PORT__' => PerfSettings::HttpAdminPort(),
-      '__NGINX_CONFIG_ROOT__' => __DIR__.'/nginx',
+      '__NGINX_CONFIG_ROOT__' => OSS_PERFORMANCE_ROOT.'/conf/nginx',
       '__NGINX_TEMP_DIR__' => $this->options->tempDir,
       '__NGINX_KEEPALIVE_TIMEOUT__' =>
         (int)$this->options->maxdelayNginxKeepAlive,
@@ -142,7 +142,9 @@ final class NginxDaemon extends Process {
       '__FRAMEWORK_ROOT__' => $this->target->getSourceRoot(),
     };
 
-    $config = file_get_contents(__DIR__.'/nginx/nginx.conf.in');
+    $config = file_get_contents(
+      OSS_PERFORMANCE_ROOT.'/conf/nginx/nginx.conf.in'
+    );
     foreach ($substitutions as $find => $replace) {
       $config = str_replace($find, $replace, $config);
     }

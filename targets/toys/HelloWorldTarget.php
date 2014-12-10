@@ -18,6 +18,6 @@ final class HelloWorldTarget extends PerfTarget {
     return 'Hello, world';
   }
   public function getSourceRoot(): string {
-    return __DIR__.'/toys';
+    return __DIR__;
   }
 }

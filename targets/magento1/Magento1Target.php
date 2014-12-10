@@ -51,7 +51,7 @@ final class Magento1Target extends PerfTarget {
 
   private function installSampleData() : bool {
     Utils::ExtractTar(
-      __DIR__.'/magento1/magento-sample-data-1.9.0.0.tar.gz',
+      __DIR__.'/magento-sample-data-1.9.0.0.tar.gz',
       $this->options->tempDir
     );
 
@@ -79,12 +79,12 @@ final class Magento1Target extends PerfTarget {
 
   public function install(): void {
     Utils::ExtractTar(
-      __DIR__.'/magento1/magento-1.9.0.1.tar.gz',
+      __DIR__.'/magento-1.9.0.1.tar.gz',
       $this->options->tempDir,
     );
     if ($this->options->skipDatabaseInstall) {
       copy(
-        __DIR__.'/magento1/local.xml',
+        __DIR__.'/local.xml',
         $this->getSourceRoot().'/app/etc/local.xml',
       );
       return;

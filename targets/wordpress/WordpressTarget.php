@@ -22,18 +22,18 @@ final class WordpressTarget extends PerfTarget {
 
   public function install(): void {
     Utils::ExtractTar(
-      __DIR__.'/wordpress/wordpress-3.9.1.tar.gz',
+      __DIR__.'/wordpress-3.9.1.tar.gz',
       $this->options->tempDir,
     );
 
     copy(
-      __DIR__.'/wordpress/wp-config.php',
+      __DIR__.'/wp-config.php',
       $this->getSourceRoot().'/wp-config.php',
     );
 
     $created_database = (new DatabaseInstaller($this->options))
       ->setDatabaseName('wp_bench')
-      ->setDumpFile(__DIR__.'/wordpress/dbdump.sql.gz')
+      ->setDumpFile(__DIR__.'/dbdump.sql.gz')
       ->installDatabase();
     if (!$created_database) {
       return;

@@ -10,6 +10,7 @@
  */
 
 require_once('vendor/autoload.php');
+const OSS_PERFORMANCE_ROOT = __DIR__;
 
 function check_cpufreq(): void {
   $sys_cpu_root = '/sys/devices/system/cpu';
