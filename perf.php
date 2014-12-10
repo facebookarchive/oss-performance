@@ -25,8 +25,7 @@ function check_cpufreq(): void {
           $gov = trim(file_get_contents($gov_file));
           invariant(
             $gov === 'performance',
-            'Unsuitable CPU speed policy: '.
-              $gov_file.' should contain "performance"'
+            'Unsuitable CPU speed policy - see cpufreq.md'
           );
         }
       }
