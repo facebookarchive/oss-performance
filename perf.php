@@ -21,24 +21,6 @@ if (!file_exists('vendor/autoload.php')) {
 require_once('vendor/autoload.php');
 const OSS_PERFORMANCE_ROOT = __DIR__;
 
-function check_cpufreq(): void {
-  $sys_cpu_root = '/sys/devices/system/cpu';
-  if (file_exists($sys_cpu_root)) {
-    foreach (glob($sys_cpu_root.'/*') as $path) {
-      if (preg_match('/cpu[0-9]+/', $path)) {
-        $gov_file = $path.'/cpufreq/scaling_governor';
-        if (file_exists($gov_file)) {
-          $gov = trim(file_get_contents($gov_file));
-          invariant(
-            $gov === 'performance',
-            'Unsuitable CPU speed policy - see cpufreq.md'
-          );
-        }
-      }
-    }
-  }
-}
-
 function print_progress(string $out): void {
   $timestamp = strftime('%Y-%m-%d %H:%M:%S %Z');
   $len = max(strlen($out), strlen($timestamp));
@@ -58,7 +40,6 @@ function run_benchmark(
   // As this is a CLI script, we should use the system timezone. Suppress
   // the error.
   error_reporting(error_reporting() ^ E_STRICT);
-  check_cpufreq();
   $target = $options->getTarget();
   print_progress('Installing framework');
   $target->install();
@@ -141,7 +122,7 @@ function run_benchmark(
 }
 
 function perf_main($argv) {
-  PerfSettings::Validate();
+  SystemChecks::CheckAll();
   if (getmyuid() === 0) {
     fwrite(STDERR, "Run this script as a regular user.\n");
     exit(1);
