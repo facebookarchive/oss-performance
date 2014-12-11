@@ -29,6 +29,9 @@ is in TIME_WAIT. This can be enabled through /proc:
 Depending on your distribution, you may be able to make this persistent by editing
 /etc/sysctl.conf, or adding a similarly-formatted file to /etc/sysctl.d/
 
+If your workload involves many concurrent users, you may want to consider enabling
+this on your production servers, regardless of which PHP engine you are using.
+
 More details
 ------------
 
