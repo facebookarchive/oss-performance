@@ -266,6 +266,7 @@ final class PerfOptions {
     return Map {
       'codeigniter-hello-world' => () ==> new CodeIgniterTarget($this),
       'drupal7' => () ==> new Drupal7Target($this),
+      'mediawiki' => () ==> new MediaWikiTarget($this),
       'laravel-hello-world' => () ==> new LaravelTarget($this),
       'sugarcrm-login-page' => () ==> new SugarCRMTarget($this),
       'toys-fibonacci' => () ==> new FibonacciTarget(),
