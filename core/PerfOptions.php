@@ -31,7 +31,7 @@ final class PerfOptions {
   public bool $skipDatabaseInstall = false;
   public bool $dumpIsCompressed = true;
   public bool $traceSubProcess = false;
-  public bool $stayLoaded = false;
+  public bool $noTimeLimit = false;
   
   //
   // All times are given in seconds, stored in a float.
@@ -79,7 +79,7 @@ final class PerfOptions {
 
       'hhvm-extra-arguments:',
 
-      'stay-loaded',
+      'no-time-limit',
 
       'skip-sanity-check',
       'skip-version-checks',
@@ -128,7 +128,6 @@ final class PerfOptions {
     $this->traceSubProcess = array_key_exists('trace', $o);
 
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
-    $this->stayLoaded = array_key_exists('stay-loaded', $o);
 
     // If any arguments below here are given, then the "standard
     // semantics" have changed, and any results are potentially not
@@ -140,6 +139,7 @@ final class PerfOptions {
     $this->skipSanityCheck = $this->getBool('skip-sanity-check');
     $this->skipVersionChecks = $this->getBool('skip-version-checks');
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
+    $this->noTimeLimit = $this->getBool('no-time-limit');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
     $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);

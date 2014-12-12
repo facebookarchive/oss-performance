@@ -93,7 +93,7 @@ final class Siege extends Process {
           '--log='.$this->logfile,
         };
         
-        if (!$this->options->stayLoaded) { 
+        if (!$this->options->noTimeLimit) { 
           $bench->add('-t');
           $bench->add(PerfSettings::BenchmarkTime());
         }
