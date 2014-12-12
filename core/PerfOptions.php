@@ -31,7 +31,8 @@ final class PerfOptions {
   public bool $skipDatabaseInstall = false;
   public bool $dumpIsCompressed = true;
   public bool $traceSubProcess = false;
-
+  public bool $noTimeLimit = false;
+  
   //
   // All times are given in seconds, stored in a float.
   // For PHP code, the usleep timer is used, so fractional seconds work fine.
@@ -77,6 +78,8 @@ final class PerfOptions {
       'i-am-not-benchmarking',
 
       'hhvm-extra-arguments:',
+
+      'no-time-limit',
 
       'skip-sanity-check',
       'skip-version-checks',
@@ -136,6 +139,7 @@ final class PerfOptions {
     $this->skipSanityCheck = $this->getBool('skip-sanity-check');
     $this->skipVersionChecks = $this->getBool('skip-version-checks');
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
+    $this->noTimeLimit = $this->getBool('no-time-limit');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
     $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);

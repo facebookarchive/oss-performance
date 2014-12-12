@@ -86,13 +86,18 @@ final class Siege extends Process {
           '--log=/dev/null',
         };
       case RequestModes::BENCHMARK:
-        return Vector {
+        $bench = Vector {
           '-c', (string) PerfSettings::BenchmarkConcurrency(),
-          '-t', PerfSettings::BenchmarkTime(),
           '-f', $urls_file,
           '--benchmark',
           '--log='.$this->logfile,
         };
+        
+        if (!$this->options->noTimeLimit) { 
+          $bench->add('-t');
+          $bench->add(PerfSettings::BenchmarkTime());
+        }
+        return $bench;
       default:
         invariant_violation(
           'Unexpected request mode: '.(string)$this->mode
