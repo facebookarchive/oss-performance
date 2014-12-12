@@ -31,7 +31,8 @@ final class PerfOptions {
   public bool $skipDatabaseInstall = false;
   public bool $dumpIsCompressed = true;
   public bool $traceSubProcess = false;
-
+  public bool $stayLoaded = false;
+  
   //
   // All times are given in seconds, stored in a float.
   // For PHP code, the usleep timer is used, so fractional seconds work fine.
@@ -77,6 +78,8 @@ final class PerfOptions {
       'i-am-not-benchmarking',
 
       'hhvm-extra-arguments:',
+
+      'stay-loaded',
 
       'skip-sanity-check',
       'skip-version-checks',
@@ -125,6 +128,7 @@ final class PerfOptions {
     $this->traceSubProcess = array_key_exists('trace', $o);
 
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
+    $this->stayLoaded = array_key_exists('stay-loaded', $o);
 
     // If any arguments below here are given, then the "standard
     // semantics" have changed, and any results are potentially not
