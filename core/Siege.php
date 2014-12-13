@@ -87,7 +87,7 @@ final class Siege extends Process {
         };
       case RequestModes::BENCHMARK:
         $bench = Vector {
-          '-c', (string) PerfSettings::BenchmarkConcurrency(),
+          '-c', (string) $this->options->benchmarkConcurrency,
           '-f', $urls_file,
           '--benchmark',
           '--log='.$this->logfile,
