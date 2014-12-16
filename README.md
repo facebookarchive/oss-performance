@@ -86,7 +86,7 @@ The long tail was generated with:
 Drupal
 ------
 
-Work in progress; aims to be realistic. Demo data is from devel-generate,
+Aims to be realistic. Demo data is from devel-generate,
 provided by the devel module. Default values were used, except:
 
 - Users were spread over the last year, rather than the last week
@@ -101,7 +101,7 @@ SugarCRM
 --------
 
 Unrealistic microbenchmark: just the 'login' page. Added to confirm a
-[reported issue](http://zsuraski.blogspot.com/2014/07/benchmarking-phpng.html). 
+[reported issue](http://zsuraski.blogspot.com/2014/07/benchmarking-phpng.html).
 The upstream installation script provides an option to create
 demonstration data - this was used to create the database dump included here.
 
