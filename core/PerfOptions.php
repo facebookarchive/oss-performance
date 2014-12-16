@@ -60,6 +60,7 @@ final class PerfOptions {
   public string $tempDir;
 
   public bool $notBenchmarking = false;
+  public int  $benchmarkConcurrency;
 
   private array $args;
   private Vector<string> $notBenchmarkingArgs = Vector { };
@@ -76,6 +77,7 @@ final class PerfOptions {
       'nginx:',
 
       'i-am-not-benchmarking',
+      'concurrency:',
 
       'hhvm-extra-arguments:',
 
@@ -128,6 +130,7 @@ final class PerfOptions {
     $this->traceSubProcess = array_key_exists('trace', $o);
 
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
+    $this->benchmarkConcurrency = hphp_array_idx($o, 'concurrency', 60);
 
     // If any arguments below here are given, then the "standard
     // semantics" have changed, and any results are potentially not
