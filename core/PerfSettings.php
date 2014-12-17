@@ -29,7 +29,7 @@ final class PerfSettings {
   }
 
   public static function BenchmarkConcurrency(): int {
-    return 60;
+    return 200;
   }
 
   ///// Server Settings /////
