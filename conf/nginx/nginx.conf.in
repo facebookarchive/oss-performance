@@ -3,7 +3,7 @@
 #   * Official Russian Documentation: http://nginx.org/ru/docs/
 
 worker_processes  5;
-error_log __NGINX_TEMP_DIR__/error.log;
+error_log __NGINX_TEMP_DIR__/nginx-error.log;
 
 events {
   worker_connections  1024;
