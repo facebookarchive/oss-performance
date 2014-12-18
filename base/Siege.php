@@ -48,7 +48,7 @@ final class Siege extends Process {
 
   public function __destruct() {
     $logfile = $this->logfile;
-    if ($logfile !== null) {
+    if ($logfile !== null && file_exists($logfile)) {
       unlink($logfile);
     }
   }
