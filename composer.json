@@ -1,5 +1,5 @@
 {
     "autoload": {
-        "classmap": ["core/", "targets/"]
+        "classmap": ["base/", "targets/"]
     }
 }
