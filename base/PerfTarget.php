@@ -20,9 +20,12 @@ abstract class PerfTarget {
   }
 
   final public function sanityCheck(): void {
+    $ctx = stream_context_create(
+      ['http' => ['timeout' => 30]]
+    );
     $url = 'http://'.gethostname().':'.PerfSettings::HttpPort().
       $this->getSanityCheckPath();
-    $content = file_get_contents($url);
+    $content = file_get_contents($url, /* include path = */ false, $ctx);
     invariant(
       strstr($content, $this->getSanityCheckString()) !== false,
       'Failed to find string "'.$this->getSanityCheckString().'" in '.
