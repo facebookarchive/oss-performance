@@ -39,7 +39,7 @@ function run_benchmark(
 ) {
   // As this is a CLI script, we should use the system timezone. Suppress
   // the error.
-  error_reporting(error_reporting() ^ E_STRICT);
+  error_reporting(error_reporting() & ~E_STRICT);
   $target = $options->getTarget();
   print_progress('Installing framework');
   $target->install();
