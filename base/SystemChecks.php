@@ -1,10 +1,41 @@
 <?hh
 
 class SystemChecks {
-  public static function CheckAll(): void {
+  public static function CheckAll(PerfOptions $options): void {
+    self::CheckNotRoot();
     self::CheckPortAvailability();
     self::CheckCPUFreq();
     self::CheckTCPTimeWaitReuse();
+    self::CheckForAuditd($options);
+  }
+
+  private static function CheckNotRoot(): void {
+    invariant(getmyuid() !== 0, 'Run this script as a regular user.');
+  }
+
+  private static function CheckForAuditd(PerfOptions $options): void {
+    foreach (glob('/proc/*/cmdline') as $cmdline) {
+      if (!is_readable($cmdline)) {
+        continue;
+      }
+      if (file_get_contents($cmdline) !== "auditd\0") {
+        continue;
+      }
+      if ($options->notBenchmarking) {
+        fprintf(
+          STDERR,
+          "WARNING: auditd is running, and can significantly skew ".
+          "benchmark and profiling results. Please disable it.\n"
+        );
+        sleep(3);
+        return;
+      }
+      invariant_violation(
+        "auditd is running, and can significantly skew benchmark and ".
+        "profiling results. Either disable it, or pass ".
+        "--i-am-not-benchmarking to continue anyway."
+      );
+    }
   }
 
   private static function CheckTCPTimeWaitReuse(): void {

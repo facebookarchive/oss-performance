@@ -122,13 +122,8 @@ function run_benchmark(
 }
 
 function perf_main($argv) {
-  SystemChecks::CheckAll();
-  if (getmyuid() === 0) {
-    fwrite(STDERR, "Run this script as a regular user.\n");
-    exit(1);
-  }
-
   $options = new PerfOptions($argv);
+  SystemChecks::CheckAll($options);
 
   // If we exit cleanly, Process::__destruct() gets called, but it doesn't
   // if we're killed by Ctrl-C. This tends to leak php-cgi or hhvm processes -
