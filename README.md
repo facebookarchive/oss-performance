@@ -131,9 +131,10 @@ Profiling
 
 perf.php can keep the suite running indefinitely:
 
-  hhvm perf.php --i-am-not-benchmarking --no-time-limit --wordpress --hhvm=$HHVM_BIN
+    hhvm perf.php --i-am-not-benchmarking --no-time-limit --wordpress --hhvm=$HHVM_BIN
   
-You can then attach 'perf' or another profiler to the running process, once the 'benchmarking' phase has started.
+You can then attach 'perf' or another profiler to the running HHVM or php-cgi process, once the 'benchmarking' 
+phase has started.
 
 Direct support (especially for XHProf) is planned, but not yet implemented.
 
