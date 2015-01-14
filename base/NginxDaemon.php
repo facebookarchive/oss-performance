@@ -55,6 +55,7 @@ final class NginxDaemon extends Process {
       $request = explode('"', $entry)[1];
       $entries_by_request[$request][] = $entry;
     }
+    $combined_times = Vector { };
 
     foreach ($entries_by_request as $request => $entries) {
       $request_hits = count($entries);
@@ -64,6 +65,7 @@ final class NginxDaemon extends Process {
         'Nginx avg bytes' => 0,
         'Nginx avg time' => 0,
       };
+      $times = Vector { };
 
       foreach ($entries as $entry) {
         $parts = explode(' ', $entry);
@@ -72,6 +74,8 @@ final class NginxDaemon extends Process {
         $combined_codes[$code]++;
         $combined_bytes += $bytes;
         $combined_time += $time;
+        $times[] = (float) $time;
+        $combined_times[] = (float) $time;
 
         $page_results[$request]['Nginx avg bytes'] += $bytes;
         $page_results[$request]['Nginx avg time'] += $time;
@@ -84,12 +88,16 @@ final class NginxDaemon extends Process {
       }
       $page_results[$request]['Nginx avg bytes'] /= (float) $request_hits;
       $page_results[$request]['Nginx avg time'] /= (float) $request_hits;
+
+      $page_results[$request]->setAll(self::GetPercentiles($times));
     }
+
     $page_results['Combined'] = Map {
       'Nginx hits' => $combined_hits,
       'Nginx avg bytes' => ((float) $combined_bytes) / $combined_hits,
       'Nginx avg time' => ((float) $combined_time) / $combined_hits,
     };
+    $page_results['Combined']->setAll(self::GetPercentiles($combined_times));
     foreach ($combined_codes as $code => $count) {
       $page_results['Combined']['Nginx '.$code] = $count;
     }
@@ -151,5 +159,18 @@ final class NginxDaemon extends Process {
     file_put_contents($path, $config);
 
     return $path;
+  }
+
+  private static function GetPercentiles(
+    Vector<float> $times,
+  ): Map<string, float> {
+    $count = count($times);
+    sort($times);
+    return Map {
+      'Nginx P50 time' => $times[(int) ($count * 0.5)],
+      'Nginx P90 time' => $times[(int) ($count * 0.9)],
+      'Nginx P95 time' => $times[(int) ($count * 0.95)],
+      'Nginx P99 time' => $times[(int) ($count * 0.99)],
+    };
   }
 }
