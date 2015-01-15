@@ -1,0 +1,50 @@
+{
+  "runtimes": {
+    "HHVM 3.1": {
+      "type": "hhvm",
+      "bin": "hhvm-3.1.0"
+    },
+    "HHVM 3.4": {
+      "type": "hhvm",
+      "bin": "hhvm-3.4.0"
+    },
+    "HHVM 2015-01-15": {
+      "type": "hhvm",
+      "bin": "hhvm-nightly-2015-01-15"
+    },
+    "PHP7, 60 children": {
+      "type": "php-src",
+      "bin": "php7-cgi-2015-01-15"
+    },
+    "PHP7, 150 children": {
+      "type": "php-src",
+      "bin": "php7-cgi-2015-01-15",
+      "__comment": [
+        "i-am-not-benchmarking is required to change the FCGI child count;",
+        "we are benchmarking, but every rule has exceptions :)"
+      ],
+      "args": [ "--php-fcgi-children=150", "--i-am-not-benchmarking" ]
+    },
+    "PHP 5.5": {
+      "type": "php-src",
+      "bin": "php-cgi-5.5.9"
+    }
+  },
+  "targets": [
+    "wordpress",
+    "drupal7",
+    "sugarcrm-login-page",
+    "mediawiki",
+    "magento1"
+  ],
+  "runtime-overrides": {
+    "magento1": {
+      "PHP7, 60 children": {
+        "bin": "php7-cgi-2014-08-15"
+      },
+      "PHP7, 150 children": {
+        "bin": "php7-cgi-2014-08-15"
+      }
+    }
+  }
+}

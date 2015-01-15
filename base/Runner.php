@@ -9,19 +9,19 @@
  *
  */
 
+type PerfResult = Map<string, Map<string, num>>;
+
 final class PerfRunner {
   public static function RunWithArgv(
     Vector<string> $argv,
-  ): Map<string, Map<string, num>> {
+  ): PerfResult {
     $options = new PerfOptions($argv);
     return self::RunWithOptions($options);
   }
 
   public static function RunWithOptions(
     PerfOptions $options,
-  ): Map<string, Map<string, num>> {
-    SystemChecks::CheckAll($options);
-
+  ): PerfResult {
     // If we exit cleanly, Process::__destruct() gets called, but it doesn't
     // if we're killed by Ctrl-C. This tends to leak php-cgi or hhvm processes -
     // trap the signal so we can clean them up.
@@ -41,14 +41,7 @@ final class PerfRunner {
     if ($options->hhvm) {
       $php_engine = new HHVMDaemon($options);
     }
-    if ($php_engine === null) {
-      fprintf(
-        STDERR,
-        'Either --php5=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
-        'must be specified'
-      );
-      exit(1);
-    }
+    invariant($php_engine !== null, 'failed to initialize a PHP engine');
 
     return self::RunWithOptionsAndEngine($options, $php_engine);
   }
@@ -56,7 +49,8 @@ final class PerfRunner {
   private static function RunWithOptionsAndEngine(
     PerfOptions $options,
     PHPEngine $php_engine,
-  ): Map<string, Map<string, num>> {
+  ): PerfResult {
+    $options->validate();
     // As this is a CLI script, we should use the system timezone. Suppress
     // the error.
     error_reporting(error_reporting() & ~E_STRICT);

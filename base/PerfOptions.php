@@ -65,7 +65,7 @@ final class PerfOptions {
   private array $args;
   private Vector<string> $notBenchmarkingArgs = Vector { };
 
-  public function __construct($argv) {
+  public function __construct(Vector<string> $argv) {
     $def = Vector {
       'help',
 
@@ -103,7 +103,11 @@ final class PerfOptions {
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
+
+    $original_argv = $GLOBALS['argv'];
+    $GLOBALS['argv'] = $argv;
     $o = getopt('', $def);
+    $GLOBALS['argv'] = $original_argv;
 
     $this->help = array_key_exists('help', $o);
     if ($this->help) {
@@ -176,6 +180,9 @@ final class PerfOptions {
       $this->tempDir = $argTempDir;
     }
 
+  }
+
+  public function validate() {
     if ($this->notBenchmarkingArgs && !$this->notBenchmarking) {
       fprintf(
         STDERR,
@@ -184,6 +191,18 @@ final class PerfOptions {
       );
       exit(1);
     }
+    if ($this->php5 === null && $this->hhvm === null) {
+      fprintf(
+        STDERR,
+        'Either --php5=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
+        "must be specified\n"
+      );
+      exit(1);
+    }
+    SystemChecks::CheckAll($this);
+
+    // Validates that one was defined
+    $this->getTarget();
   }
 
   private function getBool(string $name): bool {

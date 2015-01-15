@@ -9,17 +9,7 @@
  *
  */
 
-if (!file_exists('vendor/autoload.php')) {
-  fprintf(
-    STDERR, "%s\n",
-    'Autoload map not found. Please install composer (see getcomposer.org), '.
-    'and run "composer install" from this directory.'
-  );
-  exit(1);
-}
-
-require_once('vendor/autoload.php');
-const OSS_PERFORMANCE_ROOT = __DIR__;
+require_once('base/cli-init.php');
 
 function perf_main(Vector<string> $argv): void {
   $data = PerfRunner::RunWithArgv($argv);
