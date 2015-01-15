@@ -22,6 +22,7 @@ final class PerfOptions {
   public ?string $hhvm;
 
   public array $hhvmExtraArguments;
+  public int $phpFCGIChildren;
 
   public string $siege;
   public string $nginx;
@@ -78,6 +79,7 @@ final class PerfOptions {
       'i-am-not-benchmarking',
 
       'hhvm-extra-arguments:',
+      'php-fcgi-children:',
 
       'no-time-limit',
 
@@ -134,7 +136,7 @@ final class PerfOptions {
     // consistent with the benchmark standards for HHVM. You can only
     // use these arguments if you also give the -i-am-not-benchmarking
     // argument too.
-    $this->args= $o;
+    $this->args = $o;
 
     $this->skipSanityCheck = $this->getBool('skip-sanity-check');
     $this->skipVersionChecks = $this->getBool('skip-version-checks');
@@ -142,6 +144,7 @@ final class PerfOptions {
     $this->noTimeLimit = $this->getBool('no-time-limit');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
+    $this->phpFCGIChildren = $this->getInt('php-fcgi-children', 60);
     $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);
     $this->delayPhpStartup = $this->getFloat('delay-php-startup', 1.0);
     $this->delayProcessLaunch = $this->getFloat('delay-process-launch', 0.0);
@@ -215,11 +218,20 @@ final class PerfOptions {
       return array($option_value);
     }
   }
+  private function getInt(
+    string $index,
+    int $the_default,
+  ): int {
+    if (array_key_exists($index, $this->args)) {
+      $this->notBenchmarkingArgs[] = '--'.$index;
+    }
+    return (int ) hphp_array_idx($this->args, $index, $the_default);
+  }
 
   private function getFloat(
     string $index,
     float $the_default,
-  ) : float {
+  ): float {
     if (array_key_exists($index, $this->args)) {
       $this->notBenchmarkingArgs[] = '--'.$index;
     }

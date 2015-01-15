@@ -77,7 +77,7 @@ final class PHP5Daemon extends PHPEngine {
 
   protected function getEnvironmentVariables(): Map<string, string> {
     return Map {
-      'PHP_FCGI_CHILDREN' => '60',
+      'PHP_FCGI_CHILDREN' => (string) $this->options->phpFCGIChildren,
       'PHP_FCGI_MAX_REQUESTS' => '0',
     };
   }
