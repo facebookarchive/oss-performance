@@ -32,6 +32,16 @@ Running with --hhvm gives some additional server-side statistics. It is usual
 for HHVM to report more requests than siege - some frameworks do call-back
 requests to the current webserver.
 
+Batch Usage
+===========
+
+If you want to run multiple combinations:
+
+    composer.phar install # see https://getcomposer.org/download
+    hhvm batch-run.php < batch-run.json > batch-run-out.json
+
+See batch-run.json.example to get an idea of how to create batch-run.json.
+
 Requirements
 ============
 
