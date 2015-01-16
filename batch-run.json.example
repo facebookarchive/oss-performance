@@ -49,6 +49,15 @@
       "PHP7, 150 children": {
         "bin": "php7-cgi-2014-08-15"
       }
+    },
+    "mediawiki": {
+      "__comment": [
+        "There appears to be a database contention issue with any ",
+        "non-trivial increase in children - mediawiki starts returning 500s"
+      ],
+      "PHP7, 150 children": {
+        "skip": true
+      }
     }
   }
 }
