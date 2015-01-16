@@ -95,13 +95,19 @@ final class Magento1Target extends PerfTarget {
     }
     $this->setPermissions();
 
-    $installer = $this->getMagentoInstaller();
-    $installer->install();
-    if ($installer->hasErrors()) {
-      throw new Exception(sprintf("Installation failed: %s\n",
-        implode(PHP_EOL, $installer->getErrors()))
-      );
+    $child = pcntl_fork();
+    if ($child === 0) {
+      $installer = $this->getMagentoInstaller();
+      $installer->install();
+      if ($installer->hasErrors()) {
+        throw new Exception(sprintf("Installation failed: %s\n",
+          implode(PHP_EOL, $installer->getErrors()))
+        );
+      }
+      exit(0);
     }
+    $status = null;
+    pcntl_waitpid($child, $status);
   }
 
   private function getInstallerArgs() : array {
