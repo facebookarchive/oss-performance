@@ -26,7 +26,7 @@ type BatchTarget = shape(
   'runtimes' => Vector<BatchRuntime>,
 );
 
-function get_runtime(string $name, array $data): BatchRuntime {
+function batch_get_runtime(string $name, array $data): BatchRuntime {
   return shape(
     'name' => $name,
     'type' => $data['type'],
@@ -37,7 +37,7 @@ function get_runtime(string $name, array $data): BatchRuntime {
   );
 }
 
-function get_target(
+function batch_get_target(
   string $name,
   Map<string, BatchRuntime> $runtimes,
   Map<string, Map<string, BatchRuntime>> $overrides,
@@ -61,7 +61,7 @@ function get_target(
   );
 }
 
-function get_targets(string $json_data): Vector<BatchTarget> {
+function batch_get_targets(string $json_data): Vector<BatchTarget> {
   $data = json_decode($json_data, true, 512);
   if ($data === null) {
     throw new Exception(
@@ -71,7 +71,7 @@ function get_targets(string $json_data): Vector<BatchTarget> {
 
   $runtimes = Map { };
   foreach ($data['runtimes'] as $name => $runtime_data) {
-    $runtimes[$name] = get_runtime($name, $runtime_data);
+    $runtimes[$name] = batch_get_runtime($name, $runtime_data);
   }
 
   $overrides = Map { };
@@ -101,17 +101,17 @@ function get_targets(string $json_data): Vector<BatchTarget> {
 
   $targets = Vector { };
   foreach ($data['targets'] as $target) {
-    $targets[] = get_target($target, $runtimes, $overrides);
+    $targets[] = batch_get_target($target, $runtimes, $overrides);
   }
 
   return $targets;
 }
 
-async function batch_run_single(
+function batch_get_single_run(
   BatchTarget $target,
   BatchRuntime $runtime,
   Vector<string> $base_argv,
-): Awaitable<PerfResult> {
+): PerfOptions {
   $argv = clone $base_argv;
   $argv->addAll($runtime['args']);
   $argv[] = '--'.$target['name'];
@@ -127,49 +127,50 @@ async function batch_run_single(
   }
   $options->validate();
 
-  // Wait for every $options->validate() to finish until we start executing
-  await RescheduleWaitHandle::create(
-    RescheduleWaitHandle::QUEUE_DEFAULT,
-    0,
-  );
-
-  Process::cleanupAll();
-  // Allow some time for things to shut down - we need to reuse the ports
-  sleep(1);
-  return PerfRunner::RunWithOptions($options);
+  return $options;
 }
 
-async function batch_run_target(
+function batch_get_all_runs_for_target(
   BatchTarget $target,
   Vector<string> $argv,
-): Awaitable<Map<string, PerfResult>> {
-  $handles = Map { };
+): Map<string, PerfOptions> {
+  $options = Map { };
   foreach ($target['runtimes'] as $runtime) {
-    $handles[$runtime['name']] =
-      batch_run_single($target, $runtime, $argv)->getWaitHandle();
+    $options[$runtime['name']] =
+      batch_get_single_run($target, $runtime, $argv);
   }
-  await AwaitAllWaitHandle::fromMap($handles);
-  return $handles->map($handle ==> $handle->getWaitHandle()->result());
+  return $options;
 }
 
-async function batch_run_all(
+function batch_get_all_runs(
   Vector<BatchTarget> $targets,
   Vector<string> $argv,
-): Awaitable<Map<string, Map<string, PerfResult>>> {
-  $handles = Map { };
+): Map<string, Map<string, PerfOptions>> {
+  $options = Map { };
   foreach ($targets as $target) {
-    $handles[$target['name']] =
-      batch_run_target($target, $argv)->getWaitHandle();
+    $options[$target['name']] =
+      batch_get_all_runs_for_target($target, $argv);
   }
-  await AwaitAllWaitHandle::fromMap($handles);
-  return $handles->map($handle ==> $handle->getWaitHandle()->result());
+  return $options;
 }
 
 function batch_main(Vector<string> $argv): void {
   $json_config = file_get_contents('php://stdin');
-  $targets = get_targets($json_config);
 
-  $results = batch_run_all($targets, $argv)->getWaitHandle()->join();
+  $targets = batch_get_targets($json_config);
+  $all_runs = batch_get_all_runs($targets, $argv);
+
+  $results = Map { };
+  foreach ($all_runs as $target => $target_runs) {
+    $results[$target] = Map { };
+    foreach ($target_runs as $engine => $run) {
+      $results[$target][$engine] = PerfRunner::RunWithOptions($run);
+      Process::cleanupAll();
+      // Allow some time for things to shut down as we need to immediately
+      // re-use the ports.
+      sleep(1);
+    }
+  }
   print(json_encode($results, JSON_PRETTY_PRINT)."\n");
 }
 
