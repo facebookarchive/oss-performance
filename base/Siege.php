@@ -76,28 +76,37 @@ final class Siege extends Process {
     );
     file_put_contents($urls_file, $urls);
 
+    $arguments = Vector { };
+    $siege_rc = $this->target->getSiegeRCPath();
+    if ($siege_rc !== null) {
+      $arguments->addAll(Vector {
+         '-R', $siege_rc,
+      });
+    }
+
     switch ($this->mode) {
       case RequestModes::WARMUP:
-        return Vector {
+        $arguments->addAll(Vector {
           '-c', (string) PerfSettings::WarmupConcurrency(),
           '-r', (string) PerfSettings::WarmupRequests(),
           '-f', $urls_file,
           '--benchmark',
           '--log=/dev/null',
-        };
+        });
+        return $arguments;
       case RequestModes::BENCHMARK:
-        $bench = Vector {
+        $arguments->addAll(Vector {
           '-c', (string) PerfSettings::BenchmarkConcurrency(),
           '-f', $urls_file,
           '--benchmark',
           '--log='.$this->logfile,
-        };
+        });
         
         if (!$this->options->noTimeLimit) { 
-          $bench->add('-t');
-          $bench->add(PerfSettings::BenchmarkTime());
+          $arguments->add('-t');
+          $arguments->add(PerfSettings::BenchmarkTime());
         }
-        return $bench;
+        return $arguments;
       default:
         invariant_violation(
           'Unexpected request mode: '.(string)$this->mode

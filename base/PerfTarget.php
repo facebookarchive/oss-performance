@@ -79,4 +79,8 @@ abstract class PerfTarget {
   public function __toString(): string {
     return get_class($this);
   }
+
+  public function getSiegeRCPath(): ?string {
+    return null;
+  }
 }
