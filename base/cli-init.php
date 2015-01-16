@@ -9,6 +9,10 @@
  *
  */
 
+// We output JSON on stdout; this is pretty useless if warnings are mixed in.
+// Also, because of reasons^WUnix.
+ini_set('display_errors', 'stderr');
+
 const OSS_PERFORMANCE_ROOT = __DIR__.'/..';
 if (!file_exists(OSS_PERFORMANCE_ROOT.'/vendor/autoload.php')) {
   fprintf(
