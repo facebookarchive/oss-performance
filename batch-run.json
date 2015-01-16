@@ -14,11 +14,11 @@
     },
     "PHP7, 60 children": {
       "type": "php-src",
-      "bin": "php7-cgi-2015-01-15"
+      "bin": "php7-cgi-2015-01-14"
     },
     "PHP7, 150 children": {
       "type": "php-src",
-      "bin": "php7-cgi-2015-01-15",
+      "bin": "php7-cgi-2015-01-14",
       "__comment": [
         "i-am-not-benchmarking is required to change the FCGI child count;",
         "we are benchmarking, but every rule has exceptions :)"
