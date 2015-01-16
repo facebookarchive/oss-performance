@@ -80,6 +80,9 @@ function batch_get_targets(string $json_data): Vector<BatchTarget> {
   if (array_key_exists('runtime-overrides', $data)) {
     foreach ($data['runtime-overrides'] as $target => $target_overrides) {
       foreach ($target_overrides as $name => $override_data) {
+        if ($name === '__comment') {
+          continue;
+        }
         $skip = false;
         invariant(
           $runtimes->containsKey($name),

@@ -39,6 +39,10 @@
   ],
   "runtime-overrides": {
     "magento1": {
+      "__comment": [
+        "Recent versions of PHP7 can not run Magento1 because of",
+        "https://wiki.php.net/rfc/uniform_variable_syntax"
+      ],
       "PHP7, 60 children": {
         "bin": "php7-cgi-2014-08-15"
       },
