@@ -175,7 +175,7 @@ function batch_main(Vector<string> $argv): void {
       Process::cleanupAll();
       // Allow some time for things to shut down as we need to immediately
       // re-use the ports.
-      sleep(1);
+      sleep(5);
     }
   }
   print(json_encode($results, JSON_PRETTY_PRINT)."\n");
