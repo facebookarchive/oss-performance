@@ -184,21 +184,24 @@ final class PerfOptions {
 
   public function validate() {
     if ($this->notBenchmarkingArgs && !$this->notBenchmarking) {
-      fprintf(
-        STDERR,
-        "These arguments are invalid without --i-am-not-benchmarking: %s\n",
+      invariant_violation(
+        "These arguments are invalid without --i-am-not-benchmarking: %s",
         implode(' ', $this->notBenchmarkingArgs),
       );
       exit(1);
     }
     if ($this->php5 === null && $this->hhvm === null) {
-      fprintf(
-        STDERR,
+      invariant_violation(
         'Either --php5=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
-        "must be specified\n"
+        "must be specified"
       );
-      exit(1);
     }
+    $engine = $this->php5 !== null ? $this->php5 : $this->hhvm;
+    invariant(
+      shell_exec('which '.escapeshellarg($engine)) !== null,
+      'Invalid engine: %s',
+      $engine
+    );
     SystemChecks::CheckAll($this);
 
     // Validates that one was defined
