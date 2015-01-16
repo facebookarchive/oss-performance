@@ -40,7 +40,7 @@ function batch_get_runtime(string $name, array $data): BatchRuntime {
 function batch_get_target(
   string $name,
   Map<string, BatchRuntime> $runtimes,
-  Map<string, Map<string, BatchRuntime>> $overrides,
+  Map<string, Map<string, ?BatchRuntime>> $overrides,
 ): BatchTarget {
   $target_overrides = Map { };
   if ($overrides->containsKey($name)) {
@@ -50,8 +50,10 @@ function batch_get_target(
   $target_runtimes = Vector { };
   foreach ($runtimes as $runtime_name => $runtime) {
     if ($target_overrides->containsKey($runtime_name)) {
-      $target_runtimes[] = $target_overrides[$runtime_name];
-    } else {
+      $runtime = $target_overrides[$runtime_name];
+    }
+    // An override can skip a runtime
+    if ($runtime !== null) {
       $target_runtimes[] = $runtime;
     }
   }
@@ -78,6 +80,7 @@ function batch_get_targets(string $json_data): Vector<BatchTarget> {
   if (array_key_exists('runtime-overrides', $data)) {
     foreach ($data['runtime-overrides'] as $target => $target_overrides) {
       foreach ($target_overrides as $name => $override_data) {
+        $skip = false;
         invariant(
           $runtimes->containsKey($name),
           'Overriding a non-existing runtime "%s"',
@@ -87,6 +90,10 @@ function batch_get_targets(string $json_data): Vector<BatchTarget> {
         foreach ($override_data as $key => $value) {
           if ($key === 'bin') {
             $override['bin'] = $value;
+            continue;
+          }
+          if ($key === 'skip') {
+            $skip = true;
             break;
           }
           invariant_violation("Can't override '%s'", $key);
@@ -94,7 +101,7 @@ function batch_get_targets(string $json_data): Vector<BatchTarget> {
         if (!$overrides->containsKey($target)) {
           $overrides[$target] = Map { };
         }
-        $overrides[$target][$name] = $override;
+        $overrides[$target][$name] = $skip ? null : $override;
       }
     }
   }
