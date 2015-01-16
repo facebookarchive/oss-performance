@@ -51,9 +51,6 @@ final class PerfRunner {
     PHPEngine $php_engine,
   ): PerfResult {
     $options->validate();
-    // As this is a CLI script, we should use the system timezone. Suppress
-    // the error.
-    error_reporting(error_reporting() & ~E_STRICT);
     $target = $options->getTarget();
     self::PrintProgress('Installing framework ('.$target.')');
     $target->install();
