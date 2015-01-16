@@ -26,6 +26,7 @@ abstract class Process {
     foreach (self::$processes as $process) {
       $process->__destruct();
     }
+    self::$processes = Vector { };
   }
 
   abstract protected function getArguments(): Vector<string>;

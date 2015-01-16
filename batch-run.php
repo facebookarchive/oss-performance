@@ -133,6 +133,8 @@ async function batch_run_single(
     0,
   );
 
+  // Wait a while to let ports free up
+  Process::cleanupAll();
   return PerfRunner::RunWithOptions($options);
 }
 
