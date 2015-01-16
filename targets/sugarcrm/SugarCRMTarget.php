@@ -9,14 +9,10 @@
  *
  */
 
-final class SugarCRMTarget extends PerfTarget {
+abstract class SugarCRMTarget extends PerfTarget {
   public function __construct(
-    private PerfOptions $options,
+    protected PerfOptions $options,
   ) {
-  }
-
-  protected function getSanityCheckString(): string {
-    return 'User Name:';
   }
 
   public function install(): void {
