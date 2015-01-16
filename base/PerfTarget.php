@@ -75,4 +75,8 @@ abstract class PerfTarget {
     // by them once they're landed
     return Utils::EscapeCommand($command);
   }
+
+  public function __toString(): string {
+    return get_class($this);
+  }
 }

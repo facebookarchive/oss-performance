@@ -55,7 +55,7 @@ final class PerfRunner {
     // the error.
     error_reporting(error_reporting() & ~E_STRICT);
     $target = $options->getTarget();
-    self::PrintProgress('Installing framework');
+    self::PrintProgress('Installing framework ('.$target.')');
     $target->install();
 
     self::PrintProgress('Starting Nginx');
@@ -64,7 +64,7 @@ final class PerfRunner {
     Process::sleepSeconds($options->delayNginxStartup);
     invariant($nginx->isRunning(), 'Failed to start nginx');
 
-    self::PrintProgress('Starting PHP Engine');
+    self::PrintProgress('Starting PHP Engine ('.$php_engine.')');
     $php_engine->start();
     Process::sleepSeconds($options->delayPhpStartup);
     invariant(

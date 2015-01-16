@@ -81,4 +81,8 @@ final class PHP5Daemon extends PHPEngine {
       'PHP_FCGI_MAX_REQUESTS' => '0',
     };
   }
+
+  public function __toString(): string {
+    return (string) $this->options->php5;
+  }
 }

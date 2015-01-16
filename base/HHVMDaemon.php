@@ -160,4 +160,8 @@ final class HHVMDaemon extends PHPEngine {
       return $result;
     }
   }
+
+  public function __toString(): string {
+    return (string) $this->options->hhvm;
+  }
 }
