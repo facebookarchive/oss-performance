@@ -133,8 +133,9 @@ async function batch_run_single(
     0,
   );
 
-  // Wait a while to let ports free up
   Process::cleanupAll();
+  // Allow some time for things to shut down - we need to reuse the ports
+  sleep(1);
   return PerfRunner::RunWithOptions($options);
 }
 
