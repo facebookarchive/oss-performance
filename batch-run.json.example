@@ -33,11 +33,23 @@
   "targets": [
     "wordpress",
     "drupal7",
+    "sugarcrm-home-page",
     "sugarcrm-login-page",
     "mediawiki",
     "magento1"
   ],
   "runtime-overrides": {
+    "sugarcrm-home-page": {
+      "__comment": [
+        "Recent versions of PHP7 segfault in clean_non_persistent_constants()"
+      ],
+      "PHP7, 60 children": {
+        "bin": "php7-cgi-2014-08-15"
+      },
+      "PHP7, 150 children": {
+        "bin": "php7-cgi-2014-08-15"
+      }
+    },
     "magento1": {
       "__comment": [
         "Recent versions of PHP7 can not run Magento1 because of",
