@@ -16,10 +16,8 @@ abstract class SugarCRMTarget extends PerfTarget {
   }
 
   public function install(): void {
-    Utils::ExtractTar(
-      __DIR__.'/sugarcrm_dev-6.5.16.tar.gz',
-      $this->options->tempDir,
-    );
+    $pd = new PharData(__DIR__.'/SugarCE-6.5.20.zip');
+    $pd->extractTo($this->options->tempDir);
 
     copy(
       __DIR__.'/config.php',
@@ -37,6 +35,6 @@ abstract class SugarCRMTarget extends PerfTarget {
   }
 
   public function getSourceRoot(): string {
-    return $this->options->tempDir.'/sugarcrm_dev-6.5.16';
+    return $this->options->tempDir.'/SugarCE-Full-6.5.20';
   }
 }
