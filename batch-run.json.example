@@ -24,10 +24,10 @@
   "targets": [
     "wordpress",
     "drupal7",
-    "sugarcrm-home-page",
-    "sugarcrm-login-page",
     "mediawiki",
-    "magento1"
+    "magento1",
+    "sugarcrm-login-page",
+    "sugarcrm-home-page"
   ],
   "runtime-overrides": {
     "sugarcrm-home-page": {
