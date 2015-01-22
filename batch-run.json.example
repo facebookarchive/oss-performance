@@ -8,9 +8,9 @@
       "type": "hhvm",
       "bin": "hhvm-3.4.0"
     },
-    "HHVM 2015-01-15": {
+    "HHVM 3.5 (2015-01-16)": {
       "type": "hhvm",
-      "bin": "hhvm-nightly-2015-01-15"
+      "bin": "hhvm-3.5.0"
     },
     "PHP7 (*)": {
       "type": "php-src",
