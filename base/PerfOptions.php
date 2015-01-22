@@ -148,7 +148,7 @@ final class PerfOptions {
     $this->noTimeLimit = $this->getBool('no-time-limit');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
-    $this->phpFCGIChildren = $this->getInt('php-fcgi-children', 60);
+    $this->phpFCGIChildren = $this->getInt('php-fcgi-children', 100);
     $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);
     $this->delayPhpStartup = $this->getFloat('delay-php-startup', 1.0);
     $this->delayProcessLaunch = $this->getFloat('delay-process-launch', 0.0);
