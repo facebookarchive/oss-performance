@@ -44,6 +44,7 @@ final class DatabaseInstaller {
       'database and dump must be specified'
     );
     if ($this->options->skipDatabaseInstall) {
+      $this->checkMySQLConnectionLimit();
       return false;
     }
 
@@ -52,6 +53,7 @@ final class DatabaseInstaller {
     if ($conn === false || $db_selected === false) {
       $this->createMySQLDatabase();
     }
+    $this->checkMySQLConnectionLimit();
 
     shell_exec(
       Utils::EscapeCommand(Vector {
@@ -70,16 +72,8 @@ final class DatabaseInstaller {
     return true;
   }
 
-  private function createMySQLDatabase(): void {
-    $db = $this->databaseName;
-    invariant($db !== null, 'Database must be specified');
-    fprintf(
-      STDERR,
-      '%s',
-      "Can't connect to database ".
-      "(mysql -h 127.0.0.1 -p$db -u $db $db). This can be ".
-      "fixed for you.\nMySQL admin user (probably 'root'): ",
-    );
+  private function getRootConnection(): resource {
+    print "MySQL admin user (probably 'root'): ";
     $this->username = trim(fgets(STDIN));
     if (!$this->username) {
       throw new Exception(
@@ -94,9 +88,55 @@ final class DatabaseInstaller {
         'Failed to connect: '.mysql_error()
       );
     }
+    return $conn;
+  }
+
+  private function checkMySQLConnectionLimit(): void {
+    $conn = mysql_connect(
+      '127.0.0.1', $this->getUsername(), $this->getPassword()
+    );
+    if ($conn === false) {
+      throw new Exception(
+        'Failed to connect: '.mysql_error()
+      );
+    }
+    $data = mysql_fetch_assoc(
+      mysql_query(
+        "SHOW variables WHERE Variable_name = 'max_connections'",
+        $conn
+      )
+    );
+    mysql_close($conn);
+    if ($data['Value'] < 1000) {
+      fprintf(
+        STDERR,
+        "Connection limit is too low - some benchmarks will have connection ".
+        "errors. This can be fixed for you..\n"
+      );
+      $conn = $this->getRootConnection();
+      mysql_query(
+        'SET GLOBAL max_connections = 1000',
+        $conn
+      );
+      mysql_close($conn);
+    }
+  }
+
+  private function createMySQLDatabase(): void {
+    $db = $this->databaseName;
+    invariant($db !== null, 'Database must be specified');
+    fprintf(
+      STDERR,
+      '%s',
+      "Can't connect to database ".
+      "(mysql -h 127.0.0.1 -p$db -u $db $db). This can be ".
+      "fixed for you.\n"
+    );
+    $conn = $this->getRootConnection();
     $edb = mysql_real_escape_string($db);
     mysql_query("DROP DATABASE IF EXISTS $edb", $conn);
     mysql_query("CREATE DATABASE $edb", $conn);
+
     /* In theory, either one of these works, with 127.0.0.1 being the minimal
      * one.
      * - do % so that if someone debugs with localhost, hostname, or ::1 (IPv6)
