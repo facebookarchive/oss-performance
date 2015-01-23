@@ -11,17 +11,16 @@
 
 require_once('config_check_base.php');
 
+$opcache_loaded = function_exists('opcache_get_status');
+$opcache_enabled =
+  $opcache_loaded && is_array(opcache_get_status())
+  && opcache_get_status()['opcache_enabled'];
 print json_encode(
-  [
-    'HHVM_VERSION' => HHVM_VERSION,
-    'hhvm.jit' =>
-      feature((bool) ini_get('hhvm.jit'), true),
-    'hhvm.jit_pseudomain' =>
-      feature((bool) ini_get('hhvm.jit_pseudomain'), true),
-    'libpcre has JIT' =>
-      feature((bool) ini_get('hhvm.pcre.jit'), true),
-    'HHVM build type' =>
-      feature(ini_get('hhvm.build_type'), 'Release')
-  ],
+  array(
+    'PHP_VERSION' => PHP_VERSION,
+    'PHP_VERSION_ID' => PHP_VERSION_ID,
+    'opcache loaded' => feature($opcache_loaded, true),
+    'opcache enabled' => feature($opcache_enabled, true),
+  ),
   JSON_PRETTY_PRINT
-)."\n";
+);

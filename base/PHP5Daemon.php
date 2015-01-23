@@ -17,6 +17,29 @@ final class PHP5Daemon extends PHPEngine {
   ) {
     $this->target = $options->getTarget();
     parent::__construct((string) $options->php5);
+
+    $output = [];
+    $check_command = implode(
+      ' ',
+      (Vector {
+          $options->php5,
+          '-q',
+          '-c', OSS_PERFORMANCE_ROOT.'/conf',
+          __DIR__.'/php-src_config_check.php',
+      })->map($x ==> escapeshellarg($x))
+    );
+    if ($options->traceSubProcess) {
+      fprintf(STDERR, "%s\n", $check_command);
+    }
+    exec($check_command, $output);
+    $checks = json_decode(implode("\n", $output), /* as array = */ true);
+    invariant($checks, 'Got invalid output from php-src_config_check.php');
+    BuildChecker::Check(
+      $options,
+      (string) $options->php5,
+      $checks,
+      Set { 'PHP_VERSION', 'PHP_VERSION_ID' },
+    );
   }
 
   public function start(): void {

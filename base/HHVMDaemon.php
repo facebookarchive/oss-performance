@@ -18,11 +18,8 @@ final class HHVMDaemon extends PHPEngine {
     $this->target = $options->getTarget();
     parent::__construct((string) $options->hhvm);
 
-    if ($options->notBenchmarking) {
-      return;
-    }
     $output = [];
-    $checkCommand = implode(
+    $check_command = implode(
       ' ',
       (Vector {
           $options->hhvm,
@@ -31,51 +28,34 @@ final class HHVMDaemon extends PHPEngine {
       })->map($x ==> escapeshellarg($x))
     );
     if ($options->traceSubProcess) {
-      fprintf(STDERR, "%s\n", $checkCommand);
+      fprintf(STDERR, "%s\n", $check_command);
     }
-    exec($checkCommand, $output);
+    exec($check_command, $output);
     $checks = json_decode(implode("\n", $output), /* as array = */ true);
     invariant($checks, 'Got invalid output from hhvm_config_check.php');
-    $failed = 0;
-    foreach ($checks as $name => $data) {
-      if ($name === 'HHVM_VERSION') {
-        if (version_compare($data, '3.4.0') === -1) {
-          fprintf(
-            STDERR,
-            'WARNING: Unable to confirm HHVM is built correctly. This is '.
-            'supported in 3.4.0-dev or later - detected %s. Please make sure '.
-            'that your HHVM build is a release build, and is built against '.
-            "libpcre with JIT support.\n",
-            $data
-          );
-          sleep(2);
-          break;
-        }
-      }
-      if (!$data['OK']) {
-        $failed++;
+    if (array_key_exists('HHVM_VERSION', $checks)) {
+      $version = $checks['HHVM_VERSION'];
+      if (version_compare($version, '3.4.0') === -1) {
         fprintf(
           STDERR,
-          "HHVM build is not suitable for benchmarking:\n".
-          "  %s: %s\n".
-          "  Required: %s\n",
-          $name,
-          $data['Value'],
-          $data['Required Value'],
+          'WARNING: Unable to confirm HHVM is built correctly. This is '.
+          'supported in 3.4.0-dev or later - detected %s. Please make sure '.
+          'that your HHVM build is a release build, and is built against '.
+          "libpcre with JIT support.\n",
+          $version
         );
+        sleep(2);
+        return;
       }
     }
-    if ($failed !== 0) {
-      fwrite(
-        STDERR,
-        "Exiting due to invalid config. You can run anyway with ".
-        "--i-am-not-benchmarking, but the results will not be suitable for ".
-        "any kind of comparison.\n"
-      );
-      exit(1);
-    }
+    BuildChecker::Check(
+      $options,
+      (string) $options->hhvm,
+      $checks,
+      Set { 'HHVM_VERSION' },
+    );
   }
-
+  
   protected function getTarget(): PerfTarget {
     return $this->target;
   }
