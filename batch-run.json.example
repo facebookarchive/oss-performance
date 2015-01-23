@@ -16,9 +16,9 @@
       "type": "php-src",
       "bin": "php7-cgi-2015-01-14"
     },
-    "PHP 5.5": {
+    "PHP 5.6.5": {
       "type": "php-src",
-      "bin": "php-cgi-5.5.9"
+      "bin": "php-cgi-5.6.5"
     }
   },
   "targets": [
