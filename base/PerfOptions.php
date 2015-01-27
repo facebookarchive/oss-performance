@@ -198,7 +198,8 @@ final class PerfOptions {
     }
     $engine = $this->php5 !== null ? $this->php5 : $this->hhvm;
     invariant(
-      shell_exec('which '.escapeshellarg($engine)) !== null,
+      shell_exec('which '.escapeshellarg($engine)) !== null
+      || is_executable($engine),
       'Invalid engine: %s',
       $engine
     );
