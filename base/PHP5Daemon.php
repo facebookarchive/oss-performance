@@ -95,7 +95,7 @@ final class PHP5Daemon extends PHPEngine {
     if (!file_exists($exe)) {
       return false;
     }
-    return (bool) preg_match('/php.+-cgi/', readlink($exe));
+    return (bool) preg_match('/php.*-cgi/', readlink($exe));
   }
 
   protected function getEnvironmentVariables(): Map<string, string> {
