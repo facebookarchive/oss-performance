@@ -22,6 +22,8 @@ final class PerfOptions {
   public ?string $hhvm;
 
   public array $hhvmExtraArguments;
+  public array $phpExtraArguments;
+
   public int $phpFCGIChildren;
 
   public string $siege;
@@ -79,6 +81,7 @@ final class PerfOptions {
       'i-am-not-benchmarking',
 
       'hhvm-extra-arguments:',
+      'php-extra-arguments:',
       'php-fcgi-children:',
 
       'no-time-limit',
@@ -148,6 +151,8 @@ final class PerfOptions {
     $this->noTimeLimit = $this->getBool('no-time-limit');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
+    $this->phpExtraArguments = $this->getArray('php-extra-arguments');
+
     $this->phpFCGIChildren = $this->getInt('php-fcgi-children', 100);
     $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);
     $this->delayPhpStartup = $this->getFloat('delay-php-startup', 1.0);

@@ -52,8 +52,10 @@ final class PerfRunner {
   ): PerfResult {
     $options->validate();
     $target = $options->getTarget();
+
     self::PrintProgress('Configuration: '.$target.' on '.$php_engine);
     self::PrintProgress('Installing framework');
+
     $target->install();
 
     self::PrintProgress('Starting Nginx');
