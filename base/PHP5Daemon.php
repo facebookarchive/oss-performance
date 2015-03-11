@@ -28,6 +28,7 @@ final class PHP5Daemon extends PHPEngine {
           __DIR__.'/php-src_config_check.php',
       })->map($x ==> escapeshellarg($x))
     );
+
     if ($options->traceSubProcess) {
       fprintf(STDERR, "%s\n", $check_command);
     }
@@ -51,10 +52,15 @@ final class PHP5Daemon extends PHPEngine {
   }
 
   protected function getArguments(): Vector<string> {
-    return Vector {
+    $args = Vector {
       '-b', '127.0.0.1:'.PerfSettings::FastCGIPort(),
       '-c', OSS_PERFORMANCE_ROOT.'/conf/',
     };
+
+    if (count($this->options->phpExtraArguments) > 0) {
+      $args->addAll($this->options->phpExtraArguments);
+    }
+    return $args;
   }
 
   public function getPid(): ?int {
