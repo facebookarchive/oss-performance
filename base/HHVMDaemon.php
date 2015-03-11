@@ -141,6 +141,12 @@ final class HHVMDaemon extends PHPEngine {
     }
   }
 
+  protected function getEnvironmentVariables(): Map<string, string> {
+    return Map {
+      'OSS_PERF_TARGET' => (string) $this->target,
+    };
+  }
+
   public function __toString(): string {
     return (string) $this->options->hhvm;
   }

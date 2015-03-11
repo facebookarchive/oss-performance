@@ -100,6 +100,7 @@ final class PHP5Daemon extends PHPEngine {
 
   protected function getEnvironmentVariables(): Map<string, string> {
     return Map {
+      'OSS_PERF_TARGET' => (string) $this->target,
       'PHP_FCGI_CHILDREN' => (string) $this->options->phpFCGIChildren,
       'PHP_FCGI_MAX_REQUESTS' => '0',
     };
