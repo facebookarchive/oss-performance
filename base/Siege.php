@@ -63,6 +63,9 @@ final class Siege extends Process {
 
   <<__Override>>
   public function getExecutablePath(): string {
+    if ($this->options->noTimeLimit) {
+      return parent::getExecutablePath();
+    }
     // Siege calls non-signal-safe functions from it's log function, which
     // it calls from signal handlers. Leads to hang.
     return 'timeout';
@@ -84,11 +87,15 @@ final class Siege extends Process {
     );
     file_put_contents($urls_file, $urls);
 
-    $arguments = Vector {
-      // See Siege::getExecutablePath()  - these arguments get passed to
-      '-k', '5m',
-      '5m',
-      parent::getExecutablePath(),
+    $arguments = Vector {};
+    if (!$this->options->noTimeLimit) {
+      $arguments = Vector {
+        // See Siege::getExecutablePath()  - these arguments get passed to
+        // 'timeout'
+        '-k', '5m',
+        '5m',
+        parent::getExecutablePath(),
+      };
     };
     $siege_rc = $this->target->getSiegeRCPath();
     if ($siege_rc !== null) {
