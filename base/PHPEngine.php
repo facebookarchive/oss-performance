@@ -11,4 +11,5 @@
 
 abstract class PHPEngine extends Process {
   public abstract function __toString(): string;
+  public function writeStats(): void {}
 }

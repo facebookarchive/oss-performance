@@ -69,15 +69,104 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'Eval.Jit=1',
       '-v', 'AdminServer.Port='.PerfSettings::FastCGIAdminPort(),
       '-c', OSS_PERFORMANCE_ROOT.'/conf/php.ini',
+      '-v', 'Eval.PCRECacheType=' . $this->options->pcreCache,
+      '-v', 'Eval.PCRETableSize=' . $this->options->pcreSize,
+      '-v', 'Eval.PCREExpireInterval=' . $this->options->pcreExpire,
     };
     if (count($this->options->hhvmExtraArguments) > 0) {
       $args->addAll($this->options->hhvmExtraArguments);
+    }
+    if ($this->options->precompile) {
+      $bcRepo = $this->options->tempDir . '/hhvm.hhbc';
+      $args->add('-v'); $args->add('Repo.Authoritative=true');
+      $args->add('-v'); $args->add('Repo.Central.Path=' . $bcRepo);
+    }
+    if ($this->options->filecache) {
+      $sourceRoot = $this->getTarget()->getSourceRoot();
+      $staticContent = $this->options->tempDir . '/static.content';
+      $args->add('-v'); $args->add('Server.FileCache=' . $staticContent);
+      $args->add('-v'); $args->add('Server.SourceRoot=' . $sourceRoot);
+    }
+    if ($this->options->tcprint !== null) {
+      $args->add('-v'); $args->add('Eval.JitTransCounters=true');
+      $args->add('-v'); $args->add('Eval.DumpTC=true');
+    }
+    if ($this->options->profBC) {
+      $args->add('-v'); $args->add('Eval.ProfileBC=true');
+    }
+    if ($this->options->interpPseudomains) {
+      $args->add('-v'); $args->add('Eval.JitPseudomain=false');
+    }
+    if ($this->options->allVolatile) {
+      $args->add('-v'); $args->add('Eval.AllVolatile=true');
     }
     return $args;
   }
 
   <<__Override>>
   public function start(): void {
+    if ($this->options->precompile) {
+      $sourceRoot = $this->getTarget()->getSourceRoot();
+      $fileList = $this->options->tempDir . '/files.txt';
+      $hhvm = $this->options->hhvm;
+      invariant(!is_null($hhvm), "Must have hhvm path");
+      $args = Vector {
+        $hhvm,
+        '--hphp',
+        '--input-list', $fileList,
+        '--target',     'hhbc',
+        '--output-dir', $this->options->tempDir,
+        '--input-dir',  $sourceRoot,
+        '--module',     $sourceRoot,
+        '-l3',
+        '-k1',
+      };
+
+      if ($this->options->allVolatile) {
+        $args->add('-v'); $args->add('AllVolatile=true');
+      }
+
+      invariant(is_dir($sourceRoot), 'Could not find valid source root');
+
+      $files = Vector{};
+      $dir_iter = new RecursiveDirectoryIterator($sourceRoot);
+      $iter     = new RecursiveIteratorIterator($dir_iter);
+      foreach ($iter as $path => $_) {
+        if (is_file($path)) {
+          $files->add(ltrim(substr($path, strlen($sourceRoot)), '/'));
+        }
+      }
+      file_put_contents($fileList, implode("\n", $files));
+
+      $bcRepo = $this->options->tempDir . '/hhvm.hhbc';
+      $staticContent = $this->options->tempDir . '/static.content';
+      if (file_exists($bcRepo)) {
+        unlink($bcRepo);
+      }
+
+      if ($this->options->filecache) {
+        if (file_exists($staticContent)) {
+          unlink($staticContent);
+        }
+        $args->add('--file-cache');
+        $args->add($this->options->tempDir . '/static.content');
+      }
+
+      Utils::RunCommand($args);
+
+      invariant(file_exists($bcRepo), 'Failed to create bytecode repo');
+      invariant(
+        !$this->options->filecache || file_exists($staticContent),
+        'Failed to create static content cache'
+      );
+    }
+
+    if ($this->options->pcredump) {
+      if (file_exists('/tmp/pcre_cache')) {
+        unlink('/tmp/pcre_cache');
+      }
+    }
+
     parent::startWorker(
       $this->options->daemonOutputFileName('hhvm'),
       $this->options->delayProcessLaunch,
@@ -92,13 +181,14 @@ final class HHVMDaemon extends PHPEngine {
           continue;
         }
         $health = json_decode($health, /* assoc array = */ true);
-        if (array_key_exists('tc-size', $health) && $health['tc-size'] > 0) {
+        if (array_key_exists('tc-size', $health) &&
+          ($health['tc-size'] > 0 || $health['tc-hotsize'] > 0)) {
           return;
         }
       }
-      $this->stop();
-      return;
     }
+    // Whoops...
+    $this->stop();
   }
 
   public function stop(): void {
@@ -108,8 +198,61 @@ final class HHVMDaemon extends PHPEngine {
         $this->adminRequest('/stop');
         invariant(!$this->isRunning(), 'Failed to stop HHVM');
       }
-    } catch (Exception $e) {
-      parent::stop();
+    } catch (Exception $e) { }
+
+    parent::stop();
+  }
+
+  public function writeStats(): void {
+    $tcprint = $this->options->tcprint;
+    if ($tcprint) {
+      $conf = $this->options->tempDir . '/conf.hdf';
+      $args = Vector {};
+      $hdf  = false;
+      foreach ($this->getArguments() as $arg) {
+        if ($hdf) $args->add($arg);
+        $hdf = $arg === '-v';
+      }
+      $confData = implode("\n", $args);
+
+      file_put_contents($conf, $confData);
+      $args = Vector { $tcprint, '-c', $conf };
+
+      $result = $this->adminRequest('/vm-dump-tc');
+      invariant(
+        $result === 'Done' && file_exists('/tmp/tc_dump_a'),
+        'Failed to dump TC'
+      );
+
+      if ($this->options->tcAlltrans) {
+        $alltrans = Utils::RunCommand($args);
+        file_put_contents('tc-all', $alltrans);
+      }
+
+      if ($this->options->tcToptrans) {
+        $new_args = new Vector($args);
+        $new_args->add('-t'); $new_args->add('100');
+        $toptrans = Utils::RunCommand($new_args);
+        file_put_contents('tc-top-trans', $toptrans);
+      }
+
+      if ($this->options->tcTopfuncs) {
+        $new_args = new Vector($args);
+        $new_args->add('-T'); $new_args->add('100');
+        $topfuncs = Utils::RunCommand($new_args);
+        file_put_contents('tc-top-funcs', $topfuncs);
+      }
+    }
+
+    if ($this->options->pcredump) {
+      $result = $this->adminRequest('/dump-pcre-cache');
+      invariant(
+        $result === "OK\n" && file_exists('/tmp/pcre_cache'),
+        'Failed to dump PCRE cache'
+      );
+
+      // move dump to CWD
+      rename('/tmp/pcre_cache', getcwd() . '/pcre_cache');
     }
   }
 

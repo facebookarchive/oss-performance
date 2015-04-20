@@ -116,7 +116,7 @@ final class NginxDaemon extends Process {
       // Watch out!  The -g arguments to nginx do not accumulate.
       // The last one wins, and is the only one evaluated by nginx.
       //
-      '-g', 'daemon off; '.'pid '.$this->getPidFilePath().'; ',
+      '-g', 'daemon off;',
     };
   }
 
@@ -148,6 +148,7 @@ final class NginxDaemon extends Process {
       '__NGINX_FASTCGI_READ_TIMEOUT__' =>
         (int)$this->options->maxdelayNginxFastCGI,
       '__FRAMEWORK_ROOT__' => $this->target->getSourceRoot(),
+      '__NGINX_PID_FILE__' => $this->getPidFilePath(),
     };
 
     $config = file_get_contents(

@@ -91,12 +91,12 @@ final class Siege extends Process {
     if (!$this->options->noTimeLimit) {
       $arguments = Vector {
         // See Siege::getExecutablePath()  - these arguments get passed to
-        // 'timeout'
-        '-k', '5m',
+        // timeout
+        '--signal=9',
         '5m',
         parent::getExecutablePath(),
       };
-    };
+    }
     $siege_rc = $this->target->getSiegeRCPath();
     if ($siege_rc !== null) {
       $arguments->addAll(Vector {
@@ -109,6 +109,15 @@ final class Siege extends Process {
         $arguments->addAll(Vector {
           '-c', (string) PerfSettings::WarmupConcurrency(),
           '-r', (string) PerfSettings::WarmupRequests(),
+          '-f', $urls_file,
+          '--benchmark',
+          '--log=/dev/null',
+        });
+        return $arguments;
+      case RequestModes::WARMUP_MULTI:
+        $arguments->addAll(Vector {
+          '-c', (string) PerfSettings::BenchmarkConcurrency(),
+          '-t', '1M',
           '-f', $urls_file,
           '--benchmark',
           '--log=/dev/null',
