@@ -78,11 +78,6 @@ final class WordpressTarget extends PerfTarget {
   // Contact rpc.pingomatic.com, upgrade to latest .z release, other periodic
   // tasks
   public function unfreeze(PerfOptions $options): void {
-    // Need internet access or wordpress will keep on retrying this stuff
-    if (!file_get_contents('http://www.example.com')) {
-      throw new Exception(
-        'Wordpress requires internet access to http://www.example.com');
-    }
     // Does basic bookkeeping...
     $this->unfreezeRequest($options);
     // Does more involved stuff like upgrading wordpress...

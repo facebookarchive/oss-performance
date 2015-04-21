@@ -84,8 +84,17 @@ final class PerfRunner {
       $target->sanityCheck();
     }
 
-    self::PrintProgress('Starting Siege for warmup');
+    self::PrintProgress('Starting Siege for single request warmup');
     $siege = new Siege($options, $target, RequestModes::WARMUP);
+    $siege->start();
+    invariant($siege->isRunning(), 'Failed to start siege');
+    $siege->wait();
+
+    invariant(!$siege->isRunning(), 'Siege is still running :/');
+    invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
+
+    self::PrintProgress('Starting Siege for multi request warmup');
+    $siege = new Siege($options, $target, RequestModes::WARMUP_MULTI);
     $siege->start();
     invariant($siege->isRunning(), 'Failed to start siege');
     $siege->wait();
@@ -129,7 +138,14 @@ final class PerfRunner {
     } else {
       ksort($combined_stats);
     }
-    self::PrintProgress('All done');
+
+    self::PrintProgress('Collecting TC/PCRE data');
+    $php_engine->writeStats();
+
+    if ($options->waitAtEnd) {
+      self::PrintProgress('Press Enter to shutdown the server');
+      fread(STDIN, 1);
+    }
     $php_engine->stop();
 
     return $combined_stats;

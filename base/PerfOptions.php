@@ -35,7 +35,34 @@ final class PerfOptions {
   public bool $dumpIsCompressed = true;
   public bool $traceSubProcess = false;
   public bool $noTimeLimit = false;
-  
+
+  // Pause once benchmarking is complete to allow for manual inspection of the
+  // HHVM or PHP process.
+  public bool $waitAtEnd = false;
+
+  //
+  // HHVM specific options to enable RepoAuthoritative mode and the static
+  // content cache, as well as selecting the PCRE caching mode.
+  //
+  public bool $precompile = false;
+  public bool $filecache = false;
+  public string $pcreCache = "static";
+  public int $pcreSize = 98304;
+  public int $pcreExpire = 7200;
+  public bool $allVolatile = false;
+  public bool $interpPseudomains = false;
+
+  //
+  // HHVM specific options for generating performance data and profiling
+  // information.
+  //
+  public ?string $tcprint  = null;
+  public bool $tcAlltrans = false;
+  public bool $tcToptrans = false;
+  public bool $tcTopfuncs = false;
+  public bool $pcredump = false;
+  public bool $profBC   = false;
+
   //
   // All times are given in seconds, stored in a float.
   // For PHP code, the usleep timer is used, so fractional seconds work fine.
@@ -77,6 +104,25 @@ final class PerfOptions {
       'hhvm:',
       'siege:',
       'nginx:',
+
+      'wait-at-end',
+
+      'repo-auth',
+      'file-cache',
+      'pcre-cache:',
+      'pcre-cache-expire:',
+      'pcre-cache-size:',
+      'all-volatile',
+      'interp-pseudomains',
+
+      'fbcode::',
+
+      'tcprint::',
+      'dump-top-trans',
+      'dump-top-funcs',
+      'dump-all-trans',
+      'dump-pcre-cache',
+      'profBC',
 
       'i-am-not-benchmarking',
 
@@ -133,6 +179,50 @@ final class PerfOptions {
 
     $this->siege = hphp_array_idx($o, 'siege', 'siege');
     $this->nginx = hphp_array_idx($o, 'nginx', 'nginx');
+
+    $isFacebook = array_key_exists('fbcode', $o);
+    $fbcode = "";
+    if ($isFacebook) {
+      $val = hphp_array_idx($o, 'fbcode', false);
+      if (is_string($val) && $val !== '') {
+        $fbcode = $val;
+      } else {
+        $fbcode = getenv('HOME') . '/fbcode';
+      }
+    }
+    $this->waitAtEnd = array_key_exists('wait-at-end', $o);
+
+    $this->precompile  = array_key_exists('repo-auth', $o);
+    $this->filecache   = array_key_exists('file-cache', $o);
+    $this->pcreCache   = (string)hphp_array_idx($o, 'pcre-cache', 'static');
+    $this->pcreSize    = (int)hphp_array_idx($o, 'pcre-cache-size', 98304);
+    $this->pcreExpire  = (int)hphp_array_idx($o, 'pcre-cache-expire', 7200);
+    $this->allVolatile = array_key_exists('all-volatile', $o);
+    $this->interpPseudomains = array_key_exists('interp-pseudomains', $o);
+
+    if (array_key_exists('tcprint', $o)) {
+      $tcprint = hphp_array_idx($o, 'tcprint', null);
+      if (is_string($tcprint) && $tcprint !== '') {
+        $this->tcprint = $tcprint;
+      } else if ($isFacebook) {
+        $this->tcprint =
+          $fbcode . '/_bin/hphp/facebook/tools/tc-print/tc-print';
+      }
+    }
+    $this->tcAlltrans = array_key_exists('dump-all-trans', $o);
+    $this->tcToptrans = array_key_exists('dump-top-trans', $o);
+    $this->tcTopfuncs = array_key_exists('dump-top-funcs', $o);
+    $this->pcredump   = array_key_exists('dump-pcre-cache', $o);
+    $this->profBC     = array_key_exists('profBC', $o);
+
+    if ($this->tcprint !== null &&
+      !$this->tcTopfuncs && !$this->tcToptrans) {
+      $this->tcAlltrans = true;
+    }
+
+    if ($isFacebook && $this->php5 === null && $this->hhvm === null) {
+      $this->hhvm = $fbcode . '/_bin/hphp/hhvm/hhvm';
+    }
 
     $this->traceSubProcess = array_key_exists('trace', $o);
 
@@ -208,6 +298,47 @@ final class PerfOptions {
       'Invalid engine: %s',
       $engine
     );
+
+    $tcprint = $this->tcprint;
+    if ($tcprint !== null) {
+      invariant(
+        $tcprint !== '' &&
+        (shell_exec('which '.escapeshellarg($tcprint)) !== null
+        || is_executable($tcprint)),
+        'Invalid tcprint: %s',
+        $tcprint
+      );
+    }
+
+    if ($this->tcAlltrans || $this->tcToptrans || $this->tcTopfuncs) {
+      invariant(
+        $tcprint !== null,
+        '--tcprint=/path/to/tc-print must be specified if --tc-all-trans, ' .
+        '--tc-top-trans, or --tc-top-funcs are specified'
+      );
+    }
+
+    if ($this->filecache) {
+      invariant(
+        $this->precompile,
+        'The file cache must be used with --repo-auth'
+      );
+    }
+
+    if ($this->pcreCache !== null || $this->pcreSize || $this->pcreExpire) {
+      invariant(
+        $this->hhvm !== null,
+        'The PCRE caching scheme can only be tuned for hhvm'
+      );
+    }
+
+    if ($this->precompile) {
+      invariant(
+        $this->hhvm !== null,
+        'Only hhvm can be used with --repo-auth'
+      );
+    }
+
     SystemChecks::CheckAll($this);
 
     // Validates that one was defined

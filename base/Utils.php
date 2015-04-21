@@ -34,4 +34,7 @@ final class Utils {
   public static function EscapeCommand(Vector<string> $command): string {
     return implode(' ', $command->map($x ==> escapeshellarg($x)));
   }
+  public static function RunCommand(Vector<string> $args): string {
+    return shell_exec(self::EscapeCommand($args));
+  }
 }
