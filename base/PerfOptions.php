@@ -190,13 +190,27 @@ final class PerfOptions {
         $fbcode = getenv('HOME') . '/fbcode';
       }
     }
+
+    $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
+
+    // If any arguments below here are given, then the "standard
+    // semantics" have changed, and any results are potentially not
+    // consistent with the benchmark standards for HHVM. You can only
+    // use these arguments if you also give the -i-am-not-benchmarking
+    // argument too.
+    $this->args = $o;
+
+    $this->skipSanityCheck = $this->getBool('skip-sanity-check');
+    $this->skipVersionChecks = $this->getBool('skip-version-checks');
+    $this->skipDatabaseInstall = $this->getBool('skip-database-install');
+    $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = array_key_exists('wait-at-end', $o);
 
     $this->precompile  = array_key_exists('repo-auth', $o);
-    $this->filecache   = array_key_exists('file-cache', $o);
-    $this->pcreCache   = (string)hphp_array_idx($o, 'pcre-cache', 'static');
-    $this->pcreSize    = (int)hphp_array_idx($o, 'pcre-cache-size', 98304);
-    $this->pcreExpire  = (int)hphp_array_idx($o, 'pcre-cache-expire', 7200);
+    $this->filecache = array_key_exists('file-cache', $o);
+    $this->pcreCache = (string)hphp_array_idx($o, 'pcre-cache', 'static');
+    $this->pcreSize = (int)hphp_array_idx($o, 'pcre-cache-size', 98304);
+    $this->pcreExpire = (int)hphp_array_idx($o, 'pcre-cache-expire', 7200);
     $this->allVolatile = array_key_exists('all-volatile', $o);
     $this->interpPseudomains = array_key_exists('interp-pseudomains', $o);
 
@@ -212,8 +226,8 @@ final class PerfOptions {
     $this->tcAlltrans = array_key_exists('dump-all-trans', $o);
     $this->tcToptrans = array_key_exists('dump-top-trans', $o);
     $this->tcTopfuncs = array_key_exists('dump-top-funcs', $o);
-    $this->pcredump   = array_key_exists('dump-pcre-cache', $o);
-    $this->profBC     = array_key_exists('profBC', $o);
+    $this->pcredump = array_key_exists('dump-pcre-cache', $o);
+    $this->profBC = array_key_exists('profBC', $o);
 
     if ($this->tcprint !== null &&
       !$this->tcTopfuncs && !$this->tcToptrans) {
@@ -225,20 +239,6 @@ final class PerfOptions {
     }
 
     $this->traceSubProcess = array_key_exists('trace', $o);
-
-    $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
-
-    // If any arguments below here are given, then the "standard
-    // semantics" have changed, and any results are potentially not
-    // consistent with the benchmark standards for HHVM. You can only
-    // use these arguments if you also give the -i-am-not-benchmarking
-    // argument too.
-    $this->args = $o;
-
-    $this->skipSanityCheck = $this->getBool('skip-sanity-check');
-    $this->skipVersionChecks = $this->getBool('skip-version-checks');
-    $this->skipDatabaseInstall = $this->getBool('skip-database-install');
-    $this->noTimeLimit = $this->getBool('no-time-limit');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
     $this->phpExtraArguments = $this->getArray('php-extra-arguments');
