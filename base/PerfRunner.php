@@ -138,6 +138,7 @@ final class PerfRunner {
     } else {
       ksort($combined_stats);
     }
+    $combined_stats['Combined']['canonical'] = (int) !$options->notBenchmarking;
 
     self::PrintProgress('Collecting TC/PCRE data');
     $php_engine->writeStats();

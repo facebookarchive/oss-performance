@@ -279,11 +279,17 @@ final class PerfOptions {
 
   public function validate() {
     if ($this->notBenchmarkingArgs && !$this->notBenchmarking) {
-      invariant_violation(
+      $message = sprintf(
         "These arguments are invalid without --i-am-not-benchmarking: %s",
-        implode(' ', $this->notBenchmarkingArgs),
+        implode(' ', $this->notBenchmarkingArgs)
       );
-      exit(1);
+      if (getenv("HHVM_OSS_PERF_BE_LENIENT")) {
+        fprintf(STDERR, "*** WARNING ***\n%s\n", $message);
+        $this->notBenchmarking = true;
+      } else {
+        invariant_violation('%s', $message);
+        exit(1);
+      }
     }
     if ($this->php5 === null && $this->hhvm === null) {
       invariant_violation(
