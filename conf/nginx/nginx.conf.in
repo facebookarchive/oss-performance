@@ -2,6 +2,12 @@
 #   * Official English Documentation: http://nginx.org/en/docs/
 #   * Official Russian Documentation: http://nginx.org/ru/docs/
 
+#
+# DO NOT EDIT: This file is automatically made by expanding
+# conf/nginx/nginx.conf.in
+#
+# This file was created on: __DATE__
+
 worker_processes  5;
 error_log __NGINX_TEMP_DIR__/nginx-error.log;
 pid __NGINX_PID_FILE__;

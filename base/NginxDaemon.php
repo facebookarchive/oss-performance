@@ -132,9 +132,6 @@ final class NginxDaemon extends Process {
 
   protected function getGeneratedConfigFile(): string {
     $path = $this->options->tempDir.'/nginx.conf';
-    if (file_exists($path)) {
-      return $path;
-    }
 
     $substitutions = Map {
       '__FASTCGI_PORT__' => PerfSettings::FastCGIPort(),
@@ -149,6 +146,7 @@ final class NginxDaemon extends Process {
         (int)$this->options->maxdelayNginxFastCGI,
       '__FRAMEWORK_ROOT__' => $this->target->getSourceRoot(),
       '__NGINX_PID_FILE__' => $this->getPidFilePath(),
+      '__DATE__' => date(DATE_W3C),
     };
 
     $config = file_get_contents(
