@@ -58,6 +58,18 @@ final class PerfRunner {
 
     $target->install();
 
+    if ($options->setUpTest != null) {
+      $command = "OSS_PERF_PHASE=" . "setUp"
+         . " " . "OSS_PERF_TARGET=" . (string) $target
+         . " " . $options->setUpTest
+         ;
+      self::PrintProgress('Starting setUpTest ' . $command);
+      shell_exec($command);
+      self::PrintProgress('Finished setUpTest ' . $command);
+    } else {
+      self::PrintProgress('There is no setUpTest');
+    }
+
     self::PrintProgress('Starting Nginx');
     $nginx = new NginxDaemon($options, $target);
     $nginx->start();
@@ -148,6 +160,18 @@ final class PerfRunner {
       fread(STDIN, 1);
     }
     $php_engine->stop();
+
+    if ($options->tearDownTest != null) {
+      $command = "OSS_PERF_PHASE=" . "tearDown"
+         . " " . "OSS_PERF_TARGET=" . (string) $target
+         . " " . $options->tearDownTest
+         ;
+      self::PrintProgress('Starting tearDownTest ' . $command);
+      shell_exec($command);
+      self::PrintProgress('Finished tearDownTest ' . $command);
+    } else {
+      self::PrintProgress('There is no tearDownTest');
+    }
 
     return $combined_stats;
   }
