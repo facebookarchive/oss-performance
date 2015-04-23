@@ -69,10 +69,22 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'Eval.Jit=1',
       '-v', 'AdminServer.Port='.PerfSettings::FastCGIAdminPort(),
       '-c', OSS_PERFORMANCE_ROOT.'/conf/php.ini',
-      '-v', 'Eval.PCRECacheType=' . $this->options->pcreCache,
-      '-v', 'Eval.PCRETableSize=' . $this->options->pcreSize,
-      '-v', 'Eval.PCREExpireInterval=' . $this->options->pcreExpire,
     };
+    if ($this->options->pcreCache) {
+      $args->addAll(Vector {
+        '-v', 'Eval.PCRECacheType='.$this->options->pcreCache
+      });
+    }
+    if ($this->options->pcreSize) {
+      $args->addAll(Vector {
+        '-v', 'Eval.PCRETableSize='.$this->options->pcreSize
+      });
+    }
+    if ($this->options->pcreExpire) {
+      $args->addAll(Vector {
+        '-v', 'Eval.PCREExpireInterval='.$this->options->pcreExpire
+      });
+    }
     if (count($this->options->hhvmExtraArguments) > 0) {
       $args->addAll($this->options->hhvmExtraArguments);
     }

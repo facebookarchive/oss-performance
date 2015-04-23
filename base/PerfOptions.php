@@ -53,9 +53,9 @@ final class PerfOptions {
   //
   public bool $precompile = false;
   public bool $filecache = false;
-  public string $pcreCache = "static";
-  public int $pcreSize = 98304;
-  public int $pcreExpire = 7200;
+  public ?string $pcreCache;
+  public ?int $pcreSize;
+  public ?int $pcreExpire;
   public bool $allVolatile = false;
   public bool $interpPseudomains = false;
 
@@ -221,9 +221,9 @@ final class PerfOptions {
 
     $this->precompile  = array_key_exists('repo-auth', $o);
     $this->filecache = array_key_exists('file-cache', $o);
-    $this->pcreCache = (string)hphp_array_idx($o, 'pcre-cache', 'static');
-    $this->pcreSize = (int)hphp_array_idx($o, 'pcre-cache-size', 98304);
-    $this->pcreExpire = (int)hphp_array_idx($o, 'pcre-cache-expire', 7200);
+    $this->pcreCache = $this->getNullableString('pcre-cache');
+    $this->pcreSize = $this->getNullableInt('pcre-cache-size');
+    $this->pcreExpire = $this->getNullableInt('pcre-cache-expire');
     $this->allVolatile = array_key_exists('all-volatile', $o);
     $this->interpPseudomains = array_key_exists('interp-pseudomains', $o);
 
@@ -396,6 +396,7 @@ final class PerfOptions {
       return array($option_value);
     }
   }
+
   private function getInt(
     string $index,
     int $the_default,
@@ -404,6 +405,14 @@ final class PerfOptions {
       $this->notBenchmarkingArgs[] = '--'.$index;
     }
     return (int ) hphp_array_idx($this->args, $index, $the_default);
+  }
+
+  private function getNullableInt(string $name): ?int {
+    if (!array_key_exists($name, $this->args)) {
+      return null;
+    }
+    $this->notBenchmarkingArgs[] = '--'.$name;
+    return $this->args[$name];
   }
 
   private function getFloat(
