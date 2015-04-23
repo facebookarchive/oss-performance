@@ -20,7 +20,6 @@ final class LaravelTarget extends PerfTarget {
   }
 
   public function install(): void {
-
     $src_dir = $this->options->srcDir;
     if ($src_dir) {
       Utils::CopyDirContents(
