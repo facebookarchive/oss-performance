@@ -19,8 +19,8 @@ type BatchRuntime = shape(
   'type' => BatchRuntimeType,
   'bin' => string,
   'args' => Vector<string>,
-  'setUpTest' => string,
-  'tearDownTest' => string,
+  'setUpTest' => ?string,
+  'tearDownTest' => ?string,
 );
 
 type BatchTarget = shape(
