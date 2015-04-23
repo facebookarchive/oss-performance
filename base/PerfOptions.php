@@ -21,6 +21,13 @@ final class PerfOptions {
   public ?string $php5;
   public ?string $hhvm;
 
+  //
+  // setUpTest and tearDownTest are called before and after each
+  // individual invocation of the $php5 or $hhvm
+  //
+  public ?string $setUpTest;
+  public ?string $tearDownTest;
+
   public array $hhvmExtraArguments;
   public array $phpExtraArguments;
 
@@ -124,6 +131,9 @@ final class PerfOptions {
       'dump-pcre-cache',
       'profBC',
 
+      'setUpTest:',
+      'tearDownTest:',
+
       'i-am-not-benchmarking',
 
       'hhvm-extra-arguments:',
@@ -176,6 +186,9 @@ final class PerfOptions {
 
     $this->php5 = hphp_array_idx($o, 'php5', null);
     $this->hhvm = hphp_array_idx($o, 'hhvm', null);
+
+    $this->setUpTest = hphp_array_idx($o, 'setUpTest', null);
+    $this->tearDownTest = hphp_array_idx($o, 'tearDownTest', null);
 
     $this->siege = hphp_array_idx($o, 'siege', 'siege');
     $this->nginx = hphp_array_idx($o, 'nginx', 'nginx');

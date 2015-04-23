@@ -19,6 +19,8 @@ type BatchRuntime = shape(
   'type' => BatchRuntimeType,
   'bin' => string,
   'args' => Vector<string>,
+  'setUpTest' => string,
+  'tearDownTest' => string,
 );
 
 type BatchTarget = shape(
@@ -31,6 +33,10 @@ function batch_get_runtime(string $name, array $data): BatchRuntime {
     'name' => $name,
     'type' => $data['type'],
     'bin' => $data['bin'],
+    'setUpTest' => array_key_exists('setUpTest', $data)
+      ? $data['setUpTest'] : null,
+    'tearDownTest' => array_key_exists('tearDownTest', $data)
+      ? $data['tearDownTest'] : null,
     'args' => array_key_exists('args', $data)
       ? new Vector($data['args'])
       : Vector { },
@@ -135,6 +141,10 @@ function batch_get_single_run(
       $options->php5 = $runtime['bin'];
       break;
   }
+
+  $options->setUpTest = $runtime['setUpTest'];
+  $options->tearDownTest = $runtime['tearDownTest'];
+
   $options->validate();
 
   return $options;
