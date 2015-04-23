@@ -20,10 +20,19 @@ final class MediaWikiTarget extends PerfTarget {
   }
 
   public function install(): void {
-    Utils::ExtractTar(
-      __DIR__.'/mediawiki-1.24.0.tar.gz',
-      $this->options->tempDir,
-    );
+
+    $src_dir = $this->options->srcDir;
+    if ($src_dir) {
+      Utils::CopyDirContents(
+        $src_dir,
+        $this->getSourceRoot(),
+      );
+    } else {
+      Utils::ExtractTar(
+        __DIR__.'/mediawiki-1.24.0.tar.gz',
+        $this->options->tempDir,
+      );
+    }
 
     (new DatabaseInstaller($this->options))
       ->setDatabaseName('mw_bench')
