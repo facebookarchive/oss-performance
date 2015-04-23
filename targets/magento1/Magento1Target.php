@@ -44,7 +44,7 @@ final class Magento1Target extends PerfTarget {
         'chmod',
         '-R',
         'o+w',
-        $this->getSourceRoot().'/'.$dir 
+        $this->getSourceRoot().'/'.$dir
       }));
     }
   }
@@ -78,10 +78,19 @@ final class Magento1Target extends PerfTarget {
   }
 
   public function install(): void {
-    Utils::ExtractTar(
-      __DIR__.'/magento-1.9.0.1.tar.gz',
-      $this->options->tempDir,
-    );
+    $src_dir = $this->options->srcDir;
+    if ($src_dir) {
+      Utils::CopyDirContents(
+        $src_dir,
+        $this->getSourceRoot(),
+      );
+    } else {
+      Utils::ExtractTar(
+        __DIR__.'/magento-1.9.0.1.tar.gz',
+        $this->options->tempDir,
+      );
+    }
+
     if ($this->options->skipDatabaseInstall) {
       copy(
         __DIR__.'/local.xml',

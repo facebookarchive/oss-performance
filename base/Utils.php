@@ -10,6 +10,7 @@
  */
 
 final class Utils {
+
   public static function ExtractTar(
     string $tar_file,
     string $extract_to,
@@ -31,9 +32,32 @@ final class Utils {
       $tar_file,
     }));
   }
+
+  public static function CopyDirContents (
+    string $from,
+    string $to,
+  ): void {
+    invariant(is_dir($from), '%s is not a directory', $from);
+    mkdir($to, 0777, true);
+    $from_dir = opendir($from);
+    while (($name = readdir($from_dir)) !== false) {
+      if ($name != '.' && $name != '..') {
+        $from_name = $from . DIRECTORY_SEPARATOR . $name;
+        $to_name = $to . DIRECTORY_SEPARATOR . $name;
+        if (is_dir($from_name) ) {
+          Utils::CopyDirContents($from_name, $to_name);
+        } else {
+          copy($from_name, $to_name);
+        }
+      }
+    }
+    closedir($from_dir);
+  }
+
   public static function EscapeCommand(Vector<string> $command): string {
     return implode(' ', $command->map($x ==> escapeshellarg($x)));
   }
+
   public static function RunCommand(Vector<string> $args): string {
     return shell_exec(self::EscapeCommand($args));
   }

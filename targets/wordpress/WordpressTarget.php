@@ -21,10 +21,18 @@ final class WordpressTarget extends PerfTarget {
   }
 
   public function install(): void {
-    Utils::ExtractTar(
-      __DIR__.'/wordpress-3.9.1.tar.gz',
-      $this->options->tempDir,
-    );
+    $src_dir = $this->options->srcDir;
+    if ($src_dir) {
+      Utils::CopyDirContents(
+        $src_dir,
+        $this->getSourceRoot(),
+      );
+    } else {
+      Utils::ExtractTar(
+        __DIR__.'/wordpress-3.9.1.tar.gz',
+        $this->options->tempDir,
+      );
+    }
 
     copy(
       __DIR__.'/wp-config.php',

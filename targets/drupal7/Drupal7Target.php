@@ -20,15 +20,22 @@ final class Drupal7Target extends PerfTarget {
   }
 
   public function install(): void {
-    Utils::ExtractTar(
-      __DIR__.'/drupal-7.31.tar.gz',
-      $this->options->tempDir,
-    );
-
-    Utils::ExtractTar(
-      __DIR__.'/demo-static.tar.bz2',
-      $this->getSourceRoot().'/sites/default',
-    );
+    $src_dir = $this->options->srcDir;
+    if ($src_dir) {
+      Utils::CopyDirContents(
+        $src_dir,
+        $this->getSourceRoot(),
+      );
+    } else {
+      Utils::ExtractTar(
+        __DIR__.'/drupal-7.31.tar.gz',
+        $this->options->tempDir,
+      );
+      Utils::ExtractTar(
+        __DIR__.'/demo-static.tar.bz2',
+        $this->getSourceRoot().'/sites/default',
+      );
+    }
 
     copy(
       'compress.zlib://'.__DIR__.'/settings.php.gz',

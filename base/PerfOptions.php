@@ -95,6 +95,7 @@ final class PerfOptions {
 
   public bool $daemonOutputToFile = false;
   public string $tempDir;
+  public ?string $srcDir;
 
   public bool $notBenchmarking = false;
 
@@ -159,6 +160,7 @@ final class PerfOptions {
 
       'daemon-files',  // daemon output goes to files in the temp directory
       'temp-dir:',  // temp directory to use; if absent one in /tmp is made
+      'src-dir:',   // location for source to copy into tmp dir instead of ZIP
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -287,6 +289,8 @@ final class PerfOptions {
     } else {
       $this->tempDir = $argTempDir;
     }
+
+    $this->srcDir = $this->getNullableString('src-dir');
 
   }
 

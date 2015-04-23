@@ -22,12 +22,20 @@ final class CodeIgniterTarget extends PerfTarget {
   }
 
   public function install(): void {
-    shell_exec($this->safeCommand(Vector {
-      'tar',
-      '-C', $this->options->tempDir,
-      '-zxf',
-      __DIR__.'/CodeIgniter-2.2.0.tar.gz'
-    }));
+    $src_dir = $this->options->srcDir;
+    if ($src_dir) {
+      Utils::CopyDirContents(
+        $src_dir,
+        $this->getSourceRoot(),
+      );
+    } else {
+      shell_exec($this->safeCommand(Vector {
+        'tar',
+        '-C', $this->options->tempDir,
+        '-zxf',
+        __DIR__.'/CodeIgniter-2.2.0.tar.gz'
+      }));
+    }
 
     $index_path = $this->options->tempDir.'/CodeIgniter-2.2.0/index.php';
     $index = file_get_contents($index_path);

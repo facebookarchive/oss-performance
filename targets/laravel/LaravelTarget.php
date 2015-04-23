@@ -20,18 +20,27 @@ final class LaravelTarget extends PerfTarget {
   }
 
   public function install(): void {
-    shell_exec($this->safeCommand(Vector {
-      'tar',
-      '-C', $this->options->tempDir,
-      '-zxf',
-      __DIR__.'/laravel-4.2.0.tar.gz'
-    }));
-    shell_exec($this->safeCommand(Vector {
-      'tar',
-      '-C', $this->options->tempDir.'/laravel-4.2.0',
-      '-jxf',
-      __DIR__.'/vendor.tar.bz2'
-    }));
+    $src_dir = $this->options->srcDir;
+    if ($src_dir) {
+      Utils::CopyDirContents(
+        $src_dir,
+        $this->getSourceRoot(),
+      );
+    } else {
+      shell_exec($this->safeCommand(Vector {
+        'tar',
+        '-C', $this->options->tempDir,
+        '-zxf',
+        __DIR__.'/laravel-4.2.0.tar.gz'
+      }));
+      shell_exec($this->safeCommand(Vector {
+        'tar',
+        '-C', $this->options->tempDir.'/laravel-4.2.0',
+        '-jxf',
+        __DIR__.'/vendor.tar.bz2'
+      }));
+    }
+
   }
 
   public function getSourceRoot(): string {

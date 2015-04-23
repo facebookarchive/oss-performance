@@ -16,8 +16,16 @@ abstract class SugarCRMTarget extends PerfTarget {
   }
 
   public function install(): void {
-    $pd = new PharData(__DIR__.'/SugarCE-6.5.20.zip');
-    $pd->extractTo($this->options->tempDir);
+    $src_dir = $this->options->srcDir;
+    if ($src_dir) {
+      Utils::CopyDirContents(
+        $src_dir,
+        $this->getSourceRoot(),
+      );
+    } else {
+      $pd = new PharData(__DIR__.'/SugarCE-6.5.20.zip');
+      $pd->extractTo($this->options->tempDir);
+    }
 
     copy(
       __DIR__.'/config.php',
