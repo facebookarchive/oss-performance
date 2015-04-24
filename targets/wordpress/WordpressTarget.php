@@ -29,7 +29,7 @@ final class WordpressTarget extends PerfTarget {
       );
     } else {
       Utils::ExtractTar(
-        __DIR__.'/wordpress-3.9.1.tar.gz',
+        __DIR__.'/wordpress-4.2.0.tar.gz',
         $this->options->tempDir,
       );
     }
