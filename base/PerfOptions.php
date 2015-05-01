@@ -37,6 +37,7 @@ final class PerfOptions {
   public string $nginx;
 
   public bool $skipSanityCheck = false;
+  public bool $skipWarmUp = false;
   public bool $skipVersionChecks = false;
   public bool $skipDatabaseInstall = false;
   public bool $dumpIsCompressed = true;
@@ -144,6 +145,7 @@ final class PerfOptions {
       'no-time-limit',
 
       'skip-sanity-check',
+      'skip-warmup',
       'skip-version-checks',
       'skip-database-install',
       'trace',
@@ -216,6 +218,7 @@ final class PerfOptions {
     $this->args = $o;
 
     $this->skipSanityCheck = $this->getBool('skip-sanity-check');
+    $this->skipWarmUp = $this->getBool('skip-warmup');
     $this->skipVersionChecks = $this->getBool('skip-version-checks');
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
     $this->noTimeLimit = $this->getBool('no-time-limit');

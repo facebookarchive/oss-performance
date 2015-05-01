@@ -96,28 +96,36 @@ final class PerfRunner {
       $target->sanityCheck();
     }
 
-    self::PrintProgress('Starting Siege for single request warmup');
-    $siege = new Siege($options, $target, RequestModes::WARMUP);
-    $siege->start();
-    invariant($siege->isRunning(), 'Failed to start siege');
-    $siege->wait();
+    if (!$options->skipWarmUp) {
+      self::PrintProgress('Starting Siege for single request warmup');
+      $siege = new Siege($options, $target, RequestModes::WARMUP);
+      $siege->start();
+      invariant($siege->isRunning(), 'Failed to start siege');
+      $siege->wait();
 
-    invariant(!$siege->isRunning(), 'Siege is still running :/');
-    invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
+      invariant(!$siege->isRunning(), 'Siege is still running :/');
+      invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
+    } else {
+      self::PrintProgress('Skipping single request warmup');
+    }
 
-    self::PrintProgress('Starting Siege for multi request warmup');
-    $siege = new Siege($options, $target, RequestModes::WARMUP_MULTI);
-    $siege->start();
-    invariant($siege->isRunning(), 'Failed to start siege');
-    $siege->wait();
+    if (!$options->skipWarmUp) {
+      self::PrintProgress('Starting Siege for multi request warmup');
+      $siege = new Siege($options, $target, RequestModes::WARMUP_MULTI);
+      $siege->start();
+      invariant($siege->isRunning(), 'Failed to start siege');
+      $siege->wait();
 
-    invariant(!$siege->isRunning(), 'Siege is still running :/');
-    invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
+      invariant(!$siege->isRunning(), 'Siege is still running :/');
+      invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
+    } else {
+      self::PrintProgress('Skipping multi request warmup');
+    }
 
     self::PrintProgress('Clearing nginx access.log');
     $nginx->clearAccessLog();
 
-    self::PrintProgress('Running Siege for benchmark');
+    self::PrintProgress('Starting Siege for benchmark');
     $siege = new Siege($options, $target, RequestModes::BENCHMARK);
     $siege->start();
     invariant($siege->isRunning(), 'Siege failed to start');
