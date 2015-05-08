@@ -59,6 +59,7 @@ final class PerfOptions {
   public ?int $pcreExpire;
   public bool $allVolatile = false;
   public bool $interpPseudomains = false;
+  public bool $proxygen = false;
 
   //
   // HHVM specific options for generating performance data and profiling
@@ -116,6 +117,7 @@ final class PerfOptions {
 
       'wait-at-end',
 
+      'proxygen',
       'repo-auth',
       'file-cache',
       'pcre-cache:',
@@ -223,6 +225,7 @@ final class PerfOptions {
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
     $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = array_key_exists('wait-at-end', $o);
+    $this->proxygen = array_key_exists('proxygen', $o);
 
     $this->precompile  = array_key_exists('repo-auth', $o);
     $this->filecache = array_key_exists('file-cache', $o);

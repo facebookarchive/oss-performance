@@ -70,11 +70,14 @@ final class PerfRunner {
       self::PrintProgress('There is no setUpTest');
     }
 
-    self::PrintProgress('Starting Nginx');
-    $nginx = new NginxDaemon($options, $target);
-    $nginx->start();
-    Process::sleepSeconds($options->delayNginxStartup);
-    invariant($nginx->isRunning(), 'Failed to start nginx');
+    $nginx = null;
+    if (!$options->proxygen) {
+      self::PrintProgress('Starting Nginx');
+      $nginx = new NginxDaemon($options, $target);
+      $nginx->start();
+      Process::sleepSeconds($options->delayNginxStartup);
+      invariant($nginx->isRunning(), 'Failed to start nginx');
+    }
 
     self::PrintProgress('Starting PHP Engine');
     $php_engine->start();
@@ -123,7 +126,9 @@ final class PerfRunner {
     }
 
     self::PrintProgress('Clearing nginx access.log');
-    $nginx->clearAccessLog();
+    if ($nginx) {
+      $nginx->clearAccessLog();
+    }
 
     self::PrintProgress('Starting Siege for benchmark');
     $siege = new Siege($options, $target, RequestModes::BENCHMARK);
@@ -132,10 +137,9 @@ final class PerfRunner {
     $siege->wait();
 
     self::PrintProgress('Collecting results');
-    $siege_stats = $siege->collectStats();
-    $nginx_stats = $nginx->collectStats();
 
     $combined_stats = Map { };
+    $siege_stats = $siege->collectStats();
     foreach ($siege_stats as $page => $stats) {
       if ($combined_stats->containsKey($page)) {
         $combined_stats[$page]->setAll($stats);
@@ -143,11 +147,15 @@ final class PerfRunner {
         $combined_stats[$page] = $stats;
       }
     }
-    foreach ($nginx_stats as $page => $stats) {
-      if ($combined_stats->containsKey($page)) {
-        $combined_stats[$page]->setAll($stats);
-      } else {
-        $combined_stats[$page] = $stats;
+
+    if ($nginx) {
+      $nginx_stats = $nginx->collectStats();
+      foreach ($nginx_stats as $page => $stats) {
+        if ($combined_stats->containsKey($page)) {
+          $combined_stats[$page]->setAll($stats);
+        } else {
+          $combined_stats[$page] = $stats;
+        }
       }
     }
 
