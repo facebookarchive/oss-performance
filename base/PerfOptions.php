@@ -36,6 +36,7 @@ final class PerfOptions {
   public string $siege;
   public string $nginx;
 
+  public bool $forceInnodb = false;
   public bool $skipSanityCheck = false;
   public bool $skipWarmUp = false;
   public bool $skipVersionChecks = false;
@@ -126,6 +127,7 @@ final class PerfOptions {
       'all-volatile',
       'interp-pseudomains',
 
+      'force-innodb',
       'fbcode::',
 
       'tcprint::',
@@ -208,6 +210,7 @@ final class PerfOptions {
       } else {
         $fbcode = getenv('HOME') . '/fbcode';
       }
+      $this->forceInnodb = true;
     }
 
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
@@ -249,6 +252,7 @@ final class PerfOptions {
     $this->tcTopfuncs = array_key_exists('dump-top-funcs', $o);
     $this->pcredump = array_key_exists('dump-pcre-cache', $o);
     $this->profBC = array_key_exists('profBC', $o);
+    $this->forceInnodb = $isFacebook || array_key_exists('force-innodb', $o);
 
     if ($this->tcprint !== null &&
       !$this->tcTopfuncs && !$this->tcToptrans) {

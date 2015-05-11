@@ -55,12 +55,18 @@ final class DatabaseInstaller {
     }
     $this->checkMySQLConnectionLimit();
 
+    $sed = null;
+    if ($this->options->forceInnodb) {
+      $sed = 'sed s/MyISAM/InnoDB/g |';
+    }
+
     shell_exec(
       Utils::EscapeCommand(Vector {
         $this->options->dumpIsCompressed ? 'zcat' : 'cat',
         $dump,
       }).
       '|'.
+      $sed .
       Utils::EscapeCommand(Vector {
         'mysql',
         '-h', '127.0.0.1',
