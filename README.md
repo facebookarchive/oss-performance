@@ -128,6 +128,8 @@ Laravel
 Unrealistic microbenchmark: just the 'You have arrived' page from an empty
 installation.
 
+Laravel 4 and 5 are both available.
+
 Magento
 -------
 
