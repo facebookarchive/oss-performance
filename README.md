@@ -125,7 +125,7 @@ There are two unrealistic microbenchmarks:
 Laravel
 -------
 
-Unrealistic microbenchmark: just the 'You have arrived' page from an empty
+Unrealistic microbenchmark: just the 'Laravel 5' page from an empty
 installation.
 
 Magento

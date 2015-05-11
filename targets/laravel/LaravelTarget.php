@@ -16,7 +16,7 @@ final class LaravelTarget extends PerfTarget {
   }
 
   protected function getSanityCheckString(): string {
-    return 'You have arrived';
+    return 'Laravel 5';
   }
 
   public function install(): void {
@@ -31,11 +31,11 @@ final class LaravelTarget extends PerfTarget {
         'tar',
         '-C', $this->options->tempDir,
         '-zxf',
-        __DIR__.'/laravel-4.2.0.tar.gz'
+        __DIR__.'/laravel-5.0.22.tar.gz'
       }));
       shell_exec($this->safeCommand(Vector {
         'tar',
-        '-C', $this->options->tempDir.'/laravel-4.2.0',
+        '-C', $this->options->tempDir.'/laravel-5.0.22',
         '-jxf',
         __DIR__.'/vendor.tar.bz2'
       }));
@@ -44,6 +44,6 @@ final class LaravelTarget extends PerfTarget {
   }
 
   public function getSourceRoot(): string {
-    return $this->options->tempDir.'/laravel-4.2.0/public';
+    return $this->options->tempDir.'/laravel-5.0.22/public';
   }
 }
