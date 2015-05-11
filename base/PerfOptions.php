@@ -227,18 +227,18 @@ final class PerfOptions {
     $this->skipVersionChecks = $this->getBool('skip-version-checks');
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
     $this->noTimeLimit = $this->getBool('no-time-limit');
-    $this->waitAtEnd = array_key_exists('wait-at-end', $o);
-    $this->proxygen = array_key_exists('proxygen', $o);
+    $this->waitAtEnd = $this->getBool('wait-at-end');
+    $this->proxygen = $this->getBool('proxygen');
 
-    $this->precompile  = array_key_exists('repo-auth', $o);
-    $this->filecache = array_key_exists('file-cache', $o);
+    $this->precompile  = $this->getBool('repo-auth');
+    $this->filecache = $this->getBool('file-cache');
     $this->pcreCache = $this->getNullableString('pcre-cache');
     $this->pcreSize = $this->getNullableInt('pcre-cache-size');
     $this->pcreExpire = $this->getNullableInt('pcre-cache-expire');
-    $this->allVolatile = array_key_exists('all-volatile', $o);
-    $this->interpPseudomains = array_key_exists('interp-pseudomains', $o);
+    $this->allVolatile = $this->getBool('all-volatile');
+    $this->interpPseudomains = $this->getBool('interp-pseudomains');
 
-    if (array_key_exists('tcprint', $o)) {
+    if ($this->getBool('tcprint')) {
       $tcprint = hphp_array_idx($o, 'tcprint', null);
       if (is_string($tcprint) && $tcprint !== '') {
         $this->tcprint = $tcprint;
@@ -247,12 +247,12 @@ final class PerfOptions {
           $fbcode . '/_bin/hphp/facebook/tools/tc-print/tc-print';
       }
     }
-    $this->tcAlltrans = array_key_exists('dump-all-trans', $o);
-    $this->tcToptrans = array_key_exists('dump-top-trans', $o);
-    $this->tcTopfuncs = array_key_exists('dump-top-funcs', $o);
-    $this->pcredump = array_key_exists('dump-pcre-cache', $o);
-    $this->profBC = array_key_exists('profBC', $o);
-    $this->forceInnodb = $isFacebook || array_key_exists('force-innodb', $o);
+    $this->tcAlltrans = $this->getBool('dump-all-trans');
+    $this->tcToptrans = $this->getBool('dump-top-trans');
+    $this->tcTopfuncs = $this->getBool('dump-top-funcs');
+    $this->pcredump = $this->getBool('dump-pcre-cache');
+    $this->profBC = $this->getBool('profBC');
+    $this->forceInnodb = $isFacebook || $this->getBool('force-innodb');
 
     if ($this->tcprint !== null &&
       !$this->tcTopfuncs && !$this->tcToptrans) {
@@ -263,7 +263,7 @@ final class PerfOptions {
       $this->hhvm = $fbcode . '/_bin/hphp/hhvm/hhvm';
     }
 
-    $this->traceSubProcess = array_key_exists('trace', $o);
+    $this->traceSubProcess = $this->getBool('trace');
 
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
     $this->phpExtraArguments = $this->getArray('php-extra-arguments');
