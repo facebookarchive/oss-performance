@@ -134,9 +134,9 @@ final class NginxDaemon extends Process {
     $path = $this->options->tempDir.'/nginx.conf';
 
     $substitutions = Map {
-      '__FASTCGI_PORT__' => PerfSettings::FastCGIPort(),
+      '__BACKEND_PORT__' => PerfSettings::BackendPort(),
       '__HTTP_PORT__' => PerfSettings::HttpPort(),
-      '__FASTCGI_ADMIN_PORT__' => PerfSettings::FastCGIAdminPort(),
+      '__BACKEND_ADMIN_PORT__' => PerfSettings::BackendAdminPort(),
       '__HTTP_ADMIN_PORT__' => PerfSettings::HttpAdminPort(),
       '__NGINX_CONFIG_ROOT__' => OSS_PERFORMANCE_ROOT.'/conf/nginx',
       '__NGINX_TEMP_DIR__' => $this->options->tempDir,

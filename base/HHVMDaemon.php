@@ -27,8 +27,8 @@ final class HHVMDaemon extends PHPEngine {
       $this->adminPort = PerfSettings::HttpAdminPort();
     } else {
       $this->serverType = 'fastcgi';
-      $this->mainPort = PerfSettings::FastCGIPort();
-      $this->adminPort = PerfSettings::FastCGIAdminPort();
+      $this->mainPort = PerfSettings::BackendPort();
+      $this->adminPort = PerfSettings::BackendAdminPort();
     }
 
     $output = [];

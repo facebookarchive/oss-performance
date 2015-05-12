@@ -53,7 +53,7 @@ final class PHP5Daemon extends PHPEngine {
 
   protected function getArguments(): Vector<string> {
     $args = Vector {
-      '-b', '127.0.0.1:'.PerfSettings::FastCGIPort(),
+      '-b', '127.0.0.1:'.PerfSettings::BackendPort(),
       '-c', OSS_PERFORMANCE_ROOT.'/conf/',
     };
 

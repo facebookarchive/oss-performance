@@ -42,11 +42,11 @@ final class PerfSettings {
     return 8091;
   }
 
-  public static function FastCGIPort(): int {
+  public static function BackendPort(): int {
     return 8092;
   }
 
-  public static function FastCGIAdminPort(): int {
+  public static function BackendAdminPort(): int {
     return 8093;
   }
 }

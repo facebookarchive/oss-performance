@@ -75,8 +75,8 @@ class SystemChecks {
     $ports = Vector {
       PerfSettings::HttpPort(),
       PerfSettings::HttpAdminPort(),
-      PerfSettings::FastCGIPort(),
-      PerfSettings::FastCGIAdminPort(),
+      PerfSettings::BackendPort(),
+      PerfSettings::BackendAdminPort(),
     };
     $busy_ports = Vector { };
     foreach ($ports as $port) {

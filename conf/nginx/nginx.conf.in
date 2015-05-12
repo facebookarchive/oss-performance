@@ -56,7 +56,7 @@ http {
         return 404;
       }
 
-      fastcgi_pass 127.0.0.1:__FASTCGI_PORT__;
+      fastcgi_pass 127.0.0.1:__BACKEND_PORT__;
       fastcgi_index index.php;
       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
       # Siege sets Accept-Encoding: gzip. php5 and php-ng ignore it, but
@@ -83,7 +83,7 @@ http {
     scgi_temp_path        __NGINX_TEMP_DIR__/admin-scgi_temp;
 
     location / {
-      fastcgi_pass 127.0.0.1:__FASTCGI_ADMIN_PORT__;
+      fastcgi_pass 127.0.0.1:__BACKEND_ADMIN_PORT__;
       include __NGINX_CONFIG_ROOT__/fastcgi_params;
     }
   }
