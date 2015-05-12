@@ -47,7 +47,10 @@ final class WordpressTarget extends PerfTarget {
       return;
     }
 
-    $root = 'http://'.gethostname().':'.PerfSettings::HttpPort();
+    $visible_port = $this->options->proxygen
+      ? PerfSettings::BackendPort()
+      : PerfSettings::HttpPort();
+    $root = 'http://'.gethostname().':'.$visible_port;
 
     $conn = mysql_connect('127.0.0.1', 'wp_bench', 'wp_bench');
     $db_selected = mysql_select_db('wp_bench', $conn);

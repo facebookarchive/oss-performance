@@ -133,11 +133,32 @@ final class NginxDaemon extends Process {
   protected function getGeneratedConfigFile(): string {
     $path = $this->options->tempDir.'/nginx.conf';
 
+    if ($this->options->proxygen) {
+      $proxy_pass = sprintf(
+        'proxy_pass http://127.0.0.1:%d',
+        PerfSettings::BackendPort(),
+      );
+      $admin_proxy_pass = sprintf(
+        'proxy_pass http://127.0.0.1:%d',
+        PerfSettings::BackendAdminPort(),
+      );
+    } else {
+      $proxy_pass = sprintf(
+        'fastcgi_pass 127.0.0.1:%d',
+        PerfSettings::BackendPort(),
+      );
+      $admin_proxy_pass = sprintf(
+        'fastcgi_pass 127.0.0.1:%d',
+        PerfSettings::BackendAdminPort(),
+      );
+    }
+
     $substitutions = Map {
-      '__BACKEND_PORT__' => PerfSettings::BackendPort(),
       '__HTTP_PORT__' => PerfSettings::HttpPort(),
-      '__BACKEND_ADMIN_PORT__' => PerfSettings::BackendAdminPort(),
       '__HTTP_ADMIN_PORT__' => PerfSettings::HttpAdminPort(),
+      '__BACKEND_PORT__' => PerfSettings::BackendPort(),
+      '__PROXY_PASS__' => $proxy_pass,
+      '__ADMIN_PROXY_PASS__' => $admin_proxy_pass,
       '__NGINX_CONFIG_ROOT__' => OSS_PERFORMANCE_ROOT.'/conf/nginx',
       '__NGINX_TEMP_DIR__' => $this->options->tempDir,
       '__NGINX_KEEPALIVE_TIMEOUT__' =>

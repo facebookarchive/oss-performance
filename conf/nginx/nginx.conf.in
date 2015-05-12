@@ -56,7 +56,8 @@ http {
         return 404;
       }
 
-      fastcgi_pass 127.0.0.1:__BACKEND_PORT__;
+      rewrite /index.php / break;
+      __PROXY_PASS__;
       fastcgi_index index.php;
       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
       # Siege sets Accept-Encoding: gzip. php5 and php-ng ignore it, but
@@ -69,6 +70,8 @@ http {
       # Issue for making HHVM match PHP behavior:
       #   https://github.com/facebook/hhvm/issues/3744
       fastcgi_param HTTP_ACCEPT_ENCODING "";
+      proxy_set_header Accept-Encoding "";
+      proxy_set_header Host $host:__BACKEND_PORT__;
       include __NGINX_CONFIG_ROOT__/fastcgi_params;
     }
   }
@@ -83,7 +86,8 @@ http {
     scgi_temp_path        __NGINX_TEMP_DIR__/admin-scgi_temp;
 
     location / {
-      fastcgi_pass 127.0.0.1:__BACKEND_ADMIN_PORT__;
+      proxy_set_header Host $host;
+      __ADMIN_PROXY_PASS__;
       include __NGINX_CONFIG_ROOT__/fastcgi_params;
     }
   }

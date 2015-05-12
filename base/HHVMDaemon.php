@@ -11,8 +11,6 @@
 
 final class HHVMDaemon extends PHPEngine {
   private PerfTarget $target;
-  private int $mainPort;
-  private int $adminPort;
   private string $serverType;
 
   public function __construct(
@@ -21,15 +19,7 @@ final class HHVMDaemon extends PHPEngine {
     $this->target = $options->getTarget();
     parent::__construct((string) $options->hhvm);
 
-    if ($options->proxygen) {
-      $this->serverType = 'proxygen';
-      $this->mainPort = PerfSettings::HttpPort();
-      $this->adminPort = PerfSettings::HttpAdminPort();
-    } else {
-      $this->serverType = 'fastcgi';
-      $this->mainPort = PerfSettings::BackendPort();
-      $this->adminPort = PerfSettings::BackendAdminPort();
-    }
+    $this->serverType = $options->proxygen ? 'proxygen' : 'fastcgi';
 
     $output = [];
     $check_command = implode(
@@ -77,12 +67,12 @@ final class HHVMDaemon extends PHPEngine {
   protected function getArguments(): Vector<string> {
     $args = Vector {
       '-m', 'server',
-      '-p', (string) $this->mainPort,
+      '-p', (string) PerfSettings::BackendPort(),
+      '-v', 'AdminServer.Port='.PerfSettings::BackendAdminPort(),
       '-v', 'Server.Type='.$this->serverType,
       '-v', 'Server.DefaultDocument=index.php',
       '-v', 'Server.SourceRoot='.$this->target->getSourceRoot(),
       '-v', 'Eval.Jit=1',
-      '-v', 'AdminServer.Port='.$this->adminPort,
       '-c', OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
     if ($this->options->pcreCache) {

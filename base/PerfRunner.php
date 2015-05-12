@@ -70,14 +70,11 @@ final class PerfRunner {
       self::PrintProgress('There is no setUpTest');
     }
 
-    $nginx = null;
-    if (!$options->proxygen) {
-      self::PrintProgress('Starting Nginx');
-      $nginx = new NginxDaemon($options, $target);
-      $nginx->start();
-      Process::sleepSeconds($options->delayNginxStartup);
-      invariant($nginx->isRunning(), 'Failed to start nginx');
-    }
+    self::PrintProgress('Starting Nginx');
+    $nginx = new NginxDaemon($options, $target);
+    $nginx->start();
+    Process::sleepSeconds($options->delayNginxStartup);
+    invariant($nginx->isRunning(), 'Failed to start nginx');
 
     self::PrintProgress('Starting PHP Engine');
     $php_engine->start();
@@ -126,9 +123,7 @@ final class PerfRunner {
     }
 
     self::PrintProgress('Clearing nginx access.log');
-    if ($nginx) {
-      $nginx->clearAccessLog();
-    }
+    $nginx->clearAccessLog();
 
     self::PrintProgress('Starting Siege for benchmark');
     $siege = new Siege($options, $target, RequestModes::BENCHMARK);
@@ -148,14 +143,12 @@ final class PerfRunner {
       }
     }
 
-    if ($nginx) {
-      $nginx_stats = $nginx->collectStats();
-      foreach ($nginx_stats as $page => $stats) {
-        if ($combined_stats->containsKey($page)) {
-          $combined_stats[$page]->setAll($stats);
-        } else {
-          $combined_stats[$page] = $stats;
-        }
+    $nginx_stats = $nginx->collectStats();
+    foreach ($nginx_stats as $page => $stats) {
+      if ($combined_stats->containsKey($page)) {
+        $combined_stats[$page]->setAll($stats);
+      } else {
+        $combined_stats[$page] = $stats;
       }
     }
 
