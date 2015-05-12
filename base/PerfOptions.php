@@ -331,6 +331,11 @@ final class PerfOptions {
       'Invalid engine: %s',
       $engine
     );
+    invariant(
+      shell_exec('which '.escapeshellarg($this->siege)) !== null
+      || is_executable($this->siege),
+      'Could not find siege',
+    );
 
     $tcprint = $this->tcprint;
     if ($tcprint !== null) {
