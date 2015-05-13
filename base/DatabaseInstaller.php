@@ -79,13 +79,8 @@ final class DatabaseInstaller {
   }
 
   private function getRootConnection(): resource {
-    print "MySQL admin user (probably 'root'): ";
-    $this->username = trim(fgets(STDIN));
-    if (!$this->username) {
-      throw new Exception(
-        'Invalid user - set up the wp_bench database and user manually.'
-      );
-    }
+    print "MySQL admin user (default is 'root'): ";
+    $this->username = trim(fgets(STDIN)) ?: 'root';
     fprintf(STDERR, '%s', 'MySQL admin password: ');
     $this->password = trim(fgets(STDIN));
     $conn = mysql_connect('127.0.0.1', $this->username, $this->password);
