@@ -115,7 +115,16 @@ abstract class Process {
     }
   }
 
+  protected function getPidFilePath(): ?string {
+    return null;
+  }
+
   public function getPid(): ?int {
+    $pid_file = $this->getPidFilePath();
+    if ($pid_file && file_exists($pid_file)) {
+      return (int) trim(file_get_contents($pid_file));
+    }
+
     $proc = $this->process;
     if ($proc === null) {
       return null;

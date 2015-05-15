@@ -104,7 +104,8 @@ final class NginxDaemon extends Process {
     return $page_results;
   }
 
-  private function getPidFilePath(): string {
+  <<__Override>>
+  protected function getPidFilePath(): string {
     return $this->options->tempDir.'/nginx.pid';
   }
 
@@ -118,16 +119,6 @@ final class NginxDaemon extends Process {
       //
       '-g', 'daemon off;',
     };
-  }
-
-  <<__Override>>
-  public function getPid(): ?int {
-    $file = $this->getPidFilePath();
-    if (!file_exists($file)) {
-      return null;
-     }
-     $pid = (int) file_get_contents($file);
-     return $pid ?: null;
   }
 
   protected function getGeneratedConfigFile(): string {

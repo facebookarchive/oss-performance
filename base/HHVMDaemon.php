@@ -73,6 +73,7 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'Server.DefaultDocument=index.php',
       '-v', 'Server.SourceRoot='.$this->target->getSourceRoot(),
       '-v', 'Eval.Jit=1',
+      '-d', 'hhvm.pid_file='.escapeshellarg($this->getPidFilePath()),
       '-c', OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
     if ($this->options->pcreCache) {
@@ -118,6 +119,11 @@ final class HHVMDaemon extends PHPEngine {
       $args->add('-v'); $args->add('Eval.AllVolatile=true');
     }
     return $args;
+  }
+
+  <<__Override>>
+  protected function getPidFilePath(): string {
+    return $this->options->tempDir.'/hhvm.pid';
   }
 
   <<__Override>>
@@ -208,6 +214,7 @@ final class HHVMDaemon extends PHPEngine {
     $this->stop();
   }
 
+  <<__Override>>
   public function stop(): void {
     try {
       $health = $this->adminRequest('/check-health');
