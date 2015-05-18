@@ -37,6 +37,16 @@ final class MediaWikiTarget extends PerfTarget {
       ->setDatabaseName('mw_bench')
       ->setDumpFile(__DIR__.'/mw_bench.sql.gz')
       ->installDatabase();
+
+    $cache_dir = $this->options->tempDir.'/mw-cache';
+    mkdir($cache_dir);
+
+    file_put_contents(
+      $this->getSourceRoot().'/LocalSettings.php',
+      '$wgLocalisationCacheConf["store"] = "file";'.
+      '$wgCacheDirectory="'.$cache_dir.'";',
+      FILE_APPEND
+    );
   }
 
   public function getSourceRoot(): string {
