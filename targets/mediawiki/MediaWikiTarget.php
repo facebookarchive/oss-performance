@@ -41,6 +41,8 @@ final class MediaWikiTarget extends PerfTarget {
     $cache_dir = $this->options->tempDir.'/mw-cache';
     mkdir($cache_dir);
 
+    // Default behavior is to do a MySQL query *for each translatable string
+    // on every page view*. This is just insane.
     file_put_contents(
       $this->getSourceRoot().'/LocalSettings.php',
       '$wgLocalisationCacheConf["store"] = "file";'.
