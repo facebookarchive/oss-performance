@@ -73,7 +73,7 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'Server.DefaultDocument=index.php',
       '-v', 'Server.SourceRoot='.$this->target->getSourceRoot(),
       '-v', 'Eval.Jit=1',
-      '-d', 'hhvm.pid_file='.escapeshellarg($this->getPidFilePath()),
+      '-d', 'pid='.escapeshellarg($this->getPidFilePath()),
       '-c', OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
     if ($this->options->pcreCache) {
