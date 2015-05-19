@@ -113,12 +113,20 @@ abstract class Process {
     if ($pid !== null) {
       posix_kill($pid, SIGTERM);
     }
-    for ($i = 0; $this->isRunning() && $i < 8; ++$i) {
-      self::sleepSeconds(0.25);
-    }
-    if ($this->isRunning()) {
+    if (!$this->waitForStop(2, 0.25)) {
       posix_kill($pid, SIGKILL);
     }
+  }
+
+  protected function waitForStop(num $max_time, num $interval): bool {
+    for (
+      $elapsed = 0;
+      $elapsed < $max_time && $this->isRunning();
+      $elapsed += $interval
+    ) {
+      self::sleepSeconds((float) $interval);
+    }
+    return !$this->isRunning();
   }
 
   protected function getPidFilePath(): ?string {

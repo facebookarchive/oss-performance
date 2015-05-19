@@ -216,15 +216,30 @@ final class HHVMDaemon extends PHPEngine {
 
   <<__Override>>
   public function stop(): void {
+    if (!$this->isRunning()) {
+      return;
+    }
+
     try {
       $health = $this->adminRequest('/check-health');
-      if ($health && json_decode($health)) {
-        $this->adminRequest('/stop');
-        invariant(!$this->isRunning(), 'Failed to stop HHVM');
+      if (!($health && json_decode($health))) {
+        parent::stop();
+        return;
       }
-    } catch (Exception $e) { }
+      $time = microtime(true);
+      $this->adminRequest('/stop');
+      $this->waitForStop(10, 0.1);
+    } catch (Exception $e) {
+    }
 
-    parent::stop();
+    $pid = $this->getPid();
+    if ($this->isRunning() && $pid !== null) {
+      posix_kill($pid, SIGKILL);
+    }
+    invariant(
+      $this->waitForStop(1, 0.1),
+      "HHVM is unstoppable!",
+    );
   }
 
   public function writeStats(): void {
