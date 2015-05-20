@@ -38,7 +38,9 @@ final class MediaWikiTarget extends PerfTarget {
       ->setDumpFile(__DIR__.'/mw_bench.sql.gz')
       ->installDatabase();
 
-    $cache_dir = $this->options->tempDir.'/mw-cache';
+    // Put it inside the source root so that if we're generating PHP files and
+    // we're in repo-auth mode, the generated files end up in the repo
+    $cache_dir = $this->getSourceRoot().'/mw-cache';
     mkdir($cache_dir);
 
     file_put_contents(
@@ -53,6 +55,15 @@ final class MediaWikiTarget extends PerfTarget {
       '$wgDisableCounters = true;',
       FILE_APPEND
     );
+  }
+
+  <<__Override>>
+  public function postInstall(): void {
+    Utils::RunCommand(Vector {
+      PHP_BINARY,
+      $this->getSourceRoot().'/maintenance/rebuildLocalisationCache.php',
+      '--lang=en',
+    });
   }
 
   public function getSourceRoot(): string {
