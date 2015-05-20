@@ -73,6 +73,8 @@ final class PerfOptions {
   public bool $pcredump = false;
   public bool $profBC   = false;
 
+  public bool $applyPatches = false;
+
   //
   // All times are given in seconds, stored in a float.
   // For PHP code, the usleep timer is used, so fractional seconds work fine.
@@ -126,6 +128,8 @@ final class PerfOptions {
       'pcre-cache-size:',
       'all-volatile',
       'interp-pseudomains',
+
+      'apply-patches',
 
       'force-innodb',
       'fbcode::',
@@ -229,6 +233,7 @@ final class PerfOptions {
     $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = $this->getBool('wait-at-end');
     $this->proxygen = $this->getBool('proxygen');
+    $this->applyPatches = $this->getBool('apply-patches');
 
     $this->precompile  = $this->getBool('repo-auth');
     $this->filecache = $this->getBool('file-cache');

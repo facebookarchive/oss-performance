@@ -118,7 +118,7 @@ abstract class Process {
     }
   }
 
-  protected function waitForStop(num $max_time, num $interval): bool {
+  final protected function waitForStop(num $max_time, num $interval): bool {
     for (
       $elapsed = 0;
       $elapsed < $max_time && $this->isRunning();

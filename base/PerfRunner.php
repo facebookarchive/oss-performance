@@ -57,6 +57,11 @@ final class PerfRunner {
     self::PrintProgress('Installing framework');
 
     $target->install();
+    if ($options->applyPatches) {
+      self::PrintProgress('Applying patches');
+      $target->applyPatches();
+    }
+    $target->postInstall();
 
     if ($options->setUpTest != null) {
       $command = "OSS_PERF_PHASE=" . "setUp"

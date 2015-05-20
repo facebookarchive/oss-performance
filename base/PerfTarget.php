@@ -33,10 +33,36 @@ abstract class PerfTarget {
     );
   }
 
-  final public function getURLsFile(): string {
+  <<__Memoize>>
+  final protected function getAssetsDirectory(): string{
     $class = get_class($this);
     $file = (new ReflectionClass($class))->getFileName();
-    $dir = dirname($file);
+    return dirname($file);
+  }
+
+  public function postInstall(): void {
+  }
+
+  final public function applyPatches(): void {
+    $dir = $this->getAssetsDirectory().'/patches/';
+    if (!file_exists($dir)) {
+      return;
+    }
+
+    $patches = glob($dir.'/*.patch');
+    sort($patches);
+
+    $dir = escapeshellarg($this->getSourceRoot());
+
+    foreach ($patches as $patch) {
+      $patch = escapeshellarg($patch);
+      exec('patch -p1 -d '.$dir.' < '.$patch);
+    }
+  }
+
+  final public function getURLsFile(): string {
+    $class = get_class($this);
+    $dir = $this->getAssetsDirectory();
     return $dir.'/'.$class.'.urls';
   }
 
