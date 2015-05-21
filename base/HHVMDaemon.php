@@ -130,17 +130,16 @@ final class HHVMDaemon extends PHPEngine {
   public function start(): void {
     if ($this->options->precompile) {
       $sourceRoot = $this->getTarget()->getSourceRoot();
-      $fileList = $this->options->tempDir . '/files.txt';
       $hhvm = $this->options->hhvm;
       invariant(!is_null($hhvm), "Must have hhvm path");
       $args = Vector {
         $hhvm,
         '--hphp',
-        '--input-list', $fileList,
         '--target',     'hhbc',
         '--output-dir', $this->options->tempDir,
         '--input-dir',  $sourceRoot,
-        '--module',     $sourceRoot,
+        '--module',     '/',
+        '--cmodule',    '/',
         '-l3',
         '-k1',
       };
@@ -151,15 +150,18 @@ final class HHVMDaemon extends PHPEngine {
 
       invariant(is_dir($sourceRoot), 'Could not find valid source root');
 
-      $files = Vector{};
       $dir_iter = new RecursiveDirectoryIterator($sourceRoot);
       $iter     = new RecursiveIteratorIterator($dir_iter);
       foreach ($iter as $path => $_) {
-        if (is_file($path)) {
-          $files->add(ltrim(substr($path, strlen($sourceRoot)), '/'));
+        // Source files not ending in .php need to be specifically included
+        if (is_file($path) && substr($path, -4) !== '.php') {
+          $contents = file_get_contents($path);
+          if (strpos($contents, '<?php') !== false) {
+            $arg = "--ffile=" . ltrim(substr($path, strlen($sourceRoot)), '/');
+            $args->add($arg);
+          }
         }
       }
-      file_put_contents($fileList, implode("\n", $files));
 
       $bcRepo = $this->options->tempDir . '/hhvm.hhbc';
       $staticContent = $this->options->tempDir . '/static.content';
