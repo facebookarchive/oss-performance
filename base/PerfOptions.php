@@ -491,6 +491,8 @@ final class PerfOptions {
     return Map {
       'codeigniter-hello-world' => () ==> new CodeIgniterTarget($this),
       'drupal7' => () ==> new Drupal7Target($this),
+      'drupal8-page-cache' => () ==> new Drupal8PageCacheTarget($this),
+      'drupal8-no-cache' => () ==> new Drupal8NoCacheTarget($this),
       'mediawiki' => () ==> new MediaWikiTarget($this),
       'laravel4-hello-world' => () ==> new Laravel4Target($this),
       'laravel5-hello-world' => () ==> new Laravel5Target($this),
