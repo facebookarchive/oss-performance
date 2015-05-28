@@ -46,10 +46,25 @@ final class Drupal8Target extends PerfTarget {
       ->setDatabaseName('drupal_bench')
       ->setDumpFile(__DIR__.'/dbdump.sql.gz')
       ->installDatabase();
-    $current_dir = __DIR__;
-    chdir($this->getSourceRoot());
-    shell_exec('find . -name *.html.twig | drush scr sites/default/setup.php');
-    chdir($current_dir);
+
+    # If Drush is available, run a setup script. Repo.auth mode won't work
+    # without this script pre-generating Twig templates.
+    $ret = 0;
+    $drush = system('drush status --root='.$this->getSourceRoot(), $ret);
+    if ($ret == 0) {
+      $current = getcwd();
+      chdir($this->getSourceRoot());
+      system('find . -name *.html.twig | drush scr sites/default/setup.php');
+      chdir($current);
+    }
+    else {
+      fprintf(
+        STDERR,
+        "%s\n%s\n",
+        "A copy of Drush which supports Drupal 8 could not be found.",
+        "The setup script for repo authoritative mode will not be run.",
+      );
+    }
   }
 
   public function getSourceRoot(): string {
