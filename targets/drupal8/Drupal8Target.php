@@ -9,9 +9,9 @@
  *
  */
 
-final class Drupal8Target extends PerfTarget {
+abstract class Drupal8Target extends PerfTarget {
   public function __construct(
-    private PerfOptions $options,
+    protected PerfOptions $options,
   ) {
   }
 
@@ -29,7 +29,7 @@ final class Drupal8Target extends PerfTarget {
     } else {
       # Extract Drupal core.
       Utils::ExtractTar(
-        __DIR__.'/drupal-8.0.0-beta10.tar.gz',
+        __DIR__.'/drupal-8.0.0-beta11.tar.gz',
         $this->options->tempDir,
       );
       # Extract Drush and its vendor dir.
@@ -47,33 +47,34 @@ final class Drupal8Target extends PerfTarget {
         $this->getSourceRoot().'/sites/default',
       );
     }
-    # Settings files for the database connection.
-    Utils::ExtractTar(
-      __DIR__.'/settings.tar.gz',
-      $this->getSourceRoot().'/sites/default',
-    );
+    # Settings files and our Twig template setup script.
+    copy(__DIR__.'/settings/settings.php', $this->getSourceRoot().'/sites/default/settings.php');
+    copy(__DIR__.'/settings/setup.php', $this->getSourceRoot().'/sites/default/setup.php');
+    copy(__DIR__.'/settings/services.yml', $this->getSourceRoot().'/sites/default/services.yml');
 
-    (new DatabaseInstaller($this->options))
-      ->setDatabaseName('drupal_bench')
-      ->setDumpFile(__DIR__.'/dbdump.sql.gz')
-      ->installDatabase();
-
-    # For repo.auth mode to work, we need Drush to run a setup script that
-    # populates Twig template files.
-    $drush = $this->options->tempDir . '/drush/drush';
-    $current = getcwd();
-    chdir($this->getSourceRoot());
-    system('find . -name *.html.twig | '.$drush.' scr sites/default/setup.php');
-    chdir($current);
-      // fprintf(
-      //   STDERR,
-      //   "%s\n%s\n",
-      //   "A copy of Drush which supports Drupal 8 could not be found.",
-      //   "The setup script for repo authoritative mode will not be run.",
-      // );
+    # Installing the database is left to the child targets.
   }
 
   public function getSourceRoot(): string {
-    return $this->options->tempDir.'/drupal-8.0.0-beta10';
+    return $this->options->tempDir.'/drupal-8.0.0-beta11';
   }
+
+  public function drushPrep(): void {
+    // For repo.auth mode to work, we need Drush to run a setup script that
+    // populates Twig template files.
+    $hhvm = shell_exec('which hhvm');
+    if ($hhvm) {
+      putenv("DRUSH_PHP=$hhvm");
+    }
+    $drush = $this->options->tempDir . '/drush/drush';
+    $current = getcwd();
+    chdir($this->getSourceRoot());
+
+    // Rebuild Drupal's cache to clear out stale filesystem entries.
+    shell_exec($drush.' cr');
+    // Try to pre-generate all Twig templates.
+    shell_exec('find . -name *.html.twig | '.$drush.' scr sites/default/setup.php 2>&1');
+    chdir($current);
+  }
+
 }
