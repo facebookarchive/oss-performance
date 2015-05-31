@@ -125,6 +125,7 @@ The structure is similar to the Drupal 7 target, except for:
   Repo Authoritative mode can be used.
 - A Drupal 8-compatible version of Drush 8 is included with a matching vendor
   directory. This is used to run the above setup script.
+
 SugarCRM
 --------
 
