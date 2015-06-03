@@ -120,8 +120,8 @@ final class PerfOptions {
 
       'wait-at-end',
 
-      'proxygen',
-      'repo-auth',
+      'no-proxygen',
+      'no-repo-auth',
       'file-cache',
       'pcre-cache:',
       'pcre-cache-expire:',
@@ -232,10 +232,10 @@ final class PerfOptions {
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
     $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = $this->getBool('wait-at-end');
-    $this->proxygen = $this->getBool('proxygen');
+    $this->proxygen = $this->hhvm && !$this->getBool('no-proxygen');
     $this->applyPatches = $this->getBool('apply-patches');
 
-    $this->precompile  = $this->getBool('repo-auth');
+    $this->precompile  = $this->hhvm && !$this->getBool('no-repo-auth');
     $this->filecache = $this->getBool('file-cache');
     $this->pcreCache = $this->getNullableString('pcre-cache');
     $this->pcreSize = $this->getNullableInt('pcre-cache-size');
