@@ -249,7 +249,7 @@ final class PerfOptions {
         $this->tcprint = $tcprint;
       } else if ($isFacebook) {
         $this->tcprint =
-          $fbcode . '/_bin/hphp/facebook/tools/tc-print/tc-print';
+          $fbcode . '/_bin/hphp/tools/tc-print/tc-print';
       }
     }
     $this->tcAlltrans = $this->getBool('dump-all-trans');
