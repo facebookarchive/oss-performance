@@ -232,10 +232,10 @@ final class PerfOptions {
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
     $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = $this->getBool('wait-at-end');
-    $this->proxygen = $this->hhvm && !$this->getBool('no-proxygen');
+    $this->proxygen = !$this->getBool('no-proxygen');
     $this->applyPatches = $this->getBool('apply-patches');
 
-    $this->precompile  = $this->hhvm && !$this->getBool('no-repo-auth');
+    $this->precompile  = !$this->getBool('no-repo-auth');
     $this->filecache = $this->getBool('file-cache');
     $this->pcreCache = $this->getNullableString('pcre-cache');
     $this->pcreSize = $this->getNullableInt('pcre-cache-size');
@@ -310,6 +310,10 @@ final class PerfOptions {
   }
 
   public function validate() {
+    if ($this->php5) {
+      $this->precompile = false;
+      $this->proxygen = false;
+    }
     if ($this->notBenchmarkingArgs && !$this->notBenchmarking) {
       $message = sprintf(
         "These arguments are invalid without --i-am-not-benchmarking: %s",
