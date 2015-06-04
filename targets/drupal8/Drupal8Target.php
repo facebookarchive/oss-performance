@@ -10,10 +10,7 @@
  */
 
 abstract class Drupal8Target extends PerfTarget {
-  public function __construct(
-    protected PerfOptions $options,
-  ) {
-  }
+  public function __construct(protected PerfOptions $options) {}
 
   protected function getSanityCheckString(): string {
     return 'Read more';
@@ -22,10 +19,7 @@ abstract class Drupal8Target extends PerfTarget {
   public function install(): void {
     $src_dir = $this->options->srcDir;
     if ($src_dir) {
-      Utils::CopyDirContents(
-        $src_dir,
-        $this->getSourceRoot(),
-      );
+      Utils::CopyDirContents($src_dir, $this->getSourceRoot());
     } else {
       # Extract Drupal core.
       Utils::ExtractTar(
@@ -48,9 +42,18 @@ abstract class Drupal8Target extends PerfTarget {
       );
     }
     # Settings files and our Twig template setup script.
-    copy(__DIR__.'/settings/settings.php', $this->getSourceRoot().'/sites/default/settings.php');
-    copy(__DIR__.'/settings/setup.php', $this->getSourceRoot().'/sites/default/setup.php');
-    copy(__DIR__.'/settings/services.yml', $this->getSourceRoot().'/sites/default/services.yml');
+    copy(
+      __DIR__.'/settings/settings.php',
+      $this->getSourceRoot().'/sites/default/settings.php',
+    );
+    copy(
+      __DIR__.'/settings/setup.php',
+      $this->getSourceRoot().'/sites/default/setup.php',
+    );
+    copy(
+      __DIR__.'/settings/services.yml',
+      $this->getSourceRoot().'/sites/default/services.yml',
+    );
 
     # Installing the database is left to the child targets.
   }
@@ -66,14 +69,18 @@ abstract class Drupal8Target extends PerfTarget {
     if ($hhvm) {
       putenv("DRUSH_PHP=$hhvm");
     }
-    $drush = $this->options->tempDir . '/drush/drush';
+    $drush = $this->options->tempDir.'/drush/drush';
     $current = getcwd();
     chdir($this->getSourceRoot());
 
     // Rebuild Drupal's cache to clear out stale filesystem entries.
     shell_exec($drush.' cr');
     // Try to pre-generate all Twig templates.
-    shell_exec('find . -name *.html.twig | '.$drush.' scr sites/default/setup.php 2>&1');
+    shell_exec(
+      'find . -name *.html.twig | '.
+      $drush.
+      ' scr sites/default/setup.php 2>&1',
+    );
     chdir($current);
   }
 

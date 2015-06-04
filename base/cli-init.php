@@ -19,11 +19,12 @@ error_reporting(error_reporting() & ~E_STRICT);
 const OSS_PERFORMANCE_ROOT = __DIR__.'/..';
 if (!file_exists(OSS_PERFORMANCE_ROOT.'/vendor/autoload.php')) {
   fprintf(
-    STDERR, "%s\n",
+    STDERR,
+    "%s\n",
     'Autoload map not found. Please install composer (see getcomposer.org), '.
-    'and run "composer install" from this directory.'
+    'and run "composer install" from this directory.',
   );
   exit(1);
 }
 
-require_once(OSS_PERFORMANCE_ROOT.'/vendor/autoload.php');
+require_once (OSS_PERFORMANCE_ROOT.'/vendor/autoload.php');

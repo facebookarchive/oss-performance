@@ -20,7 +20,10 @@ final class BuildChecker {
     invariant(array_key_exists('OK', $foo), 'invalid JSON data');
     invariant(array_key_exists('Value', $foo), 'invalid JSON data');
     invariant(array_key_exists('Required Value', $foo), 'invalid JSON data');
-    invariant($foo['OK'] === true || $foo['OK'] === false, 'invalid JSON data');
+    invariant(
+      $foo['OK'] === true || $foo['OK'] === false,
+      'invalid JSON data',
+    );
     // UNSAFE
     return $foo;
   }
@@ -60,7 +63,7 @@ final class BuildChecker {
       STDERR,
       "Exiting due to invalid config. You can run anyway with ".
       "--i-am-not-benchmarking, but the results will not be suitable for ".
-      "any kind of comparison.\n"
+      "any kind of comparison.\n",
     );
     exit(1);
   }

@@ -10,10 +10,7 @@
  */
 
 final class Drupal7Target extends PerfTarget {
-  public function __construct(
-    private PerfOptions $options,
-  ) {
-  }
+  public function __construct(private PerfOptions $options) {}
 
   protected function getSanityCheckString(): string {
     return 'Read more';
@@ -22,10 +19,7 @@ final class Drupal7Target extends PerfTarget {
   public function install(): void {
     $src_dir = $this->options->srcDir;
     if ($src_dir) {
-      Utils::CopyDirContents(
-        $src_dir,
-        $this->getSourceRoot(),
-      );
+      Utils::CopyDirContents($src_dir, $this->getSourceRoot());
     } else {
       Utils::ExtractTar(
         __DIR__.'/drupal-7.31.tar.gz',

@@ -12,16 +12,12 @@
 type PerfResult = Map<string, Map<string, num>>;
 
 final class PerfRunner {
-  public static function RunWithArgv(
-    Vector<string> $argv,
-  ): PerfResult {
+  public static function RunWithArgv(Vector<string> $argv): PerfResult {
     $options = new PerfOptions($argv);
     return self::RunWithOptions($options);
   }
 
-  public static function RunWithOptions(
-    PerfOptions $options,
-  ): PerfResult {
+  public static function RunWithOptions(PerfOptions $options): PerfResult {
     // If we exit cleanly, Process::__destruct() gets called, but it doesn't
     // if we're killed by Ctrl-C. This tends to leak php-cgi or hhvm processes -
     // trap the signal so we can clean them up.
@@ -30,7 +26,7 @@ final class PerfRunner {
       function() {
         Process::cleanupAll();
         exit();
-      }
+      },
     );
 
     $php_engine = null;
@@ -64,13 +60,15 @@ final class PerfRunner {
     $target->postInstall();
 
     if ($options->setUpTest != null) {
-      $command = "OSS_PERF_PHASE=" . "setUp"
-         . " " . "OSS_PERF_TARGET=" . (string) $target
-         . " " . $options->setUpTest
-         ;
-      self::PrintProgress('Starting setUpTest ' . $command);
+      $command =
+        "OSS_PERF_PHASE=".
+        "setUp".
+        " ".
+        "OSS_PERF_TARGET=".
+        (string) $target." ".$options->setUpTest;
+      self::PrintProgress('Starting setUpTest '.$command);
       shell_exec($command);
-      self::PrintProgress('Finished setUpTest ' . $command);
+      self::PrintProgress('Finished setUpTest '.$command);
     } else {
       self::PrintProgress('There is no setUpTest');
     }
@@ -86,7 +84,7 @@ final class PerfRunner {
     Process::sleepSeconds($options->delayPhpStartup);
     invariant(
       $php_engine->isRunning(),
-      'Failed to start '.get_class($php_engine)
+      'Failed to start '.get_class($php_engine),
     );
 
     if ($target->needsUnfreeze()) {
@@ -109,7 +107,10 @@ final class PerfRunner {
       $siege->wait();
 
       invariant(!$siege->isRunning(), 'Siege is still running :/');
-      invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
+      invariant(
+        $php_engine->isRunning(),
+        get_class($php_engine).' crashed',
+      );
     } else {
       self::PrintProgress('Skipping single request warmup');
     }
@@ -122,7 +123,10 @@ final class PerfRunner {
       $siege->wait();
 
       invariant(!$siege->isRunning(), 'Siege is still running :/');
-      invariant($php_engine->isRunning(), get_class($php_engine).' crashed');
+      invariant(
+        $php_engine->isRunning(),
+        get_class($php_engine).' crashed',
+      );
     } else {
       self::PrintProgress('Skipping multi request warmup');
     }
@@ -138,7 +142,7 @@ final class PerfRunner {
 
     self::PrintProgress('Collecting results');
 
-    $combined_stats = Map { };
+    $combined_stats = Map {};
     $siege_stats = $siege->collectStats();
     foreach ($siege_stats as $page => $stats) {
       if ($combined_stats->containsKey($page)) {
@@ -158,13 +162,13 @@ final class PerfRunner {
     }
 
     if (!$options->verbose) {
-      $combined_stats = $combined_stats->filterWithKey(
-        ($k, $v) ==> $k === 'Combined'
-      );
+      $combined_stats =
+        $combined_stats->filterWithKey(($k, $v) ==> $k === 'Combined');
     } else {
       ksort($combined_stats);
     }
-    $combined_stats['Combined']['canonical'] = (int) !$options->notBenchmarking;
+    $combined_stats['Combined']['canonical'] =
+      (int) !$options->notBenchmarking;
 
     self::PrintProgress('Collecting TC/PCRE data');
     $php_engine->writeStats();
@@ -176,13 +180,15 @@ final class PerfRunner {
     $php_engine->stop();
 
     if ($options->tearDownTest != null) {
-      $command = "OSS_PERF_PHASE=" . "tearDown"
-         . " " . "OSS_PERF_TARGET=" . (string) $target
-         . " " . $options->tearDownTest
-         ;
-      self::PrintProgress('Starting tearDownTest ' . $command);
+      $command =
+        "OSS_PERF_PHASE=".
+        "tearDown".
+        " ".
+        "OSS_PERF_TARGET=".
+        (string) $target." ".$options->tearDownTest;
+      self::PrintProgress('Starting tearDownTest '.$command);
       shell_exec($command);
-      self::PrintProgress('Finished tearDownTest ' . $command);
+      self::PrintProgress('Finished tearDownTest '.$command);
     } else {
       self::PrintProgress('There is no tearDownTest');
     }

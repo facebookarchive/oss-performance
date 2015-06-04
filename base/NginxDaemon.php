@@ -2,7 +2,6 @@
 /*
  *  Copyright (c) 2014, Facebook, Inc.
  *  All rights reserved.
- 
  *  This source code is licensed under the BSD-style license found in the
  *  LICENSE file in the root directory of this source tree. An additional grant
  *  of patent rights can be found in the PATENTS file in the same directory.
@@ -30,7 +29,7 @@ final class NginxDaemon extends Process {
     $log = $this->options->tempDir.'/access.log';
     invariant(
       file_exists($log),
-      'access log does not exist, but attempted to clear it'
+      'access log does not exist, but attempted to clear it',
     );
     $pid = $this->getPid();
     if ($pid !== null) {
@@ -45,7 +44,7 @@ final class NginxDaemon extends Process {
     $combined_time = 0;
     $combined_bytes = 0;
 
-    $page_results = Map { };
+    $page_results = Map {};
 
     // Custom format: '$status $body_bytes_sent $request_time "$request"'
     $log = file_get_contents($this->options->tempDir.'/access.log');
@@ -55,7 +54,7 @@ final class NginxDaemon extends Process {
       $request = explode('"', $entry)[1];
       $entries_by_request[$request][] = $entry;
     }
-    $combined_times = Vector { };
+    $combined_times = Vector {};
 
     foreach ($entries_by_request as $request => $entries) {
       $request_hits = count($entries);
@@ -65,7 +64,7 @@ final class NginxDaemon extends Process {
         'Nginx avg bytes' => 0,
         'Nginx avg time' => 0,
       };
-      $times = Vector { };
+      $times = Vector {};
 
       foreach ($entries as $entry) {
         $parts = explode(' ', $entry);
@@ -112,12 +111,14 @@ final class NginxDaemon extends Process {
   <<__Override>>
   protected function getArguments(): Vector<string> {
     return Vector {
-      '-c', $this->getGeneratedConfigFile(),
+      '-c',
+      $this->getGeneratedConfigFile(),
       //
       // Watch out!  The -g arguments to nginx do not accumulate.
       // The last one wins, and is the only one evaluated by nginx.
       //
-      '-g', 'daemon off;',
+      '-g',
+      'daemon off;',
     };
   }
 
@@ -134,10 +135,8 @@ final class NginxDaemon extends Process {
         PerfSettings::BackendAdminPort(),
       );
     } else {
-      $proxy_pass = sprintf(
-        'fastcgi_pass 127.0.0.1:%d',
-        PerfSettings::BackendPort(),
-      );
+      $proxy_pass =
+        sprintf('fastcgi_pass 127.0.0.1:%d', PerfSettings::BackendPort());
       $admin_proxy_pass = sprintf(
         'fastcgi_pass 127.0.0.1:%d',
         PerfSettings::BackendAdminPort(),
@@ -153,17 +152,16 @@ final class NginxDaemon extends Process {
       '__NGINX_CONFIG_ROOT__' => OSS_PERFORMANCE_ROOT.'/conf/nginx',
       '__NGINX_TEMP_DIR__' => $this->options->tempDir,
       '__NGINX_KEEPALIVE_TIMEOUT__' =>
-        (int)$this->options->maxdelayNginxKeepAlive,
+        (int) $this->options->maxdelayNginxKeepAlive,
       '__NGINX_FASTCGI_READ_TIMEOUT__' =>
-        (int)$this->options->maxdelayNginxFastCGI,
+        (int) $this->options->maxdelayNginxFastCGI,
       '__FRAMEWORK_ROOT__' => $this->target->getSourceRoot(),
       '__NGINX_PID_FILE__' => $this->getPidFilePath(),
       '__DATE__' => date(DATE_W3C),
     };
 
-    $config = file_get_contents(
-      OSS_PERFORMANCE_ROOT.'/conf/nginx/nginx.conf.in'
-    );
+    $config =
+      file_get_contents(OSS_PERFORMANCE_ROOT.'/conf/nginx/nginx.conf.in');
     foreach ($substitutions as $find => $replace) {
       $config = str_replace($find, $replace, $config);
     }

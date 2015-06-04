@@ -15,14 +15,13 @@ final class DatabaseInstaller {
   private ?string $username;
   private ?string $password = null;
 
-  public function __construct(private PerfOptions $options): void {
-  }
+  public function __construct(private PerfOptions $options): void {}
 
-  public function getUsername() : ?string {
+  public function getUsername(): ?string {
     return $this->username ? $this->username : $this->databaseName;
   }
 
-  public function getPassword() : ?string {
+  public function getPassword(): ?string {
     return $this->password !== null ? $this->password : $this->databaseName;
   }
 
@@ -41,7 +40,7 @@ final class DatabaseInstaller {
     $dump = $this->dumpFile;
     invariant(
       $db !== null && $dump !== null,
-      'database and dump must be specified'
+      'database and dump must be specified',
     );
     if ($this->options->skipDatabaseInstall) {
       $this->checkMySQLConnectionLimit();
@@ -61,19 +60,14 @@ final class DatabaseInstaller {
     }
 
     shell_exec(
-      Utils::EscapeCommand(Vector {
-        $this->options->dumpIsCompressed ? 'zcat' : 'cat',
-        $dump,
-      }).
+      Utils::EscapeCommand(
+        Vector {$this->options->dumpIsCompressed ? 'zcat' : 'cat', $dump},
+      ).
       '|'.
-      $sed .
-      Utils::EscapeCommand(Vector {
-        'mysql',
-        '-h', '127.0.0.1',
-        $db,
-        '-u', $db,
-        '-p'.$db
-      })
+      $sed.
+      Utils::EscapeCommand(
+        Vector {'mysql', '-h', '127.0.0.1', $db, '-u', $db, '-p'.$db},
+      ),
     );
     return true;
   }
@@ -85,40 +79,32 @@ final class DatabaseInstaller {
     $this->password = trim(fgets(STDIN));
     $conn = mysql_connect('127.0.0.1', $this->username, $this->password);
     if ($conn === false) {
-      throw new Exception(
-        'Failed to connect: '.mysql_error()
-      );
+      throw new Exception('Failed to connect: '.mysql_error());
     }
     return $conn;
   }
 
   private function checkMySQLConnectionLimit(): void {
-    $conn = mysql_connect(
-      '127.0.0.1', $this->getUsername(), $this->getPassword()
-    );
+    $conn =
+      mysql_connect('127.0.0.1', $this->getUsername(), $this->getPassword());
     if ($conn === false) {
-      throw new Exception(
-        'Failed to connect: '.mysql_error()
-      );
+      throw new Exception('Failed to connect: '.mysql_error());
     }
     $data = mysql_fetch_assoc(
       mysql_query(
         "SHOW variables WHERE Variable_name = 'max_connections'",
-        $conn
-      )
+        $conn,
+      ),
     );
     mysql_close($conn);
     if ($data['Value'] < 1000) {
       fprintf(
         STDERR,
         "Connection limit is too low - some benchmarks will have connection ".
-        "errors. This can be fixed for you..\n"
+        "errors. This can be fixed for you..\n",
       );
       $conn = $this->getRootConnection();
-      mysql_query(
-        'SET GLOBAL max_connections = 1000',
-        $conn
-      );
+      mysql_query('SET GLOBAL max_connections = 1000', $conn);
       mysql_close($conn);
     }
   }
@@ -131,7 +117,7 @@ final class DatabaseInstaller {
       '%s',
       "Can't connect to database ".
       "(mysql -h 127.0.0.1 -p$db -u $db $db). This can be ".
-      "fixed for you.\n"
+      "fixed for you.\n",
     );
     $conn = $this->getRootConnection();
     $edb = mysql_real_escape_string($db);
@@ -146,8 +132,14 @@ final class DatabaseInstaller {
      *   grant
      */
     mysql_query(
-      'GRANT ALL PRIVILEGES ON '.$edb.'.* TO "'.$edb.'"@"%" '.
-      'IDENTIFIED BY "'.$edb.'"',
+      'GRANT ALL PRIVILEGES ON '.
+      $edb.
+      '.* TO "'.
+      $edb.
+      '"@"%" '.
+      'IDENTIFIED BY "'.
+      $edb.
+      '"',
       $conn,
     );
     mysql_query(

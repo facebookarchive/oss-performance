@@ -25,7 +25,7 @@ class SystemChecks {
         fprintf(
           STDERR,
           "WARNING: auditd is running, and can significantly skew ".
-          "benchmark and profiling results. Please disable it.\n"
+          "benchmark and profiling results. Please disable it.\n",
         );
         sleep(3);
         return;
@@ -33,7 +33,7 @@ class SystemChecks {
       invariant_violation(
         "auditd is running, and can significantly skew benchmark and ".
         "profiling results. Either disable it, or pass ".
-        "--i-am-not-benchmarking to continue anyway."
+        "--i-am-not-benchmarking to continue anyway.",
       );
     }
   }
@@ -66,7 +66,7 @@ class SystemChecks {
       $gov = trim(file_get_contents($gov_file));
       invariant(
         $gov === 'performance',
-        'Unsuitable CPU speed policy - see cpufreq.md'
+        'Unsuitable CPU speed policy - see cpufreq.md',
       );
     }
   }
@@ -78,7 +78,7 @@ class SystemChecks {
       PerfSettings::BackendPort(),
       PerfSettings::BackendAdminPort(),
     };
-    $busy_ports = Vector { };
+    $busy_ports = Vector {};
     foreach ($ports as $port) {
       $result = @fsockopen('localhost', $port);
       if ($result !== false) {

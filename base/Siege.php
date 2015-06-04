@@ -24,7 +24,9 @@ final class Siege extends Process {
 
     if (!$options->skipVersionChecks) {
       $version_line = trim(
-        exec(escapeshellarg($options->siege).' --version 2>&1 | head -n 1')
+        exec(
+          escapeshellarg($options->siege).' --version 2>&1 | head -n 1',
+        ),
       );
       $bad_prefix = 'SIEGE 3';
       if (substr($version_line, 0, strlen($bad_prefix)) === $bad_prefix) {
@@ -76,16 +78,9 @@ final class Siege extends Process {
   protected function getArguments(): Vector<string> {
     $urls_file = tempnam($this->options->tempDir, 'urls');
     $urls = file_get_contents($this->target->getURLsFile());
-    $urls = str_replace(
-      '__HTTP_PORT__',
-      (string) PerfSettings::HttpPort(),
-      $urls,
-    );
-    $urls = str_replace(
-      '__HTTP_HOST__',
-      gethostname(),
-      $urls
-    );
+    $urls =
+      str_replace('__HTTP_PORT__', (string) PerfSettings::HttpPort(), $urls);
+    $urls = str_replace('__HTTP_HOST__', gethostname(), $urls);
     file_put_contents($urls_file, $urls);
 
     $arguments = Vector {};
@@ -100,46 +95,58 @@ final class Siege extends Process {
     }
     $siege_rc = $this->target->getSiegeRCPath();
     if ($siege_rc !== null) {
-      $arguments->addAll(Vector {
-         '-R', $siege_rc,
-      });
+      $arguments->addAll(Vector {'-R', $siege_rc});
     }
 
     switch ($this->mode) {
       case RequestModes::WARMUP:
-        $arguments->addAll(Vector {
-          '-c', (string) PerfSettings::WarmupConcurrency(),
-          '-r', (string) PerfSettings::WarmupRequests(),
-          '-f', $urls_file,
-          '--benchmark',
-          '--log=/dev/null',
-        });
+        $arguments->addAll(
+          Vector {
+            '-c',
+            (string) PerfSettings::WarmupConcurrency(),
+            '-r',
+            (string) PerfSettings::WarmupRequests(),
+            '-f',
+            $urls_file,
+            '--benchmark',
+            '--log=/dev/null',
+          },
+        );
         return $arguments;
       case RequestModes::WARMUP_MULTI:
-        $arguments->addAll(Vector {
-          '-c', (string) PerfSettings::BenchmarkConcurrency(),
-          '-t', '1M',
-          '-f', $urls_file,
-          '--benchmark',
-          '--log=/dev/null',
-        });
+        $arguments->addAll(
+          Vector {
+            '-c',
+            (string) PerfSettings::BenchmarkConcurrency(),
+            '-t',
+            '1M',
+            '-f',
+            $urls_file,
+            '--benchmark',
+            '--log=/dev/null',
+          },
+        );
         return $arguments;
       case RequestModes::BENCHMARK:
-        $arguments->addAll(Vector {
-          '-c', (string) PerfSettings::BenchmarkConcurrency(),
-          '-f', $urls_file,
-          '--benchmark',
-          '--log='.$this->logfile,
-        });
-        
-        if (!$this->options->noTimeLimit) { 
+        $arguments->addAll(
+          Vector {
+            '-c',
+            (string) PerfSettings::BenchmarkConcurrency(),
+            '-f',
+            $urls_file,
+            '--benchmark',
+            '--log='.$this->logfile,
+          },
+        );
+
+        if (!$this->options->noTimeLimit) {
           $arguments->add('-t');
           $arguments->add(PerfSettings::BenchmarkTime());
         }
         return $arguments;
       default:
         invariant_violation(
-          'Unexpected request mode: '.(string)$this->mode
+          'Unexpected request mode: '.(string) $this->mode,
         );
     }
   }
@@ -148,7 +155,7 @@ final class Siege extends Process {
     $logfile = $this->logfile;
     invariant(
       $logfile !== null,
-      'Tried to get log file path without a logfile'
+      'Tried to get log file path without a logfile',
     );
     return $logfile;
   }

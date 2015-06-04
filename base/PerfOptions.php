@@ -66,12 +66,12 @@ final class PerfOptions {
   // HHVM specific options for generating performance data and profiling
   // information.
   //
-  public ?string $tcprint  = null;
+  public ?string $tcprint = null;
   public bool $tcAlltrans = false;
   public bool $tcToptrans = false;
   public bool $tcTopfuncs = false;
   public bool $pcredump = false;
-  public bool $profBC   = false;
+  public bool $profBC = false;
 
   public bool $applyPatches = false;
 
@@ -85,8 +85,8 @@ final class PerfOptions {
   //
   public float $delayNginxStartup;
   public float $delayPhpStartup;
-  public float $delayProcessLaunch;  // secs to wait after start process
-  public float $delayCheckHealth;    // secs to wait before hit /check-health
+  public float $delayProcessLaunch; // secs to wait after start process
+  public float $delayCheckHealth; // secs to wait before hit /check-health
 
   //
   // Maximum wait times, as for example given to file_get_contents
@@ -105,21 +105,17 @@ final class PerfOptions {
   public bool $notBenchmarking = false;
 
   private array $args;
-  private Vector<string> $notBenchmarkingArgs = Vector { };
+  private Vector<string> $notBenchmarkingArgs = Vector {};
 
   public function __construct(Vector<string> $argv) {
     $def = Vector {
       'help',
-
       'verbose',
-
       'php5:',
       'hhvm:',
       'siege:',
       'nginx:',
-
       'wait-at-end',
-
       'no-proxygen',
       'no-repo-auth',
       'no-file-cache',
@@ -128,49 +124,38 @@ final class PerfOptions {
       'pcre-cache-size:',
       'all-volatile',
       'interp-pseudomains',
-
       'apply-patches',
-
       'force-innodb',
       'fbcode::',
-
       'tcprint::',
       'dump-top-trans',
       'dump-top-funcs',
       'dump-all-trans',
       'dump-pcre-cache',
       'profBC',
-
       'setUpTest:',
       'tearDownTest:',
-
       'i-am-not-benchmarking',
-
       'hhvm-extra-arguments:',
       'php-extra-arguments:',
       'php-fcgi-children:',
-
       'no-time-limit',
-
       'skip-sanity-check',
       'skip-warmup',
       'skip-version-checks',
       'skip-database-install',
       'trace',
-
       'delay-nginx-startup:',
       'delay-php-startup:',
       'delay-process-launch:',
       'delay-check-health:',
-
       'max-delay-unfreeze:',
       'max-delay-admin-request:',
       'max-delay-nginx-keepalive:',
       'max-delay-nginx-fastcgi:',
-
-      'daemon-files',  // daemon output goes to files in the temp directory
-      'temp-dir:',  // temp directory to use; if absent one in /tmp is made
-      'src-dir:',   // location for source to copy into tmp dir instead of ZIP
+      'daemon-files', // daemon output goes to files in the temp directory
+      'temp-dir:', // temp directory to use; if absent one in /tmp is made
+      'src-dir:', // location for source to copy into tmp dir instead of ZIP
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -186,14 +171,17 @@ final class PerfOptions {
         STDERR,
         "Usage: %s \\\n".
         "  --<php5=/path/to/php-cgi|hhvm=/path/to/hhvm>\\\n".
-        "  --<".implode('|',$targets).">\n".
+        "  --<".
+        implode('|', $targets).
+        ">\n".
         "\n".
         "Options:\n%s",
         $argv[0],
         implode('', $def->map($x ==> '  --'.$x."\n")),
       );
       exit(1);
-    };
+    }
+    ;
     $this->verbose = array_key_exists('verbose', $o);
 
     $this->php5 = hphp_array_idx($o, 'php5', null);
@@ -212,7 +200,7 @@ final class PerfOptions {
       if (is_string($val) && $val !== '') {
         $fbcode = $val;
       } else {
-        $fbcode = getenv('HOME') . '/fbcode';
+        $fbcode = getenv('HOME').'/fbcode';
       }
       $this->forceInnodb = true;
     }
@@ -235,7 +223,7 @@ final class PerfOptions {
     $this->proxygen = !$this->getBool('no-proxygen');
     $this->applyPatches = $this->getBool('apply-patches');
 
-    $this->precompile  = !$this->getBool('no-repo-auth');
+    $this->precompile = !$this->getBool('no-repo-auth');
     $this->filecache = $this->precompile && !$this->getBool('no-file-cache');
     $this->pcreCache = $this->getNullableString('pcre-cache');
     $this->pcreSize = $this->getNullableInt('pcre-cache-size');
@@ -249,7 +237,7 @@ final class PerfOptions {
         $this->tcprint = $tcprint;
       } else if ($isFacebook) {
         $this->tcprint =
-          $fbcode . '/_bin/hphp/facebook/tools/tc-print/tc-print';
+          $fbcode.'/_bin/hphp/facebook/tools/tc-print/tc-print';
       }
     }
     $this->tcAlltrans = $this->getBool('dump-all-trans');
@@ -259,13 +247,12 @@ final class PerfOptions {
     $this->profBC = $this->getBool('profBC');
     $this->forceInnodb = $isFacebook || $this->getBool('force-innodb');
 
-    if ($this->tcprint !== null &&
-      !$this->tcTopfuncs && !$this->tcToptrans) {
+    if ($this->tcprint !== null && !$this->tcTopfuncs && !$this->tcToptrans) {
       $this->tcAlltrans = true;
     }
 
     if ($isFacebook && $this->php5 === null && $this->hhvm === null) {
-      $this->hhvm = $fbcode . '/_bin/hphp/hhvm/hhvm';
+      $this->hhvm = $fbcode.'/_bin/hphp/hhvm/hhvm';
     }
 
     $this->traceSubProcess = $this->getBool('trace');
@@ -279,18 +266,12 @@ final class PerfOptions {
     $this->delayProcessLaunch = $this->getFloat('delay-process-launch', 0.0);
     $this->delayCheckHealth = $this->getFloat('delay-check-health', 1.0);
     $this->maxdelayUnfreeze = $this->getFloat('max-delay-unfreeze', 60.0);
-    $this->maxdelayAdminRequest = $this->getFloat(
-      'max-delay-admin-request',
-      3.0
-    );
-    $this->maxdelayNginxKeepAlive = $this->getFloat(
-      'max-delay-nginx-keep-alive',
-      60.0
-    );
-    $this->maxdelayNginxFastCGI = $this->getFloat(
-      'max-delay-nginx-fastcgi',
-      60.0
-    );
+    $this->maxdelayAdminRequest =
+      $this->getFloat('max-delay-admin-request', 3.0);
+    $this->maxdelayNginxKeepAlive =
+      $this->getFloat('max-delay-nginx-keep-alive', 60.0);
+    $this->maxdelayNginxFastCGI =
+      $this->getFloat('max-delay-nginx-fastcgi', 60.0);
 
     $this->daemonOutputToFile = $this->getBool('daemon-files');
 
@@ -318,7 +299,7 @@ final class PerfOptions {
     if ($this->notBenchmarkingArgs && !$this->notBenchmarking) {
       $message = sprintf(
         "These arguments are invalid without --i-am-not-benchmarking: %s",
-        implode(' ', $this->notBenchmarkingArgs)
+        implode(' ', $this->notBenchmarkingArgs),
       );
       if (getenv("HHVM_OSS_PERF_BE_LENIENT")) {
         fprintf(STDERR, "*** WARNING ***\n%s\n", $message);
@@ -331,19 +312,19 @@ final class PerfOptions {
     if ($this->php5 === null && $this->hhvm === null) {
       invariant_violation(
         'Either --php5=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
-        "must be specified"
+        "must be specified",
       );
     }
     $engine = $this->php5 !== null ? $this->php5 : $this->hhvm;
     invariant(
-      shell_exec('which '.escapeshellarg($engine)) !== null
-      || is_executable($engine),
+      shell_exec('which '.escapeshellarg($engine)) !== null ||
+      is_executable($engine),
       'Invalid engine: %s',
-      $engine
+      $engine,
     );
     invariant(
-      shell_exec('which '.escapeshellarg($this->siege)) !== null
-      || is_executable($this->siege),
+      shell_exec('which '.escapeshellarg($this->siege)) !== null ||
+      is_executable($this->siege),
       'Could not find siege',
     );
 
@@ -351,32 +332,32 @@ final class PerfOptions {
     if ($tcprint !== null) {
       invariant(
         $tcprint !== '' &&
-        (shell_exec('which '.escapeshellarg($tcprint)) !== null
-        || is_executable($tcprint)),
+        (shell_exec('which '.escapeshellarg($tcprint)) !== null ||
+         is_executable($tcprint)),
         'Invalid tcprint: %s',
-        $tcprint
+        $tcprint,
       );
     }
 
     if ($this->tcAlltrans || $this->tcToptrans || $this->tcTopfuncs) {
       invariant(
         $tcprint !== null,
-        '--tcprint=/path/to/tc-print must be specified if --tc-all-trans, ' .
-        '--tc-top-trans, or --tc-top-funcs are specified'
+        '--tcprint=/path/to/tc-print must be specified if --tc-all-trans, '.
+        '--tc-top-trans, or --tc-top-funcs are specified',
       );
     }
 
     if ($this->pcreCache !== null || $this->pcreSize || $this->pcreExpire) {
       invariant(
         $this->hhvm !== null,
-        'The PCRE caching scheme can only be tuned for hhvm'
+        'The PCRE caching scheme can only be tuned for hhvm',
       );
     }
 
     if ($this->precompile) {
       invariant(
         $this->hhvm !== null,
-        'Only hhvm can be used with --repo-auth'
+        'Only hhvm can be used with --repo-auth',
       );
     }
 
@@ -419,14 +400,11 @@ final class PerfOptions {
     }
   }
 
-  private function getInt(
-    string $index,
-    int $the_default,
-  ): int {
+  private function getInt(string $index, int $the_default): int {
     if (array_key_exists($index, $this->args)) {
       $this->notBenchmarkingArgs[] = '--'.$index;
     }
-    return (int ) hphp_array_idx($this->args, $index, $the_default);
+    return (int) hphp_array_idx($this->args, $index, $the_default);
   }
 
   private function getNullableInt(string $name): ?int {
@@ -437,14 +415,11 @@ final class PerfOptions {
     return $this->args[$name];
   }
 
-  private function getFloat(
-    string $index,
-    float $the_default,
-  ): float {
+  private function getFloat(string $index, float $the_default): float {
     if (array_key_exists($index, $this->args)) {
       $this->notBenchmarkingArgs[] = '--'.$index;
     }
-    return (float)hphp_array_idx($this->args, $index, $the_default);
+    return (float) hphp_array_idx($this->args, $index, $the_default);
   }
 
   //
@@ -454,8 +429,11 @@ final class PerfOptions {
   //
   public function daemonOutputFileName(string $daemonName): ?string {
     if ($this->daemonOutputToFile) {
-      return (($this->tempDir === null) ? '/tmp' : $this->tempDir)
-        . '/' . $daemonName . '.out';
+      return
+        (($this->tempDir === null) ? '/tmp' : $this->tempDir).
+        '/'.
+        $daemonName.
+        '.out';
     } else {
       return null;
     }
@@ -479,7 +457,7 @@ final class PerfOptions {
       fprintf(
         STDERR,
         "You must specify a target with exactly one of the following:\n".
-        implode('', $def->keys()->map($arg ==> '  --'.$arg."\n"))
+        implode('', $def->keys()->map($arg ==> '  --'.$arg."\n")),
       );
       exit(1);
     }
@@ -501,7 +479,7 @@ final class PerfOptions {
       'toys-fibonacci' => () ==> new FibonacciTarget(),
       'toys-hello-world' => () ==> new HelloWorldTarget(),
       'wordpress' => () ==> new WordpressTarget($this),
-      'magento1' => () ==> new Magento1Target($this)
+      'magento1' => () ==> new Magento1Target($this),
     };
   }
 }

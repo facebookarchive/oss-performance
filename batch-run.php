@@ -9,10 +9,11 @@
  *
  */
 
-enum BatchRuntimeType: string {
+enum BatchRuntimeType : string {
   HHVM = 'hhvm';
   PHP_SRC = 'php-src';
-};
+}
+;
 
 type BatchRuntime = shape(
   'name' => string,
@@ -33,13 +34,16 @@ function batch_get_runtime(string $name, array $data): BatchRuntime {
     'name' => $name,
     'type' => $data['type'],
     'bin' => $data['bin'],
-    'setUpTest' => array_key_exists('setUpTest', $data)
-      ? $data['setUpTest'] : null,
-    'tearDownTest' => array_key_exists('tearDownTest', $data)
-      ? $data['tearDownTest'] : null,
-    'args' => array_key_exists('args', $data)
-      ? new Vector($data['args'])
-      : Vector { },
+    'setUpTest' =>
+      array_key_exists('setUpTest', $data) ? $data['setUpTest'] : null,
+    'tearDownTest' =>
+      array_key_exists('tearDownTest', $data)
+        ? $data['tearDownTest']
+        : null,
+    'args' =>
+      array_key_exists('args', $data)
+        ? new Vector($data['args'])
+        : Vector {},
   );
 }
 
@@ -48,12 +52,12 @@ function batch_get_target(
   Map<string, BatchRuntime> $runtimes,
   Map<string, Map<string, ?BatchRuntime>> $overrides,
 ): BatchTarget {
-  $target_overrides = Map { };
+  $target_overrides = Map {};
   if ($overrides->containsKey($name)) {
     $target_overrides = $overrides[$name];
   }
 
-  $target_runtimes = Vector { };
+  $target_runtimes = Vector {};
   foreach ($runtimes as $runtime_name => $runtime) {
     if ($target_overrides->containsKey($runtime_name)) {
       $runtime = $target_overrides[$runtime_name];
@@ -63,26 +67,21 @@ function batch_get_target(
       $target_runtimes[] = $runtime;
     }
   }
-  return shape(
-    'name' => $name,
-    'runtimes' => $target_runtimes,
-  );
+  return shape('name' => $name, 'runtimes' => $target_runtimes);
 }
 
 function batch_get_targets(string $json_data): Vector<BatchTarget> {
   $data = json_decode($json_data, true, 512);
   if ($data === null) {
-    throw new Exception(
-      'Invalid JSON: '.json_last_error_msg()
-    );
+    throw new Exception('Invalid JSON: '.json_last_error_msg());
   }
 
-  $runtimes = Map { };
+  $runtimes = Map {};
   foreach ($data['runtimes'] as $name => $runtime_data) {
     $runtimes[$name] = batch_get_runtime($name, $runtime_data);
   }
 
-  $overrides = Map { };
+  $overrides = Map {};
   if (array_key_exists('runtime-overrides', $data)) {
     foreach ($data['runtime-overrides'] as $target => $target_overrides) {
       foreach ($target_overrides as $name => $override_data) {
@@ -93,7 +92,7 @@ function batch_get_targets(string $json_data): Vector<BatchTarget> {
         invariant(
           $runtimes->containsKey($name),
           'Overriding a non-existing runtime "%s"',
-          $name
+          $name,
         );
         $override = $runtimes[$name];
         foreach ($override_data as $key => $value) {
@@ -108,14 +107,14 @@ function batch_get_targets(string $json_data): Vector<BatchTarget> {
           invariant_violation("Can't override '%s'", $key);
         }
         if (!$overrides->containsKey($target)) {
-          $overrides[$target] = Map { };
+          $overrides[$target] = Map {};
         }
         $overrides[$target][$name] = $skip ? null : $override;
       }
     }
   }
 
-  $targets = Vector { };
+  $targets = Vector {};
   foreach ($data['targets'] as $target) {
     $targets[] = batch_get_target($target, $runtimes, $overrides);
   }
@@ -154,7 +153,7 @@ function batch_get_all_runs_for_target(
   BatchTarget $target,
   Vector<string> $argv,
 ): Map<string, PerfOptions> {
-  $options = Map { };
+  $options = Map {};
   foreach ($target['runtimes'] as $runtime) {
     $options[$runtime['name']] =
       batch_get_single_run($target, $runtime, $argv);
@@ -166,7 +165,7 @@ function batch_get_all_runs(
   Vector<BatchTarget> $targets,
   Vector<string> $argv,
 ): Map<string, Map<string, PerfOptions>> {
-  $options = Map { };
+  $options = Map {};
   foreach ($targets as $target) {
     $options[$target['name']] =
       batch_get_all_runs_for_target($target, $argv);
@@ -180,9 +179,9 @@ function batch_main(Vector<string> $argv): void {
   $targets = batch_get_targets($json_config);
   $all_runs = batch_get_all_runs($targets, $argv);
 
-  $results = Map { };
+  $results = Map {};
   foreach ($all_runs as $target => $target_runs) {
-    $results[$target] = Map { };
+    $results[$target] = Map {};
     foreach ($target_runs as $engine => $run) {
       $results[$target][$engine] = PerfRunner::RunWithOptions($run);
       Process::cleanupAll();
@@ -191,8 +190,8 @@ function batch_main(Vector<string> $argv): void {
       sleep(5);
     }
   }
-  print(json_encode($results, JSON_PRETTY_PRINT)."\n");
+  print (json_encode($results, JSON_PRETTY_PRINT)."\n");
 }
 
-require_once('base/cli-init.php');
+require_once ('base/cli-init.php');
 batch_main(new Vector($argv));

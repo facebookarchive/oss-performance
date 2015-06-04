@@ -10,10 +10,7 @@
  */
 
 final class MediaWikiTarget extends PerfTarget {
-  public function __construct(
-    private PerfOptions $options,
-  ) {
-  }
+  public function __construct(private PerfOptions $options) {}
 
   protected function getSanityCheckString(): string {
     return 'Obama';
@@ -22,10 +19,7 @@ final class MediaWikiTarget extends PerfTarget {
   public function install(): void {
     $src_dir = $this->options->srcDir;
     if ($src_dir) {
-      Utils::CopyDirContents(
-        $src_dir,
-        $this->getSourceRoot(),
-      );
+      Utils::CopyDirContents($src_dir, $this->getSourceRoot());
     } else {
       Utils::ExtractTar(
         __DIR__.'/mediawiki-1.24.0.tar.gz',
@@ -45,7 +39,9 @@ final class MediaWikiTarget extends PerfTarget {
 
     file_put_contents(
       $this->getSourceRoot().'/LocalSettings.php',
-      '$wgCacheDirectory="'.$cache_dir.'";'.
+      '$wgCacheDirectory="'.
+      $cache_dir.
+      '";'.
       // Default behavior is to do a MySQL query *for each translatable string
       // on every page view*. This is just insane.
       '$wgLocalisationCacheConf["store"] = "file";'.
@@ -53,17 +49,19 @@ final class MediaWikiTarget extends PerfTarget {
       // large-scale deployment should be using a more scalable solution such
       // as log files or Google Analytics
       '$wgDisableCounters = true;',
-      FILE_APPEND
+      FILE_APPEND,
     );
   }
 
   <<__Override>>
   public function postInstall(): void {
-    Utils::RunCommand(Vector {
-      PHP_BINARY,
-      $this->getSourceRoot().'/maintenance/rebuildLocalisationCache.php',
-      '--lang=en',
-    });
+    Utils::RunCommand(
+      Vector {
+        PHP_BINARY,
+        $this->getSourceRoot().'/maintenance/rebuildLocalisationCache.php',
+        '--lang=en',
+      },
+    );
   }
 
   public function getSourceRoot(): string {

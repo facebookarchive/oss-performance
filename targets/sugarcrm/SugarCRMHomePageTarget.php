@@ -21,17 +21,20 @@ final class SugarCRMHomePageTarget extends SugarCRMTarget {
   <<__Memoize>>
   public function getSiegeRCPath(): ?string {
     $path = tempnam($this->options->tempDir, 'siegerc');
-    $query_data = implode('&', (Map {
-       'module' => 'Users',
-       'action' => 'Authenticate',
-       'user_name' => 'admin',
-       'user_password' => 'admin',
-    })->mapWithKey(($k, $v) ==> $k.'='.urlencode($v)));
+    $query_data = implode(
+      '&',
+      (Map {
+         'module' => 'Users',
+         'action' => 'Authenticate',
+         'user_name' => 'admin',
+         'user_password' => 'admin',
+       })->mapWithKey(($k, $v) ==> $k.'='.urlencode($v)),
+    );
     $config = sprintf(
       "login-url = http://%s:%d/index.php POST %s\n",
       gethostname(),
       PerfSettings::HttpPort(),
-      $query_data
+      $query_data,
     );
     file_put_contents($path, $config);
     return $path;

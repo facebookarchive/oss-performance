@@ -9,7 +9,7 @@
  *
  */
 
-require_once('base/cli-init.php');
+require_once ('base/cli-init.php');
 
 function perf_main(Vector<string> $argv): void {
   $data = PerfRunner::RunWithArgv($argv);

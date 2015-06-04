@@ -10,7 +10,7 @@
  */
 
 abstract class PerfTarget {
-  public function install(): void { }
+  public function install(): void {}
 
   abstract protected function getSanityCheckString(): string;
   abstract public function getSourceRoot(): string;
@@ -20,28 +20,28 @@ abstract class PerfTarget {
   }
 
   final public function sanityCheck(): void {
-    $ctx = stream_context_create(
-      ['http' => ['timeout' => 30]]
-    );
-    $url = 'http://'.gethostname().':'.PerfSettings::HttpPort().
+    $ctx = stream_context_create(['http' => ['timeout' => 30]]);
+    $url =
+      'http://'.
+      gethostname().
+      ':'.
+      PerfSettings::HttpPort().
       $this->getSanityCheckPath();
     $content = file_get_contents($url, /* include path = */ false, $ctx);
     invariant(
       strstr($content, $this->getSanityCheckString()) !== false,
-      'Failed to find string "'.$this->getSanityCheckString().'" in '.
-      $url
+      'Failed to find string "'.$this->getSanityCheckString().'" in '.$url,
     );
   }
 
   <<__Memoize>>
-  final protected function getAssetsDirectory(): string{
+  final protected function getAssetsDirectory(): string {
     $class = get_class($this);
     $file = (new ReflectionClass($class))->getFileName();
     return dirname($file);
   }
 
-  public function postInstall(): void {
-  }
+  public function postInstall(): void {}
 
   final public function applyPatches(): void {
     $dir = $this->getAssetsDirectory().'/patches/';
@@ -92,7 +92,7 @@ abstract class PerfTarget {
 
   public function unfreeze(PerfOptions $options): void {
     invariant_violation(
-      'If you override needsUnfreeze(), you must override unfreeze() too.'
+      'If you override needsUnfreeze(), you must override unfreeze() too.',
     );
   }
 

@@ -13,9 +13,7 @@ final class HHVMDaemon extends PHPEngine {
   private PerfTarget $target;
   private string $serverType;
 
-  public function __construct(
-    private PerfOptions $options,
-  ) {
+  public function __construct(private PerfOptions $options) {
     $this->target = $options->getTarget();
     parent::__construct((string) $options->hhvm);
 
@@ -25,10 +23,11 @@ final class HHVMDaemon extends PHPEngine {
     $check_command = implode(
       ' ',
       (Vector {
-          $options->hhvm,
-          '-v', 'Eval.Jit=1',
-          __DIR__.'/hhvm_config_check.php',
-      })->map($x ==> escapeshellarg($x))
+         $options->hhvm,
+         '-v',
+         'Eval.Jit=1',
+         __DIR__.'/hhvm_config_check.php',
+       })->map($x ==> escapeshellarg($x)),
     );
     if ($options->traceSubProcess) {
       fprintf(STDERR, "%s\n", $check_command);
@@ -45,7 +44,7 @@ final class HHVMDaemon extends PHPEngine {
           'supported in 3.4.0-dev or later - detected %s. Please make sure '.
           'that your HHVM build is a release build, and is built against '.
           "libpcre with JIT support.\n",
-          $version
+          $version,
         );
         sleep(2);
         return;
@@ -55,10 +54,10 @@ final class HHVMDaemon extends PHPEngine {
       $options,
       (string) $options->hhvm,
       $checks,
-      Set { 'HHVM_VERSION' },
+      Set {'HHVM_VERSION'},
     );
   }
-  
+
   protected function getTarget(): PerfTarget {
     return $this->target;
   }
@@ -66,58 +65,80 @@ final class HHVMDaemon extends PHPEngine {
   <<__Override>>
   protected function getArguments(): Vector<string> {
     $args = Vector {
-      '-m', 'server',
-      '-p', (string) PerfSettings::BackendPort(),
-      '-v', 'AdminServer.Port='.PerfSettings::BackendAdminPort(),
-      '-v', 'Server.Type='.$this->serverType,
-      '-v', 'Server.DefaultDocument=index.php',
-      '-v', 'Server.ErrorDocument404=index.php',
-      '-v', 'Server.SourceRoot='.$this->target->getSourceRoot(),
-      '-v', 'Eval.Jit=1',
-      '-d', 'pid='.escapeshellarg($this->getPidFilePath()),
-      '-c', OSS_PERFORMANCE_ROOT.'/conf/php.ini',
+      '-m',
+      'server',
+      '-p',
+      (string) PerfSettings::BackendPort(),
+      '-v',
+      'AdminServer.Port='.PerfSettings::BackendAdminPort(),
+      '-v',
+      'Server.Type='.$this->serverType,
+      '-v',
+      'Server.DefaultDocument=index.php',
+      '-v',
+      'Server.ErrorDocument404=index.php',
+      '-v',
+      'Server.SourceRoot='.$this->target->getSourceRoot(),
+      '-v',
+      'Eval.Jit=1',
+      '-d',
+      'pid='.escapeshellarg($this->getPidFilePath()),
+      '-c',
+      OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
     if ($this->options->pcreCache) {
-      $args->addAll(Vector {
-        '-v', 'Eval.PCRECacheType='.$this->options->pcreCache
-      });
+      $args->addAll(
+        Vector {'-v', 'Eval.PCRECacheType='.$this->options->pcreCache},
+      );
     }
     if ($this->options->pcreSize) {
-      $args->addAll(Vector {
-        '-v', 'Eval.PCRETableSize='.$this->options->pcreSize
-      });
+      $args->addAll(
+        Vector {'-v', 'Eval.PCRETableSize='.$this->options->pcreSize},
+      );
     }
     if ($this->options->pcreExpire) {
-      $args->addAll(Vector {
-        '-v', 'Eval.PCREExpireInterval='.$this->options->pcreExpire
-      });
+      $args->addAll(
+        Vector {
+          '-v',
+          'Eval.PCREExpireInterval='.$this->options->pcreExpire,
+        },
+      );
     }
     if (count($this->options->hhvmExtraArguments) > 0) {
       $args->addAll($this->options->hhvmExtraArguments);
     }
     if ($this->options->precompile) {
-      $bcRepo = $this->options->tempDir . '/hhvm.hhbc';
-      $args->add('-v'); $args->add('Repo.Authoritative=true');
-      $args->add('-v'); $args->add('Repo.Central.Path=' . $bcRepo);
+      $bcRepo = $this->options->tempDir.'/hhvm.hhbc';
+      $args->add('-v');
+      $args->add('Repo.Authoritative=true');
+      $args->add('-v');
+      $args->add('Repo.Central.Path='.$bcRepo);
     }
     if ($this->options->filecache) {
       $sourceRoot = $this->getTarget()->getSourceRoot();
-      $staticContent = $this->options->tempDir . '/static.content';
-      $args->add('-v'); $args->add('Server.FileCache=' . $staticContent);
-      $args->add('-v'); $args->add('Server.SourceRoot=' . $sourceRoot);
+      $staticContent = $this->options->tempDir.'/static.content';
+      $args->add('-v');
+      $args->add('Server.FileCache='.$staticContent);
+      $args->add('-v');
+      $args->add('Server.SourceRoot='.$sourceRoot);
     }
     if ($this->options->tcprint !== null) {
-      $args->add('-v'); $args->add('Eval.JitTransCounters=true');
-      $args->add('-v'); $args->add('Eval.DumpTC=true');
+      $args->add('-v');
+      $args->add('Eval.JitTransCounters=true');
+      $args->add('-v');
+      $args->add('Eval.DumpTC=true');
     }
     if ($this->options->profBC) {
-      $args->add('-v'); $args->add('Eval.ProfileBC=true');
+      $args->add('-v');
+      $args->add('Eval.ProfileBC=true');
     }
     if ($this->options->interpPseudomains) {
-      $args->add('-v'); $args->add('Eval.JitPseudomain=false');
+      $args->add('-v');
+      $args->add('Eval.JitPseudomain=false');
     }
     if ($this->options->allVolatile) {
-      $args->add('-v'); $args->add('Eval.AllVolatile=true');
+      $args->add('-v');
+      $args->add('Eval.AllVolatile=true');
     }
     return $args;
   }
@@ -136,36 +157,43 @@ final class HHVMDaemon extends PHPEngine {
       $args = Vector {
         $hhvm,
         '--hphp',
-        '--target',     'hhbc',
-        '--output-dir', $this->options->tempDir,
-        '--input-dir',  $sourceRoot,
-        '--module',     '/',
-        '--cmodule',    '/',
+        '--target',
+        'hhbc',
+        '--output-dir',
+        $this->options->tempDir,
+        '--input-dir',
+        $sourceRoot,
+        '--module',
+        '/',
+        '--cmodule',
+        '/',
         '-l3',
         '-k1',
       };
 
       if ($this->options->allVolatile) {
-        $args->add('-v'); $args->add('AllVolatile=true');
+        $args->add('-v');
+        $args->add('AllVolatile=true');
       }
 
       invariant(is_dir($sourceRoot), 'Could not find valid source root');
 
       $dir_iter = new RecursiveDirectoryIterator($sourceRoot);
-      $iter     = new RecursiveIteratorIterator($dir_iter);
+      $iter = new RecursiveIteratorIterator($dir_iter);
       foreach ($iter as $path => $_) {
         // Source files not ending in .php need to be specifically included
         if (is_file($path) && substr($path, -4) !== '.php') {
           $contents = file_get_contents($path);
           if (strpos($contents, '<?php') !== false) {
-            $arg = "--ffile=" . ltrim(substr($path, strlen($sourceRoot)), '/');
+            $arg =
+              "--ffile=".ltrim(substr($path, strlen($sourceRoot)), '/');
             $args->add($arg);
           }
         }
       }
 
-      $bcRepo = $this->options->tempDir . '/hhvm.hhbc';
-      $staticContent = $this->options->tempDir . '/static.content';
+      $bcRepo = $this->options->tempDir.'/hhvm.hhbc';
+      $staticContent = $this->options->tempDir.'/static.content';
       if (file_exists($bcRepo)) {
         unlink($bcRepo);
       }
@@ -175,7 +203,7 @@ final class HHVMDaemon extends PHPEngine {
           unlink($staticContent);
         }
         $args->add('--file-cache');
-        $args->add($this->options->tempDir . '/static.content');
+        $args->add($this->options->tempDir.'/static.content');
       }
 
       Utils::RunCommand($args);
@@ -183,7 +211,7 @@ final class HHVMDaemon extends PHPEngine {
       invariant(file_exists($bcRepo), 'Failed to create bytecode repo');
       invariant(
         !$this->options->filecache || file_exists($staticContent),
-        'Failed to create static content cache'
+        'Failed to create static content cache',
       );
     }
 
@@ -208,7 +236,7 @@ final class HHVMDaemon extends PHPEngine {
         }
         $health = json_decode($health, /* assoc array = */ true);
         if (array_key_exists('tc-size', $health) &&
-          ($health['tc-size'] > 0 || $health['tc-hotsize'] > 0)) {
+            ($health['tc-size'] > 0 || $health['tc-hotsize'] > 0)) {
           return;
         }
       }
@@ -239,31 +267,29 @@ final class HHVMDaemon extends PHPEngine {
     if ($this->isRunning() && $pid !== null) {
       posix_kill($pid, SIGKILL);
     }
-    invariant(
-      $this->waitForStop(1, 0.1),
-      "HHVM is unstoppable!",
-    );
+    invariant($this->waitForStop(1, 0.1), "HHVM is unstoppable!");
   }
 
   public function writeStats(): void {
     $tcprint = $this->options->tcprint;
     if ($tcprint) {
-      $conf = $this->options->tempDir . '/conf.hdf';
+      $conf = $this->options->tempDir.'/conf.hdf';
       $args = Vector {};
-      $hdf  = false;
+      $hdf = false;
       foreach ($this->getArguments() as $arg) {
-        if ($hdf) $args->add($arg);
+        if ($hdf)
+          $args->add($arg);
         $hdf = $arg === '-v';
       }
       $confData = implode("\n", $args);
 
       file_put_contents($conf, $confData);
-      $args = Vector { $tcprint, '-c', $conf };
+      $args = Vector {$tcprint, '-c', $conf};
 
       $result = $this->adminRequest('/vm-dump-tc');
       invariant(
         $result === 'Done' && file_exists('/tmp/tc_dump_a'),
-        'Failed to dump TC'
+        'Failed to dump TC',
       );
 
       if ($this->options->tcAlltrans) {
@@ -273,14 +299,16 @@ final class HHVMDaemon extends PHPEngine {
 
       if ($this->options->tcToptrans) {
         $new_args = new Vector($args);
-        $new_args->add('-t'); $new_args->add('100');
+        $new_args->add('-t');
+        $new_args->add('100');
         $toptrans = Utils::RunCommand($new_args);
         file_put_contents('tc-top-trans', $toptrans);
       }
 
       if ($this->options->tcTopfuncs) {
         $new_args = new Vector($args);
-        $new_args->add('-T'); $new_args->add('100');
+        $new_args->add('-T');
+        $new_args->add('100');
         $topfuncs = Utils::RunCommand($new_args);
         file_put_contents('tc-top-funcs', $topfuncs);
       }
@@ -290,31 +318,28 @@ final class HHVMDaemon extends PHPEngine {
       $result = $this->adminRequest('/dump-pcre-cache');
       invariant(
         $result === "OK\n" && file_exists('/tmp/pcre_cache'),
-        'Failed to dump PCRE cache'
+        'Failed to dump PCRE cache',
       );
 
       // move dump to CWD
-      rename('/tmp/pcre_cache', getcwd() . '/pcre_cache');
+      rename('/tmp/pcre_cache', getcwd().'/pcre_cache');
     }
   }
 
   protected function adminRequest(
     string $path,
-    bool $allowFailures = true
+    bool $allowFailures = true,
   ): string {
     $url = 'http://localhost:'.PerfSettings::HttpAdminPort().$path;
     $ctx = stream_context_create(
-      ['http' => ['timeout' => $this->options->maxdelayAdminRequest]]
+      ['http' => ['timeout' => $this->options->maxdelayAdminRequest]],
     );
     //
     // TODO: it would be nice to suppress
     // Warning messages from file_get_contents
     // in the event that the connection can't even be made.
     //
-    $result = file_get_contents(
-      $url,
-      /* include path = */ false,
-      $ctx);
+    $result = file_get_contents($url, /* include path = */ false, $ctx);
     if ($result !== false) {
       return $result;
     }
@@ -327,9 +352,7 @@ final class HHVMDaemon extends PHPEngine {
   }
 
   protected function getEnvironmentVariables(): Map<string, string> {
-    return Map {
-      'OSS_PERF_TARGET' => (string) $this->target,
-    };
+    return Map {'OSS_PERF_TARGET' => (string) $this->target};
   }
 
   public function __toString(): string {

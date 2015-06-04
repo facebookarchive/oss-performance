@@ -12,9 +12,7 @@
 final class PHP5Daemon extends PHPEngine {
   private PerfTarget $target;
 
-  public function __construct(
-    private PerfOptions $options,
-  ) {
+  public function __construct(private PerfOptions $options) {
     $this->target = $options->getTarget();
     parent::__construct((string) $options->php5);
 
@@ -22,11 +20,12 @@ final class PHP5Daemon extends PHPEngine {
     $check_command = implode(
       ' ',
       (Vector {
-          $options->php5,
-          '-q',
-          '-c', OSS_PERFORMANCE_ROOT.'/conf',
-          __DIR__.'/php-src_config_check.php',
-      })->map($x ==> escapeshellarg($x))
+         $options->php5,
+         '-q',
+         '-c',
+         OSS_PERFORMANCE_ROOT.'/conf',
+         __DIR__.'/php-src_config_check.php',
+       })->map($x ==> escapeshellarg($x)),
     );
 
     if ($options->traceSubProcess) {
@@ -39,7 +38,7 @@ final class PHP5Daemon extends PHPEngine {
       $options,
       (string) $options->php5,
       $checks,
-      Set { 'PHP_VERSION', 'PHP_VERSION_ID' },
+      Set {'PHP_VERSION', 'PHP_VERSION_ID'},
     );
   }
 
@@ -53,8 +52,10 @@ final class PHP5Daemon extends PHPEngine {
 
   protected function getArguments(): Vector<string> {
     $args = Vector {
-      '-b', '127.0.0.1:'.PerfSettings::BackendPort(),
-      '-c', OSS_PERFORMANCE_ROOT.'/conf/',
+      '-b',
+      '127.0.0.1:'.PerfSettings::BackendPort(),
+      '-c',
+      OSS_PERFORMANCE_ROOT.'/conf/',
     };
 
     if (count($this->options->phpExtraArguments) > 0) {

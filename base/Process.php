@@ -26,12 +26,12 @@ abstract class Process {
     foreach (self::$processes as $process) {
       $process->__destruct();
     }
-    self::$processes = Vector { };
+    self::$processes = Vector {};
   }
 
   abstract protected function getArguments(): Vector<string>;
   protected function getEnvironmentVariables(): Map<string, string> {
-    return Map { };
+    return Map {};
   }
 
   public function getExecutablePath(): string {
@@ -47,19 +47,20 @@ abstract class Process {
   ): void {
     $executable = $this->getExecutablePath();
 
-    $this->command = $executable.' '.implode(
-      ' ',
-      $this->getArguments()->map($x ==> escapeshellarg($x)),
-    );
+    $this->command =
+      $executable.
+      ' '.
+      implode(' ', $this->getArguments()->map($x ==> escapeshellarg($x)));
     if ($this->suppress_stdout) {
       $this->command .= ' >/dev/null';
     }
     $use_pipe = ($outputFileName === null);
-    $spec = [
-      0 => ['pipe', 'r'], // stdin
-      1 => $use_pipe ? ['pipe', 'w'] : ['file', $outputFileName, 'a'], // stdout
+    $spec =
+      [
+        0 => ['pipe', 'r'], // stdin
+        1 => $use_pipe ? ['pipe', 'w'] : ['file', $outputFileName, 'a'], // stdout
       // not currently using file descriptor 2 (stderr)
-    ];
+      ];
     $pipes = [];
     $env = new Map($_ENV);
     $env->setAll($this->getEnvironmentVariables());
@@ -80,7 +81,7 @@ abstract class Process {
     invariant(
       $proc && proc_get_status($proc)['running'] === true,
       'failed to start process: %s',
-      $this->command
+      $this->command,
     );
 
     $this->process = $proc;
