@@ -29,7 +29,10 @@ drush cr
 drush genu 50 --kill
 drush gent tags 50 --kill
 drush genm 2 50 3 8 --kill
-drush genc 50 30 --kill
+# drush genc 50 30 --kill
+
+# Disable devel_generate
+drush pmu devel_generate -y
 
 # Fix the files directory.
 sudo chmod -R a+wr sites/default/files
