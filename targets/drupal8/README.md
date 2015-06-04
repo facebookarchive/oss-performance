@@ -14,9 +14,14 @@ tar -xzf drupal-8.0.0-beta11.tar.gz
 drush si --db-url=mysql://drupal_bench:drupal_bench@localhost:3306/drupal_bench \
   --site-mail="root@localhost" \
   --site-name="Drupal 8 OSS Performance Test (No Page Cache)" \
-  --account-mail="root@localhost" --account-name="root" --account-pass="root"
+  --account-mail="root@localhost" \
+  --account-name="root" \
+  --account-pass="root"
+
 # Turn off the page cache and turn on devel_generate
-drush pmu page_cache -y; drush dl devel; drush en devel_generate -y
+drush pmu page_cache -y
+drush dl devel
+drush en devel_generate -y
 drush cr
 
 # Generate users, terms, menus, content.
@@ -44,3 +49,26 @@ drush config-set system.site name "Drupal 8 OSS Performance Test (Page Cache)" -
 drush cr
 drush sql-dump --result-file=dbdump-pagecache.sql --gzip
 ```
+
+Drush
+-----
+
+Drush is packaged as a tarball of the Drush repo (with the named commit hash)
+and a matching vendor directory (packaged separately) constructed by Composer.
+
+E.g.:
+
+```
+git clone https://github.com/drush-ops/drush.git
+cd drush
+git rev-parse HEAD 
+# 8ba1fbe in this example
+cd ..
+tar -cjf drush-8ba1fbe.tar.bz2 drush
+cd drush
+composer install
+cd ..
+tar -cjf drush-8ba1fbe-vendor.tar.bz2
+```
+
+
