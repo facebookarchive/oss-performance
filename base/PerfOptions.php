@@ -122,7 +122,7 @@ final class PerfOptions {
 
       'no-proxygen',
       'no-repo-auth',
-      'file-cache',
+      'no-file-cache',
       'pcre-cache:',
       'pcre-cache-expire:',
       'pcre-cache-size:',
@@ -236,7 +236,7 @@ final class PerfOptions {
     $this->applyPatches = $this->getBool('apply-patches');
 
     $this->precompile  = !$this->getBool('no-repo-auth');
-    $this->filecache = $this->getBool('file-cache');
+    $this->filecache = $this->precompile && !$this->getBool('no-file-cache');
     $this->pcreCache = $this->getNullableString('pcre-cache');
     $this->pcreSize = $this->getNullableInt('pcre-cache-size');
     $this->pcreExpire = $this->getNullableInt('pcre-cache-expire');
@@ -313,6 +313,7 @@ final class PerfOptions {
     if ($this->php5) {
       $this->precompile = false;
       $this->proxygen = false;
+      $this->filecache = false;
     }
     if ($this->notBenchmarkingArgs && !$this->notBenchmarking) {
       $message = sprintf(
@@ -362,13 +363,6 @@ final class PerfOptions {
         $tcprint !== null,
         '--tcprint=/path/to/tc-print must be specified if --tc-all-trans, ' .
         '--tc-top-trans, or --tc-top-funcs are specified'
-      );
-    }
-
-    if ($this->filecache) {
-      invariant(
-        $this->precompile,
-        'The file cache must be used with --repo-auth'
       );
     }
 
