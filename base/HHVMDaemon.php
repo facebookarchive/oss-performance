@@ -71,6 +71,7 @@ final class HHVMDaemon extends PHPEngine {
       '-v', 'AdminServer.Port='.PerfSettings::BackendAdminPort(),
       '-v', 'Server.Type='.$this->serverType,
       '-v', 'Server.DefaultDocument=index.php',
+      '-v', 'Server.ErrorDocument404=index.php',
       '-v', 'Server.SourceRoot='.$this->target->getSourceRoot(),
       '-v', 'Eval.Jit=1',
       '-d', 'pid='.escapeshellarg($this->getPidFilePath()),

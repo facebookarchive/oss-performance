@@ -126,11 +126,11 @@ final class NginxDaemon extends Process {
 
     if ($this->options->proxygen) {
       $proxy_pass = sprintf(
-        'proxy_pass http://127.0.0.1:%d',
+        'proxy_pass http://127.0.0.1:%d$request_uri',
         PerfSettings::BackendPort(),
       );
       $admin_proxy_pass = sprintf(
-        'proxy_pass http://127.0.0.1:%d',
+        'proxy_pass http://127.0.0.1:%d$request_uri',
         PerfSettings::BackendAdminPort(),
       );
     } else {
