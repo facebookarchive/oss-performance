@@ -47,13 +47,16 @@ Requirements
 
 - composer
 - nginx
-- siege
+- siege 2.x
 - unzip
 - A mysql server on 127.0.0.1:3306
 - hhvm
 
-I've been using the current versions available from yum on Centos 6.3. HHVM is required
-as this is written in Hack.
+I've been using the current versions available from yum on Centos 6.3. HHVM is
+required as this is written in Hack.
+
+Siege 3.x is not suppored; as of writing, all 3.x releases have bugs that make
+it unable to correctly make the benchmark requests.
 
 The Targets
 ===========
