@@ -73,6 +73,16 @@ Wordpress
   fresh install of Wordpress, and clicking 'generate data' in the admin panel a
   bunch of times.
 - URLs file is based on traffic to hhvm.com - request ratios are:
+- `DISABLE_WP_CRON` is set to true to disable the auto-update and other requests
+  to `rpc.pingomatic.com` and `wordpress.org`.
+  - auto-updating is not suitable for a like-to-like benchmark system like this
+  - `WP_CRON` increases noise, as it makes the benchmark results include the time
+    taken by external sites
+  - serious deployments should trigger the `WP_CRON` jobs via cron or similar:
+    - an administrator should be aware of all production changes, especially
+      code version changes
+    - scheduled maintainance should not make an unfortunate end-user request take
+      significantly more time
 
   100: even spread over long tail of posts
   50: WP front page. This number is an estimate - we get ~ 90 to /, ~ 1 to
@@ -91,7 +101,7 @@ The long tail was generated with:
       printf("http://localhost:__HTTP_PORT__/?p=%d\n", mt_rand(1,52));
     }
 
-  Ordering of the URLs file is courtesy of the unix 'shuf' command.
+Ordering of the URLs file is courtesy of the unix 'shuf' command.
 
 Drupal 7
 --------
