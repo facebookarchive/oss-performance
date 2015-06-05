@@ -75,7 +75,6 @@ Wordpress
 - Data comes from installing the demo-data-creator plugin (included) on a
   fresh install of Wordpress, and clicking 'generate data' in the admin panel a
   bunch of times.
-- URLs file is based on traffic to hhvm.com - request ratios are:
 - `DISABLE_WP_CRON` is set to true to disable the auto-update and other requests
   to `rpc.pingomatic.com` and `wordpress.org`.
   - auto-updating is not suitable for a like-to-like benchmark system like this
@@ -86,6 +85,7 @@ Wordpress
       code version changes
     - scheduled maintainance should not make an unfortunate end-user request take
       significantly more time
+- URLs file is based on traffic to hhvm.com - request ratios are:
 
   100: even spread over long tail of posts
   50: WP front page. This number is an estimate - we get ~ 90 to /, ~ 1 to
