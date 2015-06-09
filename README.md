@@ -181,8 +181,8 @@ Mediawiki
 ---------
 
 The main page is the Barack Obama page from Wikipedia; this is based on the
-WikiMedia foundation using it as a benchmark, and finding it fairly
-representative of wikipedia. A few other pages (HHVM, talk, edit) are also
+Wikimedia Foundation using it as a benchmark, and finding it fairly
+representative of Wikipedia. A few other pages (HHVM, talk, edit) are also
 loaded to provide a slightly more rounded workload.
 
 - MySQL-based view counters have been disabled: they are incredibly inefficient,
