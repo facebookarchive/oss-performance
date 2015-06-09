@@ -55,7 +55,7 @@ Requirements
 I've been using the current versions available from yum on Centos 6.3. HHVM is
 required as this is written in Hack.
 
-Siege 3.x is not suppored; as of writing, all 3.x releases have bugs that make
+Siege 3.x is not supported; as of writing, all 3.x releases have bugs that make
 it unable to correctly make the benchmark requests.
 
 The Targets
@@ -198,7 +198,7 @@ loaded to provide a slightly more rounded workload.
 
 Each of these modifications improves performance under all tested runtimes: PHP5,
 PHP7, and HHVM. The concurrency issues with the MySQL-based view counters and
-L10N caching are contention within MySQL server.
+L10N caching are because of contention within MySQL server.
 
 Profiling
 =========
