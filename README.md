@@ -69,11 +69,11 @@ here to give a simple, quick target to test that the script works correctly.
 
 'hello, world' is useful for profiling request handling.
 
-Wordpress
+WordPress
 ---------
 
 - Data comes from installing the demo-data-creator plugin (included) on a
-  fresh install of Wordpress, and clicking 'generate data' in the admin panel a
+  fresh install of WordPress, and clicking 'generate data' in the admin panel a
   bunch of times.
 - `DISABLE_WP_CRON` is set to true to disable the auto-update and other requests
   to `rpc.pingomatic.com` and `wordpress.org`.
