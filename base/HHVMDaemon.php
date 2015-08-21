@@ -180,7 +180,8 @@ final class HHVMDaemon extends PHPEngine {
 
       $dir_iter = new RecursiveDirectoryIterator($sourceRoot);
       $iter = new RecursiveIteratorIterator($dir_iter);
-      foreach ($iter as $path => $_) {
+      foreach ($iter as $info) {
+        $path = $info->getPathname();
         // Source files not ending in .php need to be specifically included
         if (is_file($path) && substr($path, -4) !== '.php') {
           $contents = file_get_contents($path);
