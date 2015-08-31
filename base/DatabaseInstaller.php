@@ -59,11 +59,19 @@ final class DatabaseInstaller {
       $sed = 'sed s/MyISAM/InnoDB/g |';
     }
 
+    $cat = 'cat';
+    if ($this->options->dumpIsCompressed) {
+      $cat = trim(shell_exec('which gzcat'));
+      if ($cat === null) {
+        $cat = 'zcat';
+      }
+    }
+
     $output = null;
     $ret = null;
     exec(
       Utils::EscapeCommand(
-        Vector {$this->options->dumpIsCompressed ? 'zcat' : 'cat', $dump},
+        Vector {$cat, $dump},
       ).
       '|'.
       $sed.
