@@ -59,7 +59,9 @@ final class DatabaseInstaller {
       $sed = 'sed s/MyISAM/InnoDB/g |';
     }
 
-    shell_exec(
+    $output = null;
+    $ret = null;
+    exec(
       Utils::EscapeCommand(
         Vector {$this->options->dumpIsCompressed ? 'zcat' : 'cat', $dump},
       ).
@@ -68,7 +70,16 @@ final class DatabaseInstaller {
       Utils::EscapeCommand(
         Vector {'mysql', '-h', '127.0.0.1', $db, '-u', $db, '-p'.$db},
       ),
+      $output,
+      $ret,
     );
+
+    if ($ret !== 0) {
+      throw new Exception(
+        'Database installation failed: '.implode("\n", $output)
+      );
+    }
+
     return true;
   }
 
