@@ -62,7 +62,7 @@ final class DatabaseInstaller {
     $cat = 'cat';
     if ($this->options->dumpIsCompressed) {
       $cat = trim(shell_exec('which gzcat 2>/dev/null'));
-      if ($cat === "") {
+      if (!$cat) {
         $cat = 'zcat';
       }
     }
