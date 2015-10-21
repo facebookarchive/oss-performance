@@ -134,6 +134,11 @@ final class PerfRunner {
     self::PrintProgress('Clearing nginx access.log');
     $nginx->clearAccessLog();
 
+    if ($options->waitAfterWarmup) {
+      self::PrintProgress('Finished warmup. Press Enter to continue the benchmark');
+      fread(STDIN, 1);
+    }
+
     self::PrintProgress('Starting Siege for benchmark');
     $siege = new Siege($options, $target, RequestModes::BENCHMARK);
     $siege->start();
