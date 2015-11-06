@@ -48,6 +48,8 @@ final class PerfOptions {
   // Pause once benchmarking is complete to allow for manual inspection of the
   // HHVM or PHP process.
   public bool $waitAtEnd = false;
+  // Pause after the warmup is completed to get relevant data when profiling
+  public bool $waitAfterWarmup = false;
 
   //
   // HHVM specific options to enable RepoAuthoritative mode and the static
@@ -116,6 +118,7 @@ final class PerfOptions {
       'siege:',
       'nginx:',
       'wait-at-end',
+      'wait-after-warmup',
       'no-proxygen',
       'no-repo-auth',
       'no-file-cache',
@@ -216,6 +219,7 @@ final class PerfOptions {
 
     $this->skipSanityCheck = $this->getBool('skip-sanity-check');
     $this->skipWarmUp = $this->getBool('skip-warmup');
+    $this->waitAfterWarmup = $this->getBool('wait-after-warmup');
     $this->skipVersionChecks = $this->getBool('skip-version-checks');
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
     $this->noTimeLimit = $this->getBool('no-time-limit');
