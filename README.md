@@ -177,28 +177,13 @@ Magento
     - Product with options
     - Product reviews
 
-Mediawiki
+MediaWiki
 ---------
 
 The main page is the Barack Obama page from Wikipedia; this is based on the
 Wikimedia Foundation using it as a benchmark, and finding it fairly
 representative of Wikipedia. A few other pages (HHVM, talk, edit) are also
 loaded to provide a slightly more rounded workload.
-
-- MySQL-based view counters have been disabled: they are incredibly inefficient,
-  unlikely to be used in any high-concurrency deployment (for example, Wikipedia
-  disables them), and will be removed in a future release of Mediawiki.
-- Localisation caching has been switched from MySQL to file-based. MySQL-based
-  L10N caching 'just works', but it is also inefficient (1 query per localizable
-  string per page view), and unlikely to be used in high-concurrency deployments.
-  This setting is also used by Wikipedia.
-- If `--apply-patches` is specified, the existing file cache is replaced with a
-  more efficient version that simply uses static PHP arrays. This has been
-  submitted to the upstream project at https://phabricator.wikimedia.org/T99740
-
-Each of these modifications improves performance under all tested runtimes: PHP5,
-PHP7, and HHVM. The concurrency issues with the MySQL-based view counters and
-L10N caching are because of contention within MySQL server.
 
 Profiling
 =========
