@@ -10,6 +10,9 @@
  */
 
 final class MediaWikiTarget extends PerfTarget {
+
+  const MEDIAWIKI_VERSION = 'mediawiki-1.26.2';
+
   public function __construct(private PerfOptions $options) {}
 
   protected function getSanityCheckString(): string {
@@ -22,7 +25,7 @@ final class MediaWikiTarget extends PerfTarget {
       Utils::CopyDirContents($src_dir, $this->getSourceRoot());
     } else {
       Utils::ExtractTar(
-        __DIR__.'/mediawiki-1.24.0.tar.gz',
+        __DIR__.'/'.self::MEDIAWIKI_VERSION.'.tar.gz',
         $this->options->tempDir,
       );
     }
@@ -37,18 +40,10 @@ final class MediaWikiTarget extends PerfTarget {
     $cache_dir = $this->getSourceRoot().'/mw-cache';
     mkdir($cache_dir);
 
+    copy(__DIR__.'/LocalSettings.php', $this->getSourceRoot().'/LocalSettings.php');
     file_put_contents(
       $this->getSourceRoot().'/LocalSettings.php',
-      '$wgCacheDirectory="'.
-      $cache_dir.
-      '";'.
-      // Default behavior is to do a MySQL query *for each translatable string
-      // on every page view*. This is just insane.
-      '$wgLocalisationCacheConf["store"] = "file";'.
-      // Default behavior is to maintain view counts in MySQL. Any real
-      // large-scale deployment should be using a more scalable solution such
-      // as log files or Google Analytics
-      '$wgDisableCounters = true;',
+      '$wgCacheDirectory="'.$cache_dir.'";',
       FILE_APPEND,
     );
   }
@@ -65,6 +60,6 @@ final class MediaWikiTarget extends PerfTarget {
   }
 
   public function getSourceRoot(): string {
-    return $this->options->tempDir.'/mediawiki';
+    return $this->options->tempDir.'/'.self::MEDIAWIKI_VERSION;
   }
 }
