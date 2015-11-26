@@ -6,8 +6,7 @@ We would greatly appreciate pull requests that:
 
 - Replace fake data with real-world data. Please be careful to
   anonymize/sanitize any user data before putting your pull request on github.
-- Add additional targets - we're particularly interested in MediaWiki, Laravel,
-  and Drupal.
+- Add additional targets.
 - Improve the performance of any supported engine. In practice, this probably
   means configuration changes.
 
