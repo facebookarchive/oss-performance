@@ -194,17 +194,17 @@ final class HHVMDaemon extends PHPEngine {
       }
 
       $bcRepo = $this->options->tempDir.'/hhvm.hhbc';
-      $staticContent = $this->options->tempDir.'/static.content';
       if (file_exists($bcRepo)) {
         unlink($bcRepo);
       }
 
+      $staticContent = $this->options->tempDir.'/static.content';
       if ($this->options->filecache) {
         if (file_exists($staticContent)) {
           unlink($staticContent);
         }
         $args->add('--file-cache');
-        $args->add($this->options->tempDir.'/static.content');
+        $args->add($staticContent);
       }
 
       Utils::RunCommand($args);
