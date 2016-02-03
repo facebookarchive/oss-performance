@@ -99,6 +99,11 @@ final class PerfRunner {
       $target->sanityCheck();
     }
 
+    if ($options->scriptBeforeWarmup !== null) {
+      self::PrintProgress('Starting execution of command: '.$options->scriptBeforeWarmup);
+      exec($options->scriptBeforeWarmup);
+    }
+
     if (!$options->skipWarmUp) {
       self::PrintProgress('Starting Siege for single request warmup');
       $siege = new Siege($options, $target, RequestModes::WARMUP);
@@ -139,11 +144,21 @@ final class PerfRunner {
       fread(STDIN, 1);
     }
 
+    if ($options->scriptAfterWarmup !== null) {
+      self::PrintProgress('Starting execution of command: '.$options->scriptAfterWarmup);
+      exec($options->scriptAfterWarmup);
+    }
+
     self::PrintProgress('Starting Siege for benchmark');
     $siege = new Siege($options, $target, RequestModes::BENCHMARK);
     $siege->start();
     invariant($siege->isRunning(), 'Siege failed to start');
     $siege->wait();
+
+    if ($options->scriptAfterBenchmark !== null) {
+      self::PrintProgress('Starting execution of command: '.$options->scriptAfterBenchmark);
+      exec($options->scriptAfterBenchmark);
+    }
 
     self::PrintProgress('Collecting results');
 

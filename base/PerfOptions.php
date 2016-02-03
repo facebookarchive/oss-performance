@@ -104,6 +104,10 @@ final class PerfOptions {
   public string $tempDir;
   public ?string $srcDir;
 
+  public ?string $scriptBeforeWarmup;
+  public ?string $scriptAfterWarmup;
+  public ?string $scriptAfterBenchmark;
+
   public bool $notBenchmarking = false;
 
   private array $args;
@@ -156,6 +160,9 @@ final class PerfOptions {
       'max-delay-admin-request:',
       'max-delay-nginx-keepalive:',
       'max-delay-nginx-fastcgi:',
+      'exec-before-warmup:',
+      'exec-after-warmup:',
+      'exec-after-benchmark:',
       'daemon-files', // daemon output goes to files in the temp directory
       'temp-dir:', // temp directory to use; if absent one in /tmp is made
       'src-dir:', // location for source to copy into tmp dir instead of ZIP
@@ -234,6 +241,10 @@ final class PerfOptions {
     $this->pcreExpire = $this->getNullableInt('pcre-cache-expire');
     $this->allVolatile = $this->getBool('all-volatile');
     $this->interpPseudomains = $this->getBool('interp-pseudomains');
+
+    $this->scriptBeforeWarmup = $this->getNullableString('exec-before-warmup');
+    $this->scriptAfterWarmup = $this->getNullableString('exec-after-warmup');
+    $this->scriptAfterBenchmark = $this->getNullableString('exec-after-benchmark');
 
     if ($this->getBool('tcprint')) {
       $tcprint = hphp_array_idx($o, 'tcprint', null);
