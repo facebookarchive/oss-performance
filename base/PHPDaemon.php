@@ -9,18 +9,18 @@
  *
  */
 
-final class PHP5Daemon extends PHPEngine {
+final class PHPDaemon extends PHPEngine {
   private PerfTarget $target;
 
   public function __construct(private PerfOptions $options) {
     $this->target = $options->getTarget();
-    parent::__construct((string) $options->php5);
+    parent::__construct((string) $options->php);
 
     $output = [];
     $check_command = implode(
       ' ',
       (Vector {
-         $options->php5,
+         $options->php,
          '-q',
          '-c',
          OSS_PERFORMANCE_ROOT.'/conf',
@@ -36,7 +36,7 @@ final class PHP5Daemon extends PHPEngine {
     invariant($checks, 'Got invalid output from php-src_config_check.php');
     BuildChecker::Check(
       $options,
-      (string) $options->php5,
+      (string) $options->php,
       $checks,
       Set {'PHP_VERSION', 'PHP_VERSION_ID'},
     );
@@ -44,7 +44,7 @@ final class PHP5Daemon extends PHPEngine {
 
   public function start(): void {
     parent::startWorker(
-      $this->options->daemonOutputFileName('php5'),
+      $this->options->daemonOutputFileName('php'),
       $this->options->delayProcessLaunch,
       $this->options->traceSubProcess,
     );
@@ -114,6 +114,6 @@ final class PHP5Daemon extends PHPEngine {
   }
 
   public function __toString(): string {
-    return (string) $this->options->php5;
+    return (string) $this->options->php;
   }
 }
