@@ -34,6 +34,9 @@ final class PerfRunner {
     if ($options->php5) {
       $php_engine = new PHP5Daemon($options);
     }
+    if ($options->fpm) {
+      $php_engine = new FPMDaemon($options);
+    }
     if ($options->hhvm) {
       $php_engine = new HHVMDaemon($options);
     }
