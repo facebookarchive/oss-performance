@@ -20,6 +20,7 @@ final class PerfOptions {
   //
   public ?string $php5;
   public ?string $hhvm;
+  public ?string $fpm;
 
   //
   // setUpTest and tearDownTest are called before and after each
@@ -119,6 +120,7 @@ final class PerfOptions {
       'verbose',
       'php5:',
       'hhvm:',
+      'fpm:',
       'siege:',
       'nginx:',
       'wait-at-end',
@@ -196,6 +198,7 @@ final class PerfOptions {
 
     $this->php5 = hphp_array_idx($o, 'php5', null);
     $this->hhvm = hphp_array_idx($o, 'hhvm', null);
+    $this->fpm = hphp_array_idx($o, 'fpm', null);
 
     $this->setUpTest = hphp_array_idx($o, 'setUpTest', null);
     $this->tearDownTest = hphp_array_idx($o, 'tearDownTest', null);
@@ -306,7 +309,7 @@ final class PerfOptions {
   }
 
   public function validate() {
-    if ($this->php5) {
+    if ($this->php5 || $this->fpm) {
       $this->precompile = false;
       $this->proxygen = false;
       $this->filecache = false;
@@ -324,13 +327,21 @@ final class PerfOptions {
         exit(1);
       }
     }
-    if ($this->php5 === null && $this->hhvm === null) {
+    if ($this->php5 === null && $this->hhvm === null && $this->fpm === null) {
       invariant_violation(
-        'Either --php5=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
-        "must be specified",
+        'Either --php5=/path/to/php-cgi, --hhvm=/path/to/hhvm ' .
+        "or --fpm=/path/to/php-fpm must be specified",
       );
     }
-    $engine = $this->php5 !== null ? $this->php5 : $this->hhvm;
+
+
+    if ($this->php5 !== null) {
+      $engine = $this->php5;
+    } else if ($this->fpm !== null) {
+      $engine = $this->fpm;
+    } else {
+      $engine = $this->hhvm;
+    }
     invariant(
       shell_exec('which '.escapeshellarg($engine)) !== null ||
       is_executable($engine),
