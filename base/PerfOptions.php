@@ -89,7 +89,7 @@ final class PerfOptions {
   public float $delayPhpStartup;
   public float $delayProcessLaunch; // secs to wait after start process
   public float $delayCheckHealth; // secs to wait before hit /check-health
-
+  public ?string $benchmarkTime; // mins to execute the benchmarking phase
   //
   // Maximum wait times, as for example given to file_get_contents
   // or the configuration file for nginx.  These times may be truncated
@@ -143,6 +143,7 @@ final class PerfOptions {
       'setUpTest:',
       'tearDownTest:',
       'i-am-not-benchmarking',
+      'benchmark-time:',
       'hhvm-extra-arguments:',
       'php-extra-arguments:',
       'php-fcgi-children:',
@@ -232,6 +233,7 @@ final class PerfOptions {
     $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = $this->getBool('wait-at-end');
     $this->proxygen = !$this->getBool('no-proxygen');
+    $this->benchmarkTime = $this->getNullableString('benchmark-time');
     $this->applyPatches = $this->getBool('apply-patches');
 
     $this->precompile = !$this->getBool('no-repo-auth');

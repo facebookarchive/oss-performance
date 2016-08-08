@@ -141,7 +141,10 @@ final class Siege extends Process {
 
         if (!$this->options->noTimeLimit) {
           $arguments->add('-t');
-          $arguments->add(PerfSettings::BenchmarkTime());
+          if ($this->options->benchmarkTime === null)
+            $arguments->add(PerfSettings::BenchmarkTime());
+          else
+            $arguments->add((string)$this->options->benchmarkTime);
         }
         return $arguments;
       default:
