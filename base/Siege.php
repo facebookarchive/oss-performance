@@ -85,36 +85,37 @@ final class Siege extends Process {
 
     $arguments = Vector {};
     if (!$this->options->noTimeLimit) {
-	if($this->options->benchmarkTime !== null && strlen($this->options->benchmarkTime) >= 2){
-	   $tempArr = str_split($this->options->benchmarkTime);
-	   $i = 0;
-	   $time = $tempArr[$i];
-	   $i++;
-	   while($i < ((count($tempArr)-1))){
- 	      $time = $time . $tempArr[$i];
-	      $i++;
-	   }
-	   $time = intval($time);
-	   $time = $time + 4;
+      if ($this->options->benchmarkTime !== null && strlen($this->options->benchmarkTime) >= 2){
+        $tempArr = str_split($this->options->benchmarkTime);
+	  $i = 0;
+	  $time = $tempArr[$i];
+	  $i++;
+
+	  while($i < ((count($tempArr)-1))){
+ 	    $time = $time . $tempArr[$i];
+	    $i++;
+	  }
+
+	  $time = intval($time);
+	  $time = $time + 4;
 	   
-	   switch(strtoupper($tempArr[$i])){
-	      case 'S':
-	         $time = $time . 's';
-		 break;
-	      case 'M':
-		 $time = $time . 'm';
-		 break;
-	      case 'H':
-	         $time = $time . 'h';
-		 break;
-	      default:
-		$time = $time . 'm';
+	  switch(strtoupper($tempArr[$i])){
+	    case 'S':
+	      $time = $time . 's';
+	      break;
+	    case 'M':
+	      $time = $time . 'm';
+              break;
+	    case 'H':
+	      $time = $time . 'h';
+	      break;
+	    default:
+              $time = $time . 'm';
 	   }
-	print('two ' . $time);
 	}else{
-	   $time = '5m';
+	  $time = '5m';
 	}
-	print("Three " . $time);
+	
 	$arguments = Vector {
         // See Siege::getExecutablePath()  - these arguments get passed to
         // timeout
