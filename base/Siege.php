@@ -88,7 +88,7 @@ final class Siege extends Process {
       if ($this->options->benchmarkTime !== null && strlen($this->options->benchmarkTime) >= 2){
         $tempArr = str_split($this->options->benchmarkTime);
         $i = 0;
-        $time = $temparr[$i];
+        $time = $tempArr[$i];
         $i++;
 
 	while($i < ((count($tempArr)-1))){
