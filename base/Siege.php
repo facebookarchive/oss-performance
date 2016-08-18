@@ -109,7 +109,6 @@ final class Siege extends Process {
             break;
           case 'H':
             $time = floatval($time);
-            print('KEVIN2 ' . $time);
             $time = $time + .066;
 	    $time = $time . 'h';
 	    break;
