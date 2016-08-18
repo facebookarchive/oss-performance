@@ -89,33 +89,38 @@ final class Siege extends Process {
         $tempArr = str_split($this->options->benchmarkTime);
         $i = 0;
         $time = $tempArr[$i];
-        $i++;
+	$i++;
 
 	while($i < ((count($tempArr)-1))){
- 	  $time = $time . $tempArr[$i];
+	  $time = $time . $tempArr[$i];
 	  $i++;
 	}
-
-	$time = intval($time);
-	$time = $time + 4;
-	   
+ 
 	switch(strtoupper($tempArr[$i])){
 	  case 'S':
+	    $time = intval($time);
+	    $time = $time + 240;
 	    $time = $time . 's';
 	    break;
 	  case 'M':
+	    $time = intval($time);
+	    $time = $time + 4;
 	    $time = $time . 'm';
             break;
           case 'H':
+            $time = floatval($time);
+            print('KEVIN2 ' . $time);
+            $time = $time + .066;
 	    $time = $time . 'h';
 	    break;
 	  default:
+            $time = intval($time);
+	    $time = $time + 4;
             $time = $time . 'm';
 	 }
       }else{
         $time = '5m';
       }
-	
       $arguments = Vector {
       // See Siege::getExecutablePath()  - these arguments get passed to
       // timeout
