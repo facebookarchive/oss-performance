@@ -99,7 +99,7 @@ final class WordpressTarget extends PerfTarget {
     );
     $data = file_get_contents($url, /* include path = */ false, $ctx);
     invariant(
-      $data !== false,
+      $data !== false,'%s',
       'Failed to unfreeze '.
       $url.
       ' after '.
