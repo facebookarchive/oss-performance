@@ -100,11 +100,9 @@ final class WordpressTarget extends PerfTarget {
     $data = file_get_contents($url, /* include path = */ false, $ctx);
     invariant(
       $data !== false,
-      'Failed to unfreeze '.
-      $url.
-      ' after '.
-      $options->maxdelayUnfreeze.
-      ' secs',
+      'Failed to unfreeze %s after %f secs',
+      $url,
+      $options->maxdelayUnfreeze,
     );
   }
 }
