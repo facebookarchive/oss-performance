@@ -84,8 +84,8 @@ final class PerfRunner {
     Process::sleepSeconds($options->delayPhpStartup);
     invariant(
       $php_engine->isRunning(),
-      '%s',
-      'Failed to start '.get_class($php_engine),
+      'Failed to start %s',
+      get_class($php_engine),
     );
 
     if ($target->needsUnfreeze()) {
@@ -115,8 +115,8 @@ final class PerfRunner {
       invariant(!$siege->isRunning(), 'Siege is still running :/');
       invariant(
         $php_engine->isRunning(),
-        '%s',
-        get_class($php_engine).' crashed',
+        '%s crashed',
+        get_class($php_engine),
       );
     } else {
       self::PrintProgress('Skipping single request warmup');
@@ -132,8 +132,8 @@ final class PerfRunner {
       invariant(!$siege->isRunning(), 'Siege is still running :/');
       invariant(
         $php_engine->isRunning(),
-        '%s',
-        get_class($php_engine).' crashed',
+        '%s crashed',
+        get_class($php_engine),
       );
     } else {
       self::PrintProgress('Skipping multi request warmup');

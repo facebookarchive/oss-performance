@@ -30,8 +30,9 @@ abstract class PerfTarget {
     $content = file_get_contents($url, /* include path = */ false, $ctx);
     invariant(
       strstr($content, $this->getSanityCheckString()) !== false,
-      '%s',
-      'Failed to find string "'.$this->getSanityCheckString().'" in '.$url,
+      'Failed to find string "%s" in %s',
+      $this->getSanityCheckString(),
+      $url,
     );
   }
 
