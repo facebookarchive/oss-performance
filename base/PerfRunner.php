@@ -84,6 +84,7 @@ final class PerfRunner {
     Process::sleepSeconds($options->delayPhpStartup);
     invariant(
       $php_engine->isRunning(),
+      '%s',
       'Failed to start '.get_class($php_engine),
     );
 
@@ -114,6 +115,7 @@ final class PerfRunner {
       invariant(!$siege->isRunning(), 'Siege is still running :/');
       invariant(
         $php_engine->isRunning(),
+        '%s',
         get_class($php_engine).' crashed',
       );
     } else {
@@ -130,6 +132,7 @@ final class PerfRunner {
       invariant(!$siege->isRunning(), 'Siege is still running :/');
       invariant(
         $php_engine->isRunning(),
+        '%s',
         get_class($php_engine).' crashed',
       );
     } else {

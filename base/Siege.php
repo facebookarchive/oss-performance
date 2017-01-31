@@ -146,7 +146,7 @@ final class Siege extends Process {
         return $arguments;
       default:
         invariant_violation(
-          'Unexpected request mode: '.(string) $this->mode,
+          '%s', 'Unexpected request mode: '.(string) $this->mode,
         );
     }
   }
