@@ -107,6 +107,8 @@ final class PerfOptions {
   public ?string $scriptBeforeWarmup;
   public ?string $scriptAfterWarmup;
   public ?string $scriptAfterBenchmark;
+  public ?string $hhvmServerThreads;
+  public ?string $benchmarkConcurrency;
 
   public bool $notBenchmarking = false;
 
@@ -166,6 +168,8 @@ final class PerfOptions {
       'daemon-files', // daemon output goes to files in the temp directory
       'temp-dir:', // temp directory to use; if absent one in /tmp is made
       'src-dir:', // location for source to copy into tmp dir instead of ZIP
+      'hhvm-server-threads:',
+      'benchmark-concurrency:',
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -291,6 +295,26 @@ final class PerfOptions {
     $this->daemonOutputToFile = $this->getBool('daemon-files');
 
     $argTempDir = $this->getNullableString('temp-dir');
+    
+    if(array_key_exists('hhvm-server-threads', $o)){
+      $this->hhvmServerThreads = $this->getNullableString('hhvm-server-threads');
+    } else {
+      $this->hhvmServerThreads = '100';
+    }
+    $hhvmDir  = realpath(__DIR__ . '/..').'/conf/php.ini';
+    $file_contents = file_get_contents($hhvmDir);
+    $file_contents = preg_replace('/^.*hhvm.server.thread_count.*$/m', 'hhvm.server.thread_count='.$this->hhvmServerThreads, $file_contents );
+    file_put_contents($hhvmDir, $file_contents);
+
+    if(array_key_exists('benchmark-concurrency', $o)){
+      $this->benchmarkConcurrency = $this->getNullableString('benchmark-concurrency');
+    } else {
+      $this->benchmarkConcurrency = '200';
+    }
+    $bmConcurrency = __DIR__.'/PerfSettings.php';
+    $file_contents = file_get_contents($bmConcurrency);
+    $file_contents = preg_replace('/^.*Benchmark Concurrency.*$/m', '    return '.$this->benchmarkConcurrency.'; //Benchmark Concurrency *DO NOT REMOVE THIS COMMENT*', $file_contents );
+    file_put_contents($bmConcurrency, $file_contents);
 
     if ($argTempDir === null) {
       $this->tempDir = tempnam('/tmp', 'hhvm-nginx');
