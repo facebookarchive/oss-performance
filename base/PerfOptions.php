@@ -14,16 +14,16 @@ final class PerfOptions {
   public bool $verbose;
 
   //
-  // Exactly one of php5 or hhvm must be set with the path
+  // Exactly one of php or hhvm must be set with the path
   // to the corresponding executable.  The one that is set
   // determines what kind of cgi server is run.
   //
-  public ?string $php5;
+  public ?string $php;
   public ?string $hhvm;
 
   //
   // setUpTest and tearDownTest are called before and after each
-  // individual invocation of the $php5 or $hhvm
+  // individual invocation of the $php or $hhvm
   //
   public ?string $setUpTest;
   public ?string $tearDownTest;
@@ -117,7 +117,7 @@ final class PerfOptions {
     $def = Vector {
       'help',
       'verbose',
-      'php5:',
+      'php:',
       'hhvm:',
       'siege:',
       'nginx:',
@@ -180,7 +180,7 @@ final class PerfOptions {
       fprintf(
         STDERR,
         "Usage: %s \\\n".
-        "  --<php5=/path/to/php-cgi|hhvm=/path/to/hhvm>\\\n".
+        "  --<php=/path/to/php-cgi|hhvm=/path/to/hhvm>\\\n".
         "  --<".
         implode('|', $targets).
         ">\n".
@@ -194,7 +194,7 @@ final class PerfOptions {
     ;
     $this->verbose = array_key_exists('verbose', $o);
 
-    $this->php5 = hphp_array_idx($o, 'php5', null);
+    $this->php = hphp_array_idx($o, 'php', null);
     $this->hhvm = hphp_array_idx($o, 'hhvm', null);
 
     $this->setUpTest = hphp_array_idx($o, 'setUpTest', null);
@@ -266,7 +266,7 @@ final class PerfOptions {
       $this->tcAlltrans = true;
     }
 
-    if ($isFacebook && $this->php5 === null && $this->hhvm === null) {
+    if ($isFacebook && $this->php === null && $this->hhvm === null) {
       $this->hhvm = $fbcode.'/_bin/hphp/hhvm/hhvm';
     }
 
@@ -306,7 +306,7 @@ final class PerfOptions {
   }
 
   public function validate() {
-    if ($this->php5) {
+    if ($this->php) {
       $this->precompile = false;
       $this->proxygen = false;
       $this->filecache = false;
@@ -324,13 +324,13 @@ final class PerfOptions {
         exit(1);
       }
     }
-    if ($this->php5 === null && $this->hhvm === null) {
+    if ($this->php === null && $this->hhvm === null) {
       invariant_violation(
-        'Either --php5=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
+        'Either --php=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
         "must be specified",
       );
     }
-    $engine = $this->php5 !== null ? $this->php5 : $this->hhvm;
+    $engine = $this->php !== null ? $this->php : $this->hhvm;
     invariant(
       shell_exec('which '.escapeshellarg($engine)) !== null ||
       is_executable($engine),
