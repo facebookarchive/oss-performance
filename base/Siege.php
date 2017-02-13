@@ -85,12 +85,47 @@ final class Siege extends Process {
 
     $arguments = Vector {};
     if (!$this->options->noTimeLimit) {
+      if ($this->options->benchmarkTime !== null && strlen($this->options->benchmarkTime) >= 2){
+        $tempArr = str_split($this->options->benchmarkTime);
+        $i = 0;
+        $time = $tempArr[$i];
+	$i++;
+
+	while($i < ((count($tempArr)-1))){
+	  $time = $time . $tempArr[$i];
+	  $i++;
+	}
+ 
+	switch(strtoupper($tempArr[$i])){
+	  case 'S':
+	    $time = intval($time);
+	    $time = $time + 240;
+	    $time = $time . 's';
+	    break;
+	  case 'M':
+	    $time = intval($time);
+	    $time = $time + 4;
+	    $time = $time . 'm';
+            break;
+          case 'H':
+            $time = floatval($time);
+            $time = $time + .066;
+	    $time = $time . 'h';
+	    break;
+	  default:
+            $time = intval($time);
+	    $time = $time + 4;
+            $time = $time . 'm';
+	 }
+      }else{
+        $time = '5m';
+      }
       $arguments = Vector {
-        // See Siege::getExecutablePath()  - these arguments get passed to
-        // timeout
-        '--signal=9',
-        '5m',
-        parent::getExecutablePath(),
+      // See Siege::getExecutablePath()  - these arguments get passed to
+      // timeout
+      '--signal=9',
+      $time,
+      parent::getExecutablePath(),
       };
     }
     $siege_rc = $this->target->getSiegeRCPath();
@@ -141,7 +176,10 @@ final class Siege extends Process {
 
         if (!$this->options->noTimeLimit) {
           $arguments->add('-t');
-          $arguments->add(PerfSettings::BenchmarkTime());
+          if ($this->options->benchmarkTime === null)
+            $arguments->add(PerfSettings::BenchmarkTime());
+          else
+            $arguments->add((string)$this->options->benchmarkTime);
         }
         return $arguments;
       default:
