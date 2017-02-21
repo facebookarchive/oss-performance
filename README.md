@@ -26,11 +26,15 @@ As a regular user:
 
     composer.phar install # see https://getcomposer.org/download/
     hhvm perf.php --wordpress --php5=/path/to/bin/php-cgi # also works with php7
+    hhvm perf.php --wordpress --php=/path/to/bin/php-fpm # also works with php7
     hhvm perf.php --wordpress --hhvm=/path/to/hhvm
 
 Running with --hhvm gives some additional server-side statistics. It is usual
 for HHVM to report more requests than siege - some frameworks do call-back
 requests to the current webserver.
+
+:heavy_exclamation_mark: If you run with a debug build you may hit timeouts and
+other issues.
 
 Batch Usage
 ===========
@@ -45,9 +49,14 @@ See batch-run.json.example to get an idea of how to create batch-run.json.
 Requirements
 ============
 
+On Ubuntu you can run scripts/setup.sh.  This should provision your machine with
+everything you need to begin running the benchmarks.
+
+This installs:
+
 - composer
 - nginx
-- siege 2.x
+- siege (versions 2.x, or 3.1.x or 4.0.3)
 - unzip
 - A mysql server on 127.0.0.1:3306
 - hhvm
@@ -55,8 +64,9 @@ Requirements
 I've been using the current versions available from yum on Centos 6.3. HHVM is
 required as this is written in Hack.
 
-Siege 3.x is not supported; as of writing, all 3.x releases have bugs that make
-it unable to correctly make the benchmark requests.
+Siege 3.0.x is not supported; as of writing, all 3.0.x releases have bugs that make
+it unable to correctly make the benchmark requests.  4.0.0, 4.0.1, 4.0.2 all
+automatically request resources on pages, and should not be used for benchmarking.
 
 The Targets
 ===========
@@ -188,6 +198,8 @@ loaded to provide a slightly more rounded workload.
 Profiling
 =========
 
+Perf
+----
 perf.php can keep the suite running indefinitely:
 
     hhvm perf.php --i-am-not-benchmarking --no-time-limit --wordpress --hhvm=$HHVM_BIN
@@ -195,7 +207,40 @@ perf.php can keep the suite running indefinitely:
 You can then attach 'perf' or another profiler to the running HHVM or php-cgi process, once the 'benchmarking' 
 phase has started.
 
-Direct support (especially for XHProf) is planned, but not yet implemented.
+There is also a script to run perf for you at the apropriate moment:
+
+    hhvm perf.php --i-am-not-benchmarking --wordpress --hhvm=$HHVM_BIN --exec-after-warmup="./scripts/perf.sh -e cycles"
+
+This will record 25 seconds of samples.  To see where most time is spent you can
+dive into the data using perf, or use the perf rollup script as follows:
+
+    sudo perf script -F comm,ip,sym | hhvm -vEval.EnableHipHopSyntax=true <HHVM SRC>/hphp/tools/perf-rollup.php
+
+In order to have all the symbols from the the translation cache you
+may need to change the owner of /tmp/hhvm-<PID>.map to root.
+
+
+TC-print
+--------
+TC-print will use data from perf to determine the hotest functions and
+translations.  Run the benchmark as follows:
+
+    hhvm perf.php --i-am-not-benchmarking --wordpress --hhvm=$HHVM_BIN --exec-after-warmup="./scripts/perf.sh -e cycles" --tcprint
+
+In order to have all the symbols from the the translation cache you
+may need to change the owner of /tmp/hhvm-<PID>.map to root.
+
+We process the perf data before passing it along to tc-print
+    sudo perf script -f -F hw:comm,event,ip,sym | <HHVM SRC>/hphp/tools/perf-script-raw.py > processed-perf.data
+
+tc-print is only built if the appropriate disassembly tools are available.  On
+x86 this is LibXed.  Consider building hhvm using:
+
+    cmake . -DLibXed_INCLUDE_DIR=<path to xed include> -DLibXed_LIBRARY=<path to libxed.a>
+
+Use tc-print with the generated perf.data:
+    <HHVM SRC>hphp/tools/tc-print/tc-print -c /tmp/<TMP DIR FOR BENCHMARK RUN>/conf.hdf -p processed-perf.data
+
 
 Contributing
 ============

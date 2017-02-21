@@ -16,30 +16,51 @@ final class PHP5Daemon extends PHPEngine {
     $this->target = $options->getTarget();
     parent::__construct((string) $options->php5);
 
-    $output = [];
-    $check_command = implode(
-      ' ',
-      (Vector {
-         $options->php5,
-         '-q',
-         '-c',
-         OSS_PERFORMANCE_ROOT.'/conf',
-         __DIR__.'/php-src_config_check.php',
-       })->map($x ==> escapeshellarg($x)),
-    );
+    if ($options->fpm) {
+      $output = [];
+      $check_command = implode(
+        ' ',
+        (Vector {
+           $options->php5,
+           '-i',
+           '-c',
+           OSS_PERFORMANCE_ROOT.'/conf',
+         })->map($x ==> escapeshellarg($x)),
+      );
 
-    if ($options->traceSubProcess) {
-      fprintf(STDERR, "%s\n", $check_command);
+      // Basic check for opcode caching.
+      if ($options->traceSubProcess) {
+        fprintf(STDERR, "%s\n", $check_command);
+      }
+      exec($check_command, $output);
+      $check = array_search('Opcode Caching => Up and Running', $output, true);
+      invariant($check, 'Got invalid output from php-fpm -i');
+    } else {
+      $output = [];
+      $check_command = implode(
+        ' ',
+        (Vector {
+           $options->php5,
+           '-q',
+           '-c',
+           OSS_PERFORMANCE_ROOT.'/conf',
+           __dir__.'/php-src_config_check.php',
+         })->map($x ==> escapeshellarg($x)),
+      );
+
+      if ($options->traceSubProcess) {
+        fprintf(STDERR, "%s\n", $check_command);
+      }
+      exec($check_command, $output);
+      $checks = json_decode(implode("\n", $output), /* as array = */ true);
+      invariant($checks, 'Got invalid output from php-src_config_check.php');
+      BuildChecker::Check(
+        $options,
+        (string) $options->php5,
+        $checks,
+        Set {'PHP_VERSION', 'PHP_VERSION_ID'},
+      );
     }
-    exec($check_command, $output);
-    $checks = json_decode(implode("\n", $output), /* as array = */ true);
-    invariant($checks, 'Got invalid output from php-src_config_check.php');
-    BuildChecker::Check(
-      $options,
-      (string) $options->php5,
-      $checks,
-      Set {'PHP_VERSION', 'PHP_VERSION_ID'},
-    );
   }
 
   public function start(): void {
@@ -51,12 +72,37 @@ final class PHP5Daemon extends PHPEngine {
   }
 
   protected function getArguments(): Vector<string> {
-    $args = Vector {
-      '-b',
-      '127.0.0.1:'.PerfSettings::BackendPort(),
-      '-c',
-      OSS_PERFORMANCE_ROOT.'/conf/',
-    };
+    if ($this->options->fpm) {
+      echo 'Creating PHP FPM config';
+      $path = $this->options->tempDir.'/php-fpm.conf';
+      $config = file_get_contents(OSS_PERFORMANCE_ROOT.'/conf/php-fpm.conf.in');
+      $config = str_replace(
+        "__FASTCGI_PORT__",
+        PerfSettings::BackendPort(),
+        $config
+      );
+      $config = str_replace(
+        "__TMP_DIR__",
+        $this->options->tempDir,
+        $config
+      );
+      file_put_contents($path, $config);
+
+      $args = Vector {
+        '-F',
+        '--fpm-config',
+        $path,
+        '-c',
+        OSS_PERFORMANCE_ROOT.'/conf/',
+      };
+    } else {
+      $args = Vector {
+        '-b',
+        '127.0.0.1:'.PerfSettings::BackendPort(),
+        '-c',
+        OSS_PERFORMANCE_ROOT.'/conf/',
+      };
+    }
 
     if (count($this->options->phpExtraArguments) > 0) {
       $args->addAll($this->options->phpExtraArguments);
@@ -102,7 +148,8 @@ final class PHP5Daemon extends PHPEngine {
     if (!file_exists($exe)) {
       return false;
     }
-    return (bool) preg_match('/php.*-cgi/', readlink($exe));
+    return (bool) preg_match('/php.*-cgi/', readlink($exe)) ||
+           (bool) preg_match('/php.*-fpm/', readlink($exe));
   }
 
   protected function getEnvironmentVariables(): Map<string, string> {

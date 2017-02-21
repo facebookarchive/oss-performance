@@ -12,6 +12,7 @@
 enum BatchRuntimeType : string {
   HHVM = 'hhvm';
   PHP_SRC = 'php-src';
+  PHP_FPM = 'php-fpm';
 }
 ;
 
@@ -27,6 +28,7 @@ type BatchRuntime = shape(
 type BatchTarget = shape(
   'name' => string,
   'runtimes' => Vector<BatchRuntime>,
+  'settings' => Map<string, string>,
 );
 
 function batch_get_runtime(string $name, array $data): BatchRuntime {
@@ -51,6 +53,7 @@ function batch_get_target(
   string $name,
   Map<string, BatchRuntime> $runtimes,
   Map<string, Map<string, ?BatchRuntime>> $overrides,
+  Map<string, string> $settings,
 ): BatchTarget {
   $target_overrides = Map {};
   if ($overrides->containsKey($name)) {
@@ -67,7 +70,11 @@ function batch_get_target(
       $target_runtimes[] = $runtime;
     }
   }
-  return shape('name' => $name, 'runtimes' => $target_runtimes);
+  return shape(
+    'name' => $name,
+    'runtimes' => $target_runtimes,
+    'settings' => $settings,
+  );
 }
 
 function batch_get_targets(string $json_data): Vector<BatchTarget> {
@@ -114,9 +121,14 @@ function batch_get_targets(string $json_data): Vector<BatchTarget> {
     }
   }
 
+  $settings = Map {};
+  foreach ($data['settings'] as $name => $value) {
+    $settings[$name] = $value;
+  }
+
   $targets = Vector {};
   foreach ($data['targets'] as $target) {
-    $targets[] = batch_get_target($target, $runtimes, $overrides);
+    $targets[] = batch_get_target($target, $runtimes, $overrides, $settings);
   }
 
   return $targets;
@@ -138,7 +150,23 @@ function batch_get_single_run(
       break;
     case BatchRuntimeType::PHP_SRC:
       $options->php5 = $runtime['bin'];
+      $options->fpm = false;
       break;
+    case BatchRuntimeType::PHP_FPM:
+      $options->php5 = $runtime['bin'];
+      $options->fpm = true;
+      break;
+  }
+
+  foreach ($target['settings'] as $name => $value) {
+    switch ($name) {
+      case 'username':
+        $options->dbUsername = $value;
+        break;
+      case 'password':
+        $options->dbPassword = $value;
+        break;
+    }
   }
 
   $options->setUpTest = $runtime['setUpTest'];
@@ -190,7 +218,9 @@ function batch_main(Vector<string> $argv): void {
       sleep(5);
     }
   }
-  print (json_encode($results, JSON_PRETTY_PRINT)."\n");
+  $json = json_encode($results, JSON_PRETTY_PRINT)."\n";
+  print ($json);
+  file_put_contents('results'.uniqid().'.json', $json);
 }
 
 require_once ('base/cli-init.php');

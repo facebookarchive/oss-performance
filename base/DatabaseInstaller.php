@@ -92,10 +92,16 @@ final class DatabaseInstaller {
   }
 
   private function getRootConnection(): resource {
-    print "MySQL admin user (default is 'root'): ";
-    $this->username = trim(fgets(STDIN)) ?: 'root';
-    fprintf(STDERR, '%s', 'MySQL admin password: ');
-    $this->password = trim(fgets(STDIN));
+    if ($this->options->dbUsername !== null
+        && $this->options->dbPassword !== null) {
+      $this->username = $this->options->dbUsername;
+      $this->password = $this->options->dbPassword;
+    } else {
+      print "MySQL admin user (default is 'root'): ";
+      $this->username = trim(fgets(STDIN)) ?: 'root';
+      fprintf(STDERR, '%s', 'MySQL admin password: ');
+      $this->password = trim(fgets(STDIN));
+    }
     $conn = mysql_connect('127.0.0.1', $this->username, $this->password);
     if ($conn === false) {
       throw new Exception('Failed to connect: '.mysql_error());
