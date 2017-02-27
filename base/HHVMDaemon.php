@@ -107,6 +107,7 @@ final class HHVMDaemon extends PHPEngine {
     if (count($this->options->hhvmExtraArguments) > 0) {
       $args->addAll($this->options->hhvmExtraArguments);
     }
+    $args->add('-dhhvm.server.thread_count='.$this->options->serverThreads);
     if ($this->options->precompile) {
       $bcRepo = $this->options->tempDir.'/hhvm.hhbc';
       $args->add('-v');
