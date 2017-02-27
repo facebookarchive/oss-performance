@@ -107,8 +107,8 @@ final class PerfOptions {
   public ?string $scriptBeforeWarmup;
   public ?string $scriptAfterWarmup;
   public ?string $scriptAfterBenchmark;
-  public ?string $hhvmServerThreads;
-  public ?string $benchmarkConcurrency;
+  public ?string $serverThreads;
+  public ?string $clientThreads;
 
   public bool $notBenchmarking = false;
 
@@ -168,8 +168,8 @@ final class PerfOptions {
       'daemon-files', // daemon output goes to files in the temp directory
       'temp-dir:', // temp directory to use; if absent one in /tmp is made
       'src-dir:', // location for source to copy into tmp dir instead of ZIP
-      'hhvm-server-threads:',
-      'benchmark-concurrency:',
+      'server-threads:',
+      'client-threads:',
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -296,14 +296,14 @@ final class PerfOptions {
 
     $argTempDir = $this->getNullableString('temp-dir');
     
-    if(array_key_exists('hhvm-server-threads', $o)){
-      $this->hhvmServerThreads = $this->getNullableString('hhvm-server-threads');
-      $this->hhvmExtraArguments[count($this->hhvmExtraArguments)] = 'dhhvm.server.thread_count='.$this->hhvmServerThreads;
+    if(array_key_exists('server-threads', $o)){
+      $this->serverThreads = $this->args['server-threads'];
+      $this->hhvmExtraArguments[count($this->hhvmExtraArguments)] = '-dhhvm.server.thread_count='.$this->serverThreads;
     }
 
-    if(array_key_exists('benchmark-concurrency', $o)){
-       $this->benchmarkConcurrency = $this->getNullableString('benchmark-concurrency');
-       PerfSettings::setBenchmarkConcurrency((int)$this->benchmarkConcurrency);
+    if(array_key_exists('client-threads', $o)){
+       $this->clientThreads = $this->args['client-threads'];
+       PerfSettings::setBenchmarkConcurrency((int)$this->clientThreads);
     }
     
     if ($argTempDir === null) {
