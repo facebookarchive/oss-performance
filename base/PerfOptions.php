@@ -274,7 +274,7 @@ final class PerfOptions {
     $this->forceInnodb = $isFacebook || $this->getBool('force-innodb');
 
     if ($isFacebook && $this->php5 === null && $this->hhvm === null) {
-      $this->hhvm = $fbcode.'/_bin/hphp/hhvm/hhvm';
+      $this->hhvm = $fbcode.'/buck-out/gen/hphp/hhvm/hhvm/hhvm';
     }
 
     $this->traceSubProcess = $this->getBool('trace');
