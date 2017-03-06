@@ -110,6 +110,9 @@ final class NginxDaemon extends Process {
 
   <<__Override>>
   protected function getArguments(): Vector<string> {
+    if ($this->options->cpuBind) {
+      $this->cpuRange = $this->options->helperProcessors;
+    }
     return Vector {
       '-c',
       $this->getGeneratedConfigFile(),

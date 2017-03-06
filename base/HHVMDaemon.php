@@ -64,6 +64,9 @@ final class HHVMDaemon extends PHPEngine {
 
   <<__Override>>
   protected function getArguments(): Vector<string> {
+    if ($this->options->cpuBind) {
+      $this->cpuRange = $this->options->daemonProcessors;
+    }
     $args = Vector {
       '-m',
       'server',

@@ -84,6 +84,9 @@ final class Siege extends Process {
 
   <<__Override>>
   protected function getArguments(): Vector<string> {
+    if ($this->options->cpuBind) {
+      $this->cpuRange = $this->options->helperProcessors;
+    }
     $urls_file = tempnam($this->options->tempDir, 'urls');
     $urls = file_get_contents($this->target->getURLsFile());
     $urls =

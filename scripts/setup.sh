@@ -1,5 +1,5 @@
 #!/bin/sh
-sudo apt-get -y install nginx unzip mysql-server
+sudo apt-get -y install nginx unzip mysql-server util-linux coreutils
 sudo apt-get -y install autotools-dev
 sudo apt-get -y install autoconf
 sudo apt-get -y install software-properties-common build-essential

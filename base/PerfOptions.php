@@ -42,6 +42,10 @@ final class PerfOptions {
   public ?string $dbUsername;
   public ?string $dbPassword;
 
+  public bool $cpuBind = false;
+  public ?string $daemonProcessors;
+  public ?string $helperProcessors;
+
   public bool $fetchResources = false;
   public bool $forceInnodb = false;
   public bool $skipSanityCheck = false;
@@ -146,6 +150,7 @@ final class PerfOptions {
       'setUpTest:',
       'db-username:',
       'db-password:',
+      'cpu-fraction:',
       'tearDownTest:',
       'i-am-not-benchmarking',
       'hhvm-extra-arguments:',
@@ -254,6 +259,17 @@ final class PerfOptions {
     $this->waitAtEnd = $this->getBool('wait-at-end');
     $this->proxygen = !$this->getBool('no-proxygen');
     $this->applyPatches = $this->getBool('apply-patches');
+
+    $fraction = $this->getFloat('cpu-fraction', 1.0);
+    if ($fraction !== 1.0) {
+      $this->cpuBind = true;
+      $output = [];
+      exec('nproc', $output);
+      $numProcessors = (int)($output[0]);
+      $numDaemonProcessors = (int)($numProcessors * $fraction);
+      $this->helperProcessors = "$numDaemonProcessors-$numProcessors";
+      $this->daemonProcessors = "0-$numDaemonProcessors";
+    }
 
     $this->precompile = !$this->getBool('no-repo-auth');
     $this->filecache = $this->precompile && !$this->getBool('no-file-cache');
