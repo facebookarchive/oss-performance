@@ -44,6 +44,10 @@
   },
   "settings": {
     "username": "root",
-    "password": "root"
+    "password": "root",
+    "options": [
+      "cpu-fraction=0.5",
+      "i-am-not-benchmarking"
+    ]
   }
 }

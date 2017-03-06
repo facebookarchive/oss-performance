@@ -72,6 +72,9 @@ final class PHP5Daemon extends PHPEngine {
   }
 
   protected function getArguments(): Vector<string> {
+    if ($this->options->cpuBind) {
+      $this->cpuRange = $this->options->daemonProcessors;
+    }
     if ($this->options->fpm) {
       echo 'Creating PHP FPM config';
       $path = $this->options->tempDir.'/php-fpm.conf';

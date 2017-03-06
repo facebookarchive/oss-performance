@@ -143,6 +143,13 @@ function batch_get_single_run(
   $argv->addAll($runtime['args']);
   $argv[] = '--'.$target['name'];
 
+  foreach ($target['settings'] as $name => $value) {
+    if ($name === 'options') {
+      foreach ((array)$value as $v) {
+        $argv[] = '--'.$v;
+      }
+    }
+  }
   $options = new PerfOptions($argv);
   switch ($runtime['type']) {
     case BatchRuntimeType::HHVM:
