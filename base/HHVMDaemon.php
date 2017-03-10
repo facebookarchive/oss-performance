@@ -82,8 +82,6 @@ final class HHVMDaemon extends PHPEngine {
       'Server.ErrorDocument404=index.php',
       '-v',
       'Server.SourceRoot='.$this->target->getSourceRoot(),
-      '-v',
-      'Eval.Jit=1',
       '-d',
       'hhvm.log.file='.$this->options->tempDir.'/hhvm_error.log',
       '-d',
@@ -91,6 +89,14 @@ final class HHVMDaemon extends PHPEngine {
       '-c',
       OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
+    if ($this->options->jit) {
+      $args->addAll(Vector {'-v', 'Eval.Jit=1'});
+    } else {
+      $args->addAll(Vector {'-v', 'Eval.Jit=0'});
+    }
+    if ($this->options->statCache) {
+      $args->addAll(Vector {'-v', 'Server.StatCache=1'});
+    }
     if ($this->options->pcreCache) {
       $args->addAll(
         Vector {'-v', 'Eval.PCRECacheType='.$this->options->pcreCache},
