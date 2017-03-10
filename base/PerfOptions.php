@@ -74,6 +74,8 @@ final class PerfOptions {
   public bool $allVolatile = false;
   public bool $interpPseudomains = false;
   public bool $proxygen = false;
+  public bool $jit = false;
+  public bool $statCache = false;
 
   //
   // HHVM specific options for generating performance data and profiling
@@ -135,7 +137,9 @@ final class PerfOptions {
       'wait-after-warmup',
       'no-proxygen',
       'no-repo-auth',
+      'no-jit',
       'no-file-cache',
+      'stat-cache',
       'pcre-cache:',
       'pcre-cache-expire:',
       'pcre-cache-size:',
@@ -258,6 +262,8 @@ final class PerfOptions {
     $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = $this->getBool('wait-at-end');
     $this->proxygen = !$this->getBool('no-proxygen');
+    $this->statCache = $this->getBool('stat-cache');
+    $this->jit = !$this->getBool('no-jit');
     $this->applyPatches = $this->getBool('apply-patches');
 
     $fraction = $this->getFloat('cpu-fraction', 1.0);
@@ -332,6 +338,7 @@ final class PerfOptions {
     if ($this->php5) {
       $this->precompile = false;
       $this->proxygen = false;
+      $this->jit = false;
       $this->filecache = false;
     }
     if ($this->hhvm) {
