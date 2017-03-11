@@ -129,10 +129,15 @@ final class Siege extends Process {
         );
         return $arguments;
       case RequestModes::WARMUP_MULTI:
+        if ($this->options->benchmarkWarmConcurrency != null) {
+          $concurrency = $this->options->benchmarkWarmConcurrency;
+        } else {
+          $concurrency = (string) PerfSettings::BenchmarkConcurrency();
+        }
         $arguments->addAll(
           Vector {
             '-c',
-            (string) PerfSettings::BenchmarkConcurrency(),
+            $concurrency,
             '-t',
             '1M',
             '-f',
@@ -143,10 +148,15 @@ final class Siege extends Process {
         );
         return $arguments;
       case RequestModes::BENCHMARK:
+        if ($this->options->benchmarkConcurrency != null) {
+          $concurrency = $this->options->benchmarkConcurrency;
+        } else {
+          $concurrency = (string) PerfSettings::BenchmarkConcurrency();
+        }
         $arguments->addAll(
           Vector {
             '-c',
-            (string) PerfSettings::BenchmarkConcurrency(),
+            $concurrency,
             '-f',
             $urls_file,
             '--benchmark',
@@ -156,7 +166,11 @@ final class Siege extends Process {
 
         if (!$this->options->noTimeLimit) {
           $arguments->add('-t');
-          $arguments->add(PerfSettings::BenchmarkTime());
+          if ($this->options->benchmarkTime == null) {
+            $arguments->add(PerfSettings::BenchmarkTime());
+          } else {
+            $arguments->add($this->options->benchmarkTime);
+          }
         }
         return $arguments;
       default:

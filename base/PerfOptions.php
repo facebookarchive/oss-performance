@@ -118,6 +118,12 @@ final class PerfOptions {
   public ?string $scriptAfterWarmup;
   public ?string $scriptAfterBenchmark;
 
+
+  // Fine tune for some benchmark options.
+  public ?int $benchmarkConcurrency;
+  public ?string $benchmarkTime;
+  public ?int $benchmarkWarmConcurrency;
+
   public bool $notBenchmarking = false;
 
   private array $args;
@@ -156,6 +162,9 @@ final class PerfOptions {
       'db-password:',
       'cpu-fraction:',
       'tearDownTest:',
+      'benchmark-time:',
+      'benchmark-concurrency:',
+      'benchmark-warm-concurrency:',
       'i-am-not-benchmarking',
       'hhvm-extra-arguments:',
       'php-extra-arguments:',
@@ -240,6 +249,11 @@ final class PerfOptions {
       $this->forceInnodb = true;
     }
 
+    $this->benchmarkTime = hphp_array_idx($o, 'benchmark-time', null);
+    $this->benchmarkConcurrency = hphp_array_idx($o, 'benchmark-concurrency',
+                                    null);
+    $this->benchmarkWarmConcurrency = hphp_array_idx($o,
+                                        'benchmark-warm-concurrency', null);
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
 
     // If any arguments below here are given, then the "standard
@@ -396,6 +410,37 @@ final class PerfOptions {
         $this->hhvm !== null,
         'Only hhvm can be used with --repo-auth',
       );
+    }
+
+    if ($this->benchmarkTime != null) {
+      // [1-9]+[HMS]
+      if (!preg_match("/^[1-9][0-9]*[HMS]{1}$/", $this->benchmarkTime)) {
+        fprintf(STDERR, "*** WARNING ***\n Invalid benchmark time format: %s.
+          Examples of valid format are 2M, 30S, 1H. Using default 1M.\n",
+          $this->benchmarkTime);
+        // Already have a static method who return the default value for siege.
+        $this->benchmarkTime = null;
+      }
+    }
+
+    if ($this->benchmarkWarmConcurrency != null) {
+      if (!preg_match("/^[1-9][0-9]*/", $this->benchmarkWarmConcurrency)) {
+       fprintf(STDERR, "*** WARNING ***\n Invalid benchmark concurrency warmup
+         value: %s. Must be a value greater than 0. Using default 200.\n",
+         $this->benchmarkWarmConcurrency);
+       // Already have a static method who return the default value for siege.
+       $this->benchmarkWarmConcurrency = null;
+      }
+    }
+
+    if ($this->benchmarkConcurrency != null) {
+      if (!preg_match("/^[1-9][0-9]*/", $this->benchmarkConcurrency)) {
+       fprintf(STDERR, "*** WARNING ***\n Invalid benchmark concurrency value:
+         %s. Must be a value greater than 0. Using default 200.\n",
+         $this->benchmarkConcurrency);
+        // Already have a static method who return the default value for siege.
+        $this->benchmarkConcurrency = null;
+      }
     }
 
     SystemChecks::CheckAll($this);
