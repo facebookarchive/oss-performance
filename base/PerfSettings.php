@@ -12,7 +12,6 @@
 final class PerfSettings {
 
   ///// Benchmark Settings /////
-  private static int $benchmarkConcurrency = 200;
 
   // Per concurrent thread - so, total number of requests made during warmup
   // is WarmupRequests * WarmupConcurrency
@@ -27,14 +26,6 @@ final class PerfSettings {
   public static function BenchmarkTime(): string {
     // [0-9]+[SMH]
     return '1M'; // 1 minute
-  }
-
-  public static function setBenchmarkConcurrency(int $toSet): void {
-     PerfSettings::$benchmarkConcurrency = $toSet;
-  }
-
-  public static function BenchmarkConcurrency(): int {
-    return PerfSettings::$benchmarkConcurrency;
   }
 
   ///// Server Settings /////

@@ -107,8 +107,8 @@ final class PerfOptions {
   public ?string $scriptBeforeWarmup;
   public ?string $scriptAfterWarmup;
   public ?string $scriptAfterBenchmark;
-  public ?string $serverThreads = '100';
-  public ?string $clientThreads;
+  public string $serverThreads = '100';
+  public string $clientThreads = '200';
 
   public bool $notBenchmarking = false;
 
@@ -301,8 +301,7 @@ final class PerfOptions {
     }
 
     if(array_key_exists('client-threads', $o)){
-      $this->clientThreads = $this->args['client-threads'];
-      PerfSettings::setBenchmarkConcurrency((int)$this->clientThreads);
+      $this->clientThreads = $this->args['client-threads']; 
     }
     
     if ($argTempDir === null) {
