@@ -28,19 +28,27 @@ final class Siege extends Process {
           escapeshellarg($options->siege).' --version 2>&1 | head -n 1',
         ),
       );
-      $bad_prefix = 'SIEGE 3';
-      if (substr($version_line, 0, strlen($bad_prefix)) === $bad_prefix) {
-        fprintf(
-          STDERR,
-          "WARNING: Siege 3.0.0-3.0.7 sends an incorrect HOST header to ports ".
-          "other than :80 and :443. Siege 3.0.8 and 3.0.9 sometimes sends full ".
-          "URLs as paths. You are using '%s'.\n\n".
-          "You can specify a path to siege 2.7x  with the ".
-          "--siege=/path/to/siege option. If you have patched siege to fix ".
-          "these issues, pass --skip-version-checks.\n",
-          $version_line,
-        );
-        exit(1);
+      $bad_prefixes = Vector {
+        'SIEGE 3.0',
+        'SIEGE 4.0.0',
+        'SIEGE 4.0.1',
+        'SIEGE 4.0.2',
+      };
+      foreach ($bad_prefixes as $bad_prefix) {
+        if (substr($version_line, 0, strlen($bad_prefix)) === $bad_prefix) {
+          fprintf(
+            STDERR,
+            "WARNING: Siege 3.0.0-3.0.7 sends an incorrect HOST header to ".
+            "ports other than :80 and :443. Siege 3.0.8 and 3.0.9 sometimes ".
+            "sends full URLs as paths. Siege 4.0.0 - 4.0.2 automatically ".
+            "requests page resources.  You are using '%s'.\n\n".
+            "You can specify a path to a proper siege version with the ".
+            "--siege=/path/to/siege option. If you have patched siege to fix ".
+            "these issues, pass --skip-version-checks.\n",
+            $version_line,
+          );
+          exit(1);
+        }
       }
     }
 
@@ -76,6 +84,9 @@ final class Siege extends Process {
 
   <<__Override>>
   protected function getArguments(): Vector<string> {
+    if ($this->options->cpuBind) {
+      $this->cpuRange = $this->options->helperProcessors;
+    }
     $urls_file = tempnam($this->options->tempDir, 'urls');
     $urls = file_get_contents($this->target->getURLsFile());
     $urls =
@@ -96,6 +107,10 @@ final class Siege extends Process {
     $siege_rc = $this->target->getSiegeRCPath();
     if ($siege_rc !== null) {
       $arguments->addAll(Vector {'-R', $siege_rc});
+    }
+
+    if (!$this->options->fetchResources) {
+      $arguments->add('--no-parser');
     }
 
     switch ($this->mode) {
@@ -146,7 +161,7 @@ final class Siege extends Process {
         return $arguments;
       default:
         invariant_violation(
-          'Unexpected request mode: '.(string) $this->mode,
+          'Unexpected request mode: %s', (string) $this->mode,
         );
     }
   }

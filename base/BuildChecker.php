@@ -39,7 +39,7 @@ final class BuildChecker {
       if ($skipKeys->contains($k)) {
         continue;
       }
-      invariant(is_array($v), $k.' is not an array');
+      invariant(is_array($v), '%s is not an array', $k);
       $v = self::MakeCheckedValue($v);
       if ($v['OK']) {
         continue;

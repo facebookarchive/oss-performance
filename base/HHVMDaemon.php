@@ -64,6 +64,9 @@ final class HHVMDaemon extends PHPEngine {
 
   <<__Override>>
   protected function getArguments(): Vector<string> {
+    if ($this->options->cpuBind) {
+      $this->cpuRange = $this->options->daemonProcessors;
+    }
     $args = Vector {
       '-m',
       'server',
@@ -79,13 +82,21 @@ final class HHVMDaemon extends PHPEngine {
       'Server.ErrorDocument404=index.php',
       '-v',
       'Server.SourceRoot='.$this->target->getSourceRoot(),
-      '-v',
-      'Eval.Jit=1',
+      '-d',
+      'hhvm.log.file='.$this->options->tempDir.'/hhvm_error.log',
       '-d',
       'pid='.escapeshellarg($this->getPidFilePath()),
       '-c',
       OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
+    if ($this->options->jit) {
+      $args->addAll(Vector {'-v', 'Eval.Jit=1'});
+    } else {
+      $args->addAll(Vector {'-v', 'Eval.Jit=0'});
+    }
+    if ($this->options->statCache) {
+      $args->addAll(Vector {'-v', 'Server.StatCache=1'});
+    }
     if ($this->options->pcreCache) {
       $args->addAll(
         Vector {'-v', 'Eval.PCRECacheType='.$this->options->pcreCache},
@@ -124,8 +135,6 @@ final class HHVMDaemon extends PHPEngine {
       $args->add('Server.SourceRoot='.$sourceRoot);
     }
     if ($this->options->tcprint !== null) {
-      $args->add('-v');
-      $args->add('Eval.JitTransCounters=true');
       $args->add('-v');
       $args->add('Eval.DumpTC=true');
     }
@@ -274,46 +283,23 @@ final class HHVMDaemon extends PHPEngine {
 
   public function writeStats(): void {
     $tcprint = $this->options->tcprint;
+    $conf = $this->options->tempDir.'/conf.hdf';
+    $args = Vector {};
+    $hdf = false;
+    foreach ($this->getArguments() as $arg) {
+      if ($hdf)
+        $args->add($arg);
+      $hdf = $arg === '-v';
+    }
+    $confData = implode("\n", $args);
+
+    file_put_contents($conf, $confData);
     if ($tcprint) {
-      $conf = $this->options->tempDir.'/conf.hdf';
-      $args = Vector {};
-      $hdf = false;
-      foreach ($this->getArguments() as $arg) {
-        if ($hdf)
-          $args->add($arg);
-        $hdf = $arg === '-v';
-      }
-      $confData = implode("\n", $args);
-
-      file_put_contents($conf, $confData);
-      $args = Vector {$tcprint, '-c', $conf};
-
       $result = $this->adminRequest('/vm-dump-tc');
       invariant(
         $result === 'Done' && file_exists('/tmp/tc_dump_a'),
         'Failed to dump TC',
       );
-
-      if ($this->options->tcAlltrans) {
-        $alltrans = Utils::RunCommand($args);
-        file_put_contents('tc-all', $alltrans);
-      }
-
-      if ($this->options->tcToptrans) {
-        $new_args = new Vector($args);
-        $new_args->add('-t');
-        $new_args->add('100');
-        $toptrans = Utils::RunCommand($new_args);
-        file_put_contents('tc-top-trans', $toptrans);
-      }
-
-      if ($this->options->tcTopfuncs) {
-        $new_args = new Vector($args);
-        $new_args->add('-T');
-        $new_args->add('100');
-        $topfuncs = Utils::RunCommand($new_args);
-        file_put_contents('tc-top-funcs', $topfuncs);
-      }
     }
 
     if ($this->options->pcredump) {

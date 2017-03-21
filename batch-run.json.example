@@ -1,51 +1,53 @@
 {
   "runtimes": {
-    "HHVM 3.1 (2014-05-27)": {
+    "HHVM 3.18": {
       "type": "hhvm",
-      "bin": "hhvm-3.1.0"
+      "bin": "hhvm"
     },
-    "HHVM 3.4 (2014-11-14)": {
+    "HHVM 3.18 (norepo auth)": {
       "type": "hhvm",
-      "bin": "hhvm-3.4.0"
+      "bin": "hhvm",
+      "args": [
+        "--no-repo-auth",
+        "--i-am-not-benchmarking"
+      ]
     },
-    "HHVM 3.5 (2015-01-16)": {
-      "type": "hhvm",
-      "bin": "hhvm-3.5.0"
+    "PHP7 FPM": {
+      "type": "php-fpm",
+      "bin": "php-fpm7.0"
     },
-    "PHP7 (*)": {
+    "PHP7 CGI": {
       "type": "php-src",
-      "bin": "php7-cgi-2015-01-14"
-    },
-    "PHP 5.6.5 (2015-01-22)": {
-      "type": "php-src",
-      "bin": "php-cgi-5.6.5"
+      "bin": "php-cgi7.0"
     }
   },
   "targets": [
     "wordpress",
     "drupal7",
+    "drupal8-no-cache",
     "mediawiki",
-    "magento1",
-    "sugarcrm-login-page",
-    "sugarcrm-home-page"
+    "magento1"
   ],
   "runtime-overrides": {
-    "sugarcrm-home-page": {
-      "__comment": [
-        "Recent versions of PHP7 segfault in clean_non_persistent_constants()"
-      ],
-      "PHP7 (*)": {
-        "bin": "php7-cgi-2014-08-15"
-      }
-    },
     "magento1": {
       "__comment": [
         "Recent versions of PHP7 can not run Magento1 because of",
         "https://wiki.php.net/rfc/uniform_variable_syntax"
       ],
-      "PHP7 (*)": {
-        "bin": "php7-cgi-2014-08-15"
+      "PHP7 FPM": {
+        "skip": true
+      },
+      "PHP7 CGI": {
+        "skip": true
       }
     }
+  },
+  "settings": {
+    "username": "root",
+    "password": "root",
+    "options": [
+      "cpu-fraction=0.5",
+      "i-am-not-benchmarking"
+    ]
   }
 }

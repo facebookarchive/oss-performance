@@ -11,7 +11,7 @@
 
 final class MediaWikiTarget extends PerfTarget {
 
-  const MEDIAWIKI_VERSION = 'mediawiki-1.26.2';
+  const MEDIAWIKI_VERSION = 'mediawiki-1.28.0';
 
   public function __construct(private PerfOptions $options) {}
 

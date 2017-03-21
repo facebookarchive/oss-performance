@@ -5,3 +5,5 @@ vendor/
 core
 core.*
 composer.phar
+perf.data
+processed-perf.data

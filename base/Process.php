@@ -14,6 +14,7 @@ abstract class Process {
   protected ?resource $stdin;
   protected ?resource $stdout;
   protected ?string $command;
+  protected ?string $cpuRange = null;
   protected bool $suppress_stdout = false;
 
   private static Vector<Process> $processes = Vector {};
@@ -54,6 +55,11 @@ abstract class Process {
     if ($this->suppress_stdout) {
       $this->command .= ' >/dev/null';
     }
+
+    if ($this->cpuRange !== null) {
+      $this->command = 'taskset -c '.$this->cpuRange.' '.$this->command;
+    }
+
     $use_pipe = ($outputFileName === null);
     $spec =
       [

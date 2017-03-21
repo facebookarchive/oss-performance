@@ -21,6 +21,9 @@ final class PerfOptions {
   public ?string $php5;
   public ?string $hhvm;
 
+  // When running with php, this enables fpm cgi.
+  public bool $fpm = false;
+
   //
   // setUpTest and tearDownTest are called before and after each
   // individual invocation of the $php5 or $hhvm
@@ -36,6 +39,14 @@ final class PerfOptions {
   public string $siege;
   public string $nginx;
 
+  public ?string $dbUsername;
+  public ?string $dbPassword;
+
+  public bool $cpuBind = false;
+  public ?string $daemonProcessors;
+  public ?string $helperProcessors;
+
+  public bool $fetchResources = false;
   public bool $forceInnodb = false;
   public bool $skipSanityCheck = false;
   public bool $skipWarmUp = false;
@@ -63,15 +74,14 @@ final class PerfOptions {
   public bool $allVolatile = false;
   public bool $interpPseudomains = false;
   public bool $proxygen = false;
+  public bool $jit = false;
+  public bool $statCache = false;
 
   //
   // HHVM specific options for generating performance data and profiling
   // information.
   //
-  public ?string $tcprint = null;
-  public bool $tcAlltrans = false;
-  public bool $tcToptrans = false;
-  public bool $tcTopfuncs = false;
+  public bool $tcprint = false;
   public bool $pcredump = false;
   public bool $profBC = false;
 
@@ -119,15 +129,19 @@ final class PerfOptions {
     $def = Vector {
       'help',
       'verbose',
-      'php5:',
+      'php:', // Uses FPM by default (see no-fpm).
+      'php5:', // Uses CGI.  Legacy option.
       'hhvm:',
+      'no-fpm',
       'siege:',
       'nginx:',
       'wait-at-end',
       'wait-after-warmup',
       'no-proxygen',
       'no-repo-auth',
+      'no-jit',
       'no-file-cache',
+      'stat-cache',
       'pcre-cache:',
       'pcre-cache-expire:',
       'pcre-cache-size:',
@@ -136,19 +150,20 @@ final class PerfOptions {
       'apply-patches',
       'force-innodb',
       'fbcode::',
-      'tcprint::',
-      'dump-top-trans',
-      'dump-top-funcs',
-      'dump-all-trans',
+      'tcprint',
       'dump-pcre-cache',
       'profBC',
       'setUpTest:',
+      'db-username:',
+      'db-password:',
+      'cpu-fraction:',
       'tearDownTest:',
       'i-am-not-benchmarking',
       'hhvm-extra-arguments:',
       'php-extra-arguments:',
       'php-fcgi-children:',
       'no-time-limit',
+      'fetch-resources',
       'skip-sanity-check',
       'skip-warmup',
       'skip-version-checks',
@@ -184,7 +199,8 @@ final class PerfOptions {
       fprintf(
         STDERR,
         "Usage: %s \\\n".
-        "  --<php5=/path/to/php-cgi|hhvm=/path/to/hhvm>\\\n".
+        "  --<php5=/path/to/php-cgi|php=/path/to/php-fpm|".
+        "hhvm=/path/to/hhvm>\\\n".
         "  --<".
         implode('|', $targets).
         ">\n".
@@ -195,14 +211,23 @@ final class PerfOptions {
       );
       exit(1);
     }
-    ;
+
     $this->verbose = array_key_exists('verbose', $o);
 
-    $this->php5 = hphp_array_idx($o, 'php5', null);
+    $php5 = hphp_array_idx($o, 'php5', null);  // Will only use cgi.
+    $php = hphp_array_idx($o, 'php', null);  // Will use fpm by default.
+    if ($php5 !== null) {
+      $this->php5 = $php5;
+    } else {
+      $this->php5 = $php;
+    }
     $this->hhvm = hphp_array_idx($o, 'hhvm', null);
 
     $this->setUpTest = hphp_array_idx($o, 'setUpTest', null);
     $this->tearDownTest = hphp_array_idx($o, 'tearDownTest', null);
+
+    $this->dbUsername = hphp_array_idx($o, 'db-username', null);
+    $this->dbPassword = hphp_array_idx($o, 'db-password', null);
 
     $this->siege = hphp_array_idx($o, 'siege', 'siege');
     $this->nginx = hphp_array_idx($o, 'nginx', 'nginx');
@@ -228,6 +253,11 @@ final class PerfOptions {
     // argument too.
     $this->args = $o;
 
+    if ($php5 === null) {
+      $this->fpm = !$this->getBool('no-fpm');
+    }
+
+    $this->fetchResources = $this->getBool('fetch-resources');
     $this->skipSanityCheck = $this->getBool('skip-sanity-check');
     $this->skipWarmUp = $this->getBool('skip-warmup');
     $this->waitAfterWarmup = $this->getBool('wait-after-warmup');
@@ -236,7 +266,20 @@ final class PerfOptions {
     $this->noTimeLimit = $this->getBool('no-time-limit');
     $this->waitAtEnd = $this->getBool('wait-at-end');
     $this->proxygen = !$this->getBool('no-proxygen');
+    $this->statCache = $this->getBool('stat-cache');
+    $this->jit = !$this->getBool('no-jit');
     $this->applyPatches = $this->getBool('apply-patches');
+
+    $fraction = $this->getFloat('cpu-fraction', 1.0);
+    if ($fraction !== 1.0) {
+      $this->cpuBind = true;
+      $output = [];
+      exec('nproc', $output);
+      $numProcessors = (int)($output[0]);
+      $numDaemonProcessors = (int)($numProcessors * $fraction);
+      $this->helperProcessors = "$numDaemonProcessors-$numProcessors";
+      $this->daemonProcessors = "0-$numDaemonProcessors";
+    }
 
     $this->precompile = !$this->getBool('no-repo-auth');
     $this->filecache = $this->precompile && !$this->getBool('no-file-cache');
@@ -250,28 +293,14 @@ final class PerfOptions {
     $this->scriptAfterWarmup = $this->getNullableString('exec-after-warmup');
     $this->scriptAfterBenchmark = $this->getNullableString('exec-after-benchmark');
 
-    if ($this->getBool('tcprint')) {
-      $tcprint = hphp_array_idx($o, 'tcprint', null);
-      if (is_string($tcprint) && $tcprint !== '') {
-        $this->tcprint = $tcprint;
-      } else if ($isFacebook) {
-        $this->tcprint =
-          $fbcode.'/_bin/hphp/facebook/tools/tc-print/tc-print';
-      }
-    }
-    $this->tcAlltrans = $this->getBool('dump-all-trans');
-    $this->tcToptrans = $this->getBool('dump-top-trans');
-    $this->tcTopfuncs = $this->getBool('dump-top-funcs');
+    $this->tcprint = $this->getBool('tcprint');
+
     $this->pcredump = $this->getBool('dump-pcre-cache');
     $this->profBC = $this->getBool('profBC');
     $this->forceInnodb = $isFacebook || $this->getBool('force-innodb');
 
-    if ($this->tcprint !== null && !$this->tcTopfuncs && !$this->tcToptrans) {
-      $this->tcAlltrans = true;
-    }
-
     if ($isFacebook && $this->php5 === null && $this->hhvm === null) {
-      $this->hhvm = $fbcode.'/_bin/hphp/hhvm/hhvm';
+      $this->hhvm = $fbcode.'/buck-out/gen/hphp/hhvm/hhvm/hhvm';
     }
 
     $this->traceSubProcess = $this->getBool('trace');
@@ -320,7 +349,11 @@ final class PerfOptions {
     if ($this->php5) {
       $this->precompile = false;
       $this->proxygen = false;
+      $this->jit = false;
       $this->filecache = false;
+    }
+    if ($this->hhvm) {
+      $this->fpm = false;
     }
     if ($this->notBenchmarkingArgs && !$this->notBenchmarking) {
       $message = sprintf(
@@ -337,8 +370,8 @@ final class PerfOptions {
     }
     if ($this->php5 === null && $this->hhvm === null) {
       invariant_violation(
-        'Either --php5=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
-        "must be specified",
+        'Either --php5=/path/to/php-cgi or --php=/path/to/php-fpm or '.
+        '--hhvm=/path/to/hhvm must be specified',
       );
     }
     $engine = $this->php5 !== null ? $this->php5 : $this->hhvm;
@@ -355,21 +388,10 @@ final class PerfOptions {
     );
 
     $tcprint = $this->tcprint;
-    if ($tcprint !== null) {
+    if ($tcprint) {
       invariant(
-        $tcprint !== '' &&
-        (shell_exec('which '.escapeshellarg($tcprint)) !== null ||
-         is_executable($tcprint)),
-        'Invalid tcprint: %s',
-        $tcprint,
-      );
-    }
-
-    if ($this->tcAlltrans || $this->tcToptrans || $this->tcTopfuncs) {
-      invariant(
-        $tcprint !== null,
-        '--tcprint=/path/to/tc-print must be specified if --tc-all-trans, '.
-        '--tc-top-trans, or --tc-top-funcs are specified',
+        $this->hhvm !== null,
+        'tcprint is only valid for hhvm',
       );
     }
 
