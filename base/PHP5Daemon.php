@@ -85,6 +85,11 @@ final class PHP5Daemon extends PHPEngine {
         $config
       );
       $config = str_replace(
+        "__CHILDREN__",
+        $this->options->serverThreads,
+        $config
+      );
+      $config = str_replace(
         "__TMP_DIR__",
         $this->options->tempDir,
         $config
