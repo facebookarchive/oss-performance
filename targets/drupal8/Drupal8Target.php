@@ -46,6 +46,10 @@ abstract class Drupal8Target extends PerfTarget {
       __DIR__.'/settings/settings.php',
       $this->getSourceRoot().'/sites/default/settings.php',
     );
+    $file = $this->getSourceRoot().'/sites/default/settings.php';
+    $file_contents = file_get_contents($file);
+    $file_contents = str_replace('__DB_HOST__', $this->options->dbHost, $file_contents );
+    file_put_contents($file, $file_contents);
     copy(
       __DIR__.'/settings/setup.php',
       $this->getSourceRoot().'/sites/default/setup.php',

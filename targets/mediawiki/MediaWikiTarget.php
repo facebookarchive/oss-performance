@@ -39,8 +39,13 @@ final class MediaWikiTarget extends PerfTarget {
     // we're in repo-auth mode, the generated files end up in the repo
     $cache_dir = $this->getSourceRoot().'/mw-cache';
     mkdir($cache_dir);
-
     copy(__DIR__.'/LocalSettings.php', $this->getSourceRoot().'/LocalSettings.php');
+
+    $file = $this->getSourceRoot().'/LocalSettings.php';
+    $file_contents = file_get_contents($file);
+    $file_contents = str_replace('__DB_HOST__', $this->options->dbHost, $file_contents );
+    file_put_contents($file, $file_contents);
+
     file_put_contents(
       $this->getSourceRoot().'/LocalSettings.php',
       '$wgCacheDirectory="'.$cache_dir.'";',

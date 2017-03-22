@@ -55,7 +55,7 @@ $wgEmailAuthentication = true;
 
 ## Database settings
 $wgDBtype = "mysql";
-$wgDBserver = "127.0.0.1";
+$wgDBserver = "__DB_HOST__";
 $wgDBname = "mw_bench";
 $wgDBuser = "mw_bench";
 $wgDBpassword = "mw_bench";

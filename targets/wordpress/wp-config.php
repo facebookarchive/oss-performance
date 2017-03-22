@@ -42,7 +42,7 @@ define('DB_USER', 'wp_bench');
 define('DB_PASSWORD', 'wp_bench');
 
 /** MySQL hostname */
-define('DB_HOST', '127.0.0.1');
+define('DB_HOST', '__DB_HOST__');
 
 //////////////////////////////////////////////
 ///// END CHANGES TO DEFAULT CONFIG FILE /////

@@ -30,6 +30,11 @@ final class WordpressTarget extends PerfTarget {
 
     copy(__DIR__.'/wp-config.php', $this->getSourceRoot().'/wp-config.php');
 
+    $file = $this->getSourceRoot().'/wp-config.php';
+    $file_contents = file_get_contents($file);
+    $file_contents = str_replace('__DB_HOST__', $this->options->dbHost, $file_contents );
+    file_put_contents($file, $file_contents);
+
     $created_database =
       (new DatabaseInstaller($this->options))
         ->setDatabaseName('wp_bench')
@@ -45,7 +50,7 @@ final class WordpressTarget extends PerfTarget {
         : PerfSettings::HttpPort();
     $root = 'http://'.gethostname().':'.$visible_port;
 
-    $conn = mysql_connect('127.0.0.1', 'wp_bench', 'wp_bench');
+    $conn = mysql_connect($this->options->dbHost, 'wp_bench', 'wp_bench');
     $db_selected = mysql_select_db('wp_bench', $conn);
     $result = mysql_query(
       'UPDATE wp_options '.
