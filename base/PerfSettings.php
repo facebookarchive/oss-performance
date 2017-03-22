@@ -28,10 +28,6 @@ final class PerfSettings {
     return '1M'; // 1 minute
   }
 
-  public static function BenchmarkConcurrency(): int {
-    return 200;
-  }
-
   ///// Server Settings /////
 
   public static function HttpPort(): int {

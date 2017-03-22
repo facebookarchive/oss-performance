@@ -132,7 +132,7 @@ final class Siege extends Process {
         $arguments->addAll(
           Vector {
             '-c',
-            (string) PerfSettings::BenchmarkConcurrency(),
+            $this->options->clientThreads,
             '-t',
             '1M',
             '-f',
@@ -146,7 +146,7 @@ final class Siege extends Process {
         $arguments->addAll(
           Vector {
             '-c',
-            (string) PerfSettings::BenchmarkConcurrency(),
+            $this->options->clientThreads,
             '-f',
             $urls_file,
             '--benchmark',

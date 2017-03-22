@@ -117,6 +117,8 @@ final class PerfOptions {
   public ?string $scriptBeforeWarmup;
   public ?string $scriptAfterWarmup;
   public ?string $scriptAfterBenchmark;
+  public string $serverThreads = '100';
+  public string $clientThreads = '200';
 
   public bool $notBenchmarking = false;
 
@@ -181,6 +183,8 @@ final class PerfOptions {
       'daemon-files', // daemon output goes to files in the temp directory
       'temp-dir:', // temp directory to use; if absent one in /tmp is made
       'src-dir:', // location for source to copy into tmp dir instead of ZIP
+      'server-threads:',
+      'client-threads:',
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -320,7 +324,15 @@ final class PerfOptions {
     $this->daemonOutputToFile = $this->getBool('daemon-files');
 
     $argTempDir = $this->getNullableString('temp-dir');
+    
+    if(array_key_exists('server-threads', $o)){
+      $this->serverThreads = $this->args['server-threads'];
+    }
 
+    if(array_key_exists('client-threads', $o)){
+      $this->clientThreads = $this->args['client-threads']; 
+    }
+    
     if ($argTempDir === null) {
       $this->tempDir = tempnam('/tmp', 'hhvm-nginx');
       // Currently a file - change to a dir
@@ -331,7 +343,6 @@ final class PerfOptions {
     }
 
     $this->srcDir = $this->getNullableString('src-dir');
-
   }
 
   public function validate() {

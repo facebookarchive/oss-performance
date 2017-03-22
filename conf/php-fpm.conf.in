@@ -24,4 +24,4 @@ listen.allowed_clients = 127.0.0.1
 pm = static
 
 ; The number of child processes to be created when pm is set to 'static'
-pm.max_children = 100
+pm.max_children = __CHILDREN__
