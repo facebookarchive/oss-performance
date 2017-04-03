@@ -63,6 +63,12 @@ final class HHVMDaemon extends PHPEngine {
   }
 
   <<__Override>>
+  public function needsRetranslatePause(): bool {
+    $status = $this->adminRequest('/warmup-status');
+    return $status !== '' && $status !== 'failure';
+  }
+
+  <<__Override>>
   protected function getArguments(): Vector<string> {
     if ($this->options->cpuBind) {
       $this->cpuRange = $this->options->daemonProcessors;
@@ -82,10 +88,10 @@ final class HHVMDaemon extends PHPEngine {
       'Server.ErrorDocument404=index.php',
       '-v',
       'Server.SourceRoot='.$this->target->getSourceRoot(),
-      '-d',
-      'hhvm.log.file='.$this->options->tempDir.'/hhvm_error.log',
-      '-d',
-      'pid='.escapeshellarg($this->getPidFilePath()),
+      '-v',
+      'Log.File='.$this->options->tempDir.'/hhvm_error.log',
+      '-v',
+      'PidFile='.escapeshellarg($this->getPidFilePath()),
       '-c',
       OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };

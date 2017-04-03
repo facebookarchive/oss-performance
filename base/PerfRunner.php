@@ -152,6 +152,11 @@ final class PerfRunner {
       exec($options->scriptAfterWarmup);
     }
 
+    while ($php_engine->needsRetranslatePause()) {
+      self::PrintProgress('Pausing 5 seconds to allow retranslation threads to catch up.');
+      sleep(5);
+    }
+
     self::PrintProgress('Starting Siege for benchmark');
     $siege = new Siege($options, $target, RequestModes::BENCHMARK);
     $siege->start();

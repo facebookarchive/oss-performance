@@ -12,4 +12,6 @@
 abstract class PHPEngine extends Process {
   public abstract function __toString(): string;
   public function writeStats(): void {}
+
+  public function needsRetranslatePause(): bool { return false; }
 }
