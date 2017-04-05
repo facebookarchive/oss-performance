@@ -139,6 +139,22 @@ final class PerfRunner {
       self::PrintProgress('Skipping multi request warmup');
     }
 
+    while (!$options->skipWarmUp && $php_engine->needsRetranslatePause()) {
+      self::PrintProgress('Extending warmup, server is not done warming up.');
+      sleep(3);
+      $siege = new Siege($options, $target, RequestModes::WARMUP_MULTI, '10s');
+      $siege->start();
+      invariant($siege->isRunning(), 'Failed to start siege');
+      $siege->wait();
+
+      invariant(!$siege->isRunning(), 'Siege is still running :/');
+      invariant(
+        $php_engine->isRunning(),
+        '%s crashed',
+        get_class($php_engine),
+      );
+    }
+
     self::PrintProgress('Clearing nginx access.log');
     $nginx->clearAccessLog();
 
@@ -150,11 +166,6 @@ final class PerfRunner {
     if ($options->scriptAfterWarmup !== null) {
       self::PrintProgress('Starting execution of command: '.$options->scriptAfterWarmup);
       exec($options->scriptAfterWarmup);
-    }
-
-    while ($php_engine->needsRetranslatePause()) {
-      self::PrintProgress('Pausing 5 seconds to allow retranslation threads to catch up.');
-      sleep(5);
     }
 
     self::PrintProgress('Starting Siege for benchmark');

@@ -18,6 +18,7 @@ final class Siege extends Process {
     private PerfOptions $options,
     private PerfTarget $target,
     private RequestMode $mode,
+    private string $time = '1M',
   ) {
     parent::__construct($options->siege);
     $this->suppress_stdout = true;
@@ -134,7 +135,7 @@ final class Siege extends Process {
             '-c',
             $this->options->clientThreads,
             '-t',
-            '1M',
+            $this->time,
             '-f',
             $urls_file,
             '--benchmark',
