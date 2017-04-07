@@ -92,7 +92,8 @@ final class Siege extends Process {
     $urls = file_get_contents($this->target->getURLsFile());
     $urls =
       str_replace('__HTTP_PORT__', (string) PerfSettings::HttpPort(), $urls);
-    $urls = str_replace('__HTTP_HOST__', gethostname(), $urls);
+    // Siege doesn't support ipv6
+    $urls = str_replace('__HTTP_HOST__', '127.0.0.1', $urls);
     file_put_contents($urls_file, $urls);
 
     $arguments = Vector {};

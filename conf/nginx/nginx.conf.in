@@ -34,6 +34,7 @@ http {
   #gzip  on;
 
   server {
+    listen [::]:__HTTP_PORT__ default_server;
     listen __HTTP_PORT__ default_server;
     access_log            __NGINX_TEMP_DIR__/access.log main;
     client_body_temp_path __NGINX_TEMP_DIR__/client_temp;
@@ -80,6 +81,7 @@ http {
   }
 
   server {
+    listen [::]:__HTTP_ADMIN_PORT__ default_server;
     listen __HTTP_ADMIN_PORT__ default_server;
     access_log            __NGINX_TEMP_DIR__/admin-access.log main;
     client_body_temp_path __NGINX_TEMP_DIR__/admin-client_temp;
