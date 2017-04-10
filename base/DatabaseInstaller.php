@@ -48,6 +48,8 @@ final class DatabaseInstaller {
   public function installDatabase(): bool {
     $db = $this->databaseName;
     $dump = $this->dumpFile;
+    $dbHost = $this->options->dbHost;
+
     invariant(
       $db !== null && $dump !== null,
       'database and dump must be specified',
@@ -57,7 +59,7 @@ final class DatabaseInstaller {
       return false;
     }
 
-    $conn = mysql_connect('127.0.0.1', $db, $db);
+    $conn = mysql_connect($dbHost, $db, $db);
     $db_selected = mysql_select_db($db, $conn);
     if ($conn === false || $db_selected === false) {
       $this->createMySQLDatabase();
@@ -86,7 +88,7 @@ final class DatabaseInstaller {
       '|'.
       $sed.
       Utils::EscapeCommand(
-        Vector {'mysql', '-h', '127.0.0.1', $db, '-u', $db, '-p'.$db},
+        Vector {'mysql', '-h', $dbHost.'', $db, '-u', $db, '-p'.$db},
       ),
       $output,
       $ret,
@@ -112,7 +114,7 @@ final class DatabaseInstaller {
       fprintf(STDERR, '%s', 'MySQL admin password: ');
       $this->password = trim(fgets(STDIN));
     }
-    $conn = mysql_connect('127.0.0.1', $this->username, $this->password);
+    $conn = mysql_connect($this->options->dbHost, $this->username, $this->password);
     if ($conn === false) {
       throw new Exception('Failed to connect: '.mysql_error());
     }
@@ -121,7 +123,7 @@ final class DatabaseInstaller {
 
   private function checkMySQLConnectionLimit(): void {
     $conn =
-      mysql_connect('127.0.0.1', $this->getUsername(), $this->getPassword());
+      mysql_connect($this->options->dbHost, $this->getUsername(), $this->getPassword());
     if ($conn === false) {
       throw new Exception('Failed to connect: '.mysql_error());
     }
@@ -151,7 +153,7 @@ final class DatabaseInstaller {
       STDERR,
       '%s',
       "Can't connect to database ".
-      "(mysql -h 127.0.0.1 -p$db -u $db $db). This can be ".
+      "(mysql -h $this->options->dbHost -p$db -u $db $db). This can be ".
       "fixed for you.\n",
     );
     $conn = $this->getRootConnection();
@@ -178,7 +180,7 @@ final class DatabaseInstaller {
       $conn,
     );
     mysql_query(
-      "GRANT ALL PRIVILEGES ON $edb.* TO '$edb'@127.0.0.1 ".
+      "GRANT ALL PRIVILEGES ON $edb.* TO '$edb'@'$this->options->dbHost' ".
       "IDENTIFIED BY '$edb'",
       $conn,
     );

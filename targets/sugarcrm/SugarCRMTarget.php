@@ -22,6 +22,10 @@ abstract class SugarCRMTarget extends PerfTarget {
     }
 
     copy(__DIR__.'/config.php', $this->getSourceRoot().'/config.php');
+    $file = $this->getSourceRoot().'/config.php';
+    $file_contents = file_get_contents($file);
+    $file_contents = str_replace('__DB_HOST__', $this->options->dbHost, $file_contents );
+    file_put_contents($file, $file_contents);
 
     if ($this->options->skipDatabaseInstall) {
       return;

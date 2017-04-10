@@ -36,6 +36,11 @@ final class Drupal7Target extends PerfTarget {
       $this->getSourceRoot().'/sites/default/settings.php',
     );
 
+    $file = $this->getSourceRoot().'/sites/default/settings.php';
+    $file_contents = file_get_contents($file);
+    $file_contents = str_replace('__DB_HOST__', $this->options->dbHost, $file_contents );
+    file_put_contents($file, $file_contents);
+
     (new DatabaseInstaller($this->options))
       ->setDatabaseName('drupal_bench')
       ->setDumpFile(__DIR__.'/dbdump.sql.gz')

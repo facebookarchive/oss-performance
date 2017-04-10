@@ -52,7 +52,7 @@ $sugar_config = array (
   'datef' => 'm/d/Y',
   'dbconfig' => 
   array (
-    'db_host_name' => '127.0.0.1',
+    'db_host_name' => '__DB_HOST__',
     'db_host_instance' => 'SQLEXPRESS',
     'db_user_name' => 'sugarcrm',
     'db_password' => 'sugarcrm',

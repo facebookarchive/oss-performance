@@ -122,6 +122,8 @@ final class PerfOptions {
 
   public bool $notBenchmarking = false;
 
+  public string $dbHost = '127.0.0.1'; //The hostname/IP of server which hosts the database.
+
   private array $args;
   private Vector<string> $notBenchmarkingArgs = Vector {};
 
@@ -183,6 +185,7 @@ final class PerfOptions {
       'daemon-files', // daemon output goes to files in the temp directory
       'temp-dir:', // temp directory to use; if absent one in /tmp is made
       'src-dir:', // location for source to copy into tmp dir instead of ZIP
+      'db-host:',
       'server-threads:',
       'client-threads:',
     };
@@ -324,7 +327,12 @@ final class PerfOptions {
     $this->daemonOutputToFile = $this->getBool('daemon-files');
 
     $argTempDir = $this->getNullableString('temp-dir');
-    
+
+    $host = $this->getNullableString('db-host');
+    if ($host) {
+      $this->dbHost = $host;
+    }
+
     if(array_key_exists('server-threads', $o)){
       $this->serverThreads = $this->args['server-threads'];
     }

@@ -98,6 +98,10 @@ final class Magento1Target extends PerfTarget {
         __DIR__.'/local.xml',
         $this->getSourceRoot().'/app/etc/local.xml',
       );
+      $file = $this->getSourceRoot().'/app/etc/local.xml';
+      $file_contents = file_get_contents($file);
+      $file_contents = str_replace('__DB_HOST__', $this->options->dbHost, $file_contents );
+      file_put_contents($file, $file_contents);
       return;
     }
 
@@ -127,7 +131,7 @@ final class Magento1Target extends PerfTarget {
   private function getInstallerArgs(): array {
     $url = 'http://'.gethostname().':'.PerfSettings::HttpPort().'/';
     return array(
-      'db_host' => '127.0.0.1',
+      'db_host' => $this->options->dbHost,
       'db_name' => $this->getDatabaseName(),
       'db_user' => $this->installer->getUsername(),
       'db_pass' => $this->installer->getPassword(),
