@@ -153,7 +153,7 @@ final class DatabaseInstaller {
       STDERR,
       '%s',
       "Can't connect to database ".
-      "(mysql -h $this->options->dbHost -p$db -u $db $db). This can be ".
+      "(mysql -h {$this->options->dbHost} -p$db -u $db $db). This can be ".
       "fixed for you.\n",
     );
     $conn = $this->getRootConnection();
@@ -180,7 +180,7 @@ final class DatabaseInstaller {
       $conn,
     );
     mysql_query(
-      "GRANT ALL PRIVILEGES ON $edb.* TO '$edb'@'$this->options->dbHost' ".
+      "GRANT ALL PRIVILEGES ON $edb.* TO '$edb'@'{$this->options->dbHost}' ".
       "IDENTIFIED BY '$edb'",
       $conn,
     );
