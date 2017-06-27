@@ -75,6 +75,13 @@ final class Siege extends Process {
 
   <<__Override>>
   public function getExecutablePath(): string {
+    if ($this->options->remoteSiege) {
+      if ($this->options->noTimeLimit) {
+        return 'ssh ' . $this->options->remoteSiege . ' ' .
+          parent::getExecutablePath();
+      }
+      return 'ssh ' . $this->options->remoteSiege . ' \'timeout\'';
+    }
     if ($this->options->noTimeLimit) {
       return parent::getExecutablePath();
     }
@@ -93,8 +100,14 @@ final class Siege extends Process {
     $urls =
       str_replace('__HTTP_PORT__', (string) PerfSettings::HttpPort(), $urls);
     // Siege doesn't support ipv6
-    $urls = str_replace('__HTTP_HOST__', '127.0.0.1', $urls);
+    $urls = str_replace('__HTTP_HOST__', gethostname(), $urls);
     file_put_contents($urls_file, $urls);
+
+    if ($this->options->remoteSiege) {
+      exec('scp ' . $urls_file . ' ' .
+        $this->options->remoteSiege . ':' . $this->options->siegeTmpDir);
+      $urls_file = $this->options->siegeTmpDir . '/' . basename($urls_file);
+    }
 
     $arguments = Vector {};
     if (!$this->options->noTimeLimit) {
@@ -145,6 +158,12 @@ final class Siege extends Process {
         );
         return $arguments;
       case RequestModes::BENCHMARK:
+        if($this->options->remoteSiege) {
+          $logfile = $this->options->siegeTmpDir . '/' .
+	    basename($this->logfile);
+        } else {
+          $logfile = $this->logfile;
+        }
         $arguments->addAll(
           Vector {
             '-c',
@@ -152,7 +171,7 @@ final class Siege extends Process {
             '-f',
             $urls_file,
             '--benchmark',
-            '--log='.$this->logfile,
+            '--log='.$logfile,
           },
         );
 
