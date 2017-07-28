@@ -127,6 +127,9 @@ final class PerfOptions {
   private array $args;
   private Vector<string> $notBenchmarkingArgs = Vector {};
 
+  public ?string $remoteSiege;
+  public ?string $siegeTmpDir;
+
   public function __construct(Vector<string> $argv) {
     $def = Vector {
       'help',
@@ -188,6 +191,7 @@ final class PerfOptions {
       'db-host:',
       'server-threads:',
       'client-threads:',
+      'remote-siege:',
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -333,11 +337,11 @@ final class PerfOptions {
       $this->dbHost = $host;
     }
 
-    if(array_key_exists('server-threads', $o)){
+    if (array_key_exists('server-threads', $o)) {
       $this->serverThreads = $this->args['server-threads'];
     }
 
-    if(array_key_exists('client-threads', $o)){
+    if (array_key_exists('client-threads', $o)) {
       $this->clientThreads = $this->args['client-threads']; 
     }
     
@@ -351,6 +355,8 @@ final class PerfOptions {
     }
 
     $this->srcDir = $this->getNullableString('src-dir');
+
+    $this->remoteSiege = $this->getNullableString('remote-siege');
   }
 
   public function validate() {
@@ -374,6 +380,21 @@ final class PerfOptions {
       } else {
         invariant_violation('%s', $message);
         exit(1);
+      }
+    }
+    if ($this->remoteSiege) {
+      if (preg_match('*@*',$this->remoteSiege) === 0){
+       invariant_violation('%s',
+         'Please provide Siege remote host in the form of <user>@<host>');
+        exit(1);
+      }
+      $ret = 0;
+      $output = "";
+      $this->siegeTmpDir = exec('ssh ' .
+        $this->remoteSiege . ' mktemp -d ', $output, $ret);
+      if ($ret) {
+        invariant_violation('%s',
+	  'Invalid ssh credentials: ' . $this->remoteSiege);
       }
     }
     if ($this->php5 === null && $this->hhvm === null) {

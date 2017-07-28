@@ -15,6 +15,10 @@ trait SiegeStats {
   public function collectStats(): Map<string, Map<string, num>> {
     $log_lines =
       explode("\n", trim(file_get_contents($this->getLogFilePath())));
+    if (count($log_lines) > 1) {
+      // Remove possible header line
+      array_splice($log_lines, 0, 1);
+    }
     invariant(
       count($log_lines) === 1,
       'Expected 1 line in siege log file, got %d',

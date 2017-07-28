@@ -180,6 +180,11 @@ final class PerfRunner {
     }
 
     self::PrintProgress('Collecting results');
+    if ($options->remoteSiege) {
+      exec((' scp ' .
+        $options->remoteSiege . ':' . $options->siegeTmpDir . '/* '.
+        $options->tempDir));
+    }
 
     $combined_stats = Map {};
     $siege_stats = $siege->collectStats();
