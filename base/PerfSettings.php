@@ -45,4 +45,12 @@ final class PerfSettings {
   public static function BackendAdminPort(): int {
     return 8093;
   }
+
+  public static function SleepTime(): int {
+    return 180;
+  }
+
+  public static function NumRuns(): int {
+    return 7;
+  }
 }

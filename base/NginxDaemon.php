@@ -25,6 +25,10 @@ final class NginxDaemon extends Process {
     );
   }
 
+  public function stop(): void {
+    parent::stop();
+  }
+
   public function clearAccessLog(): void {
     $log = $this->options->tempDir.'/access.log';
     invariant(

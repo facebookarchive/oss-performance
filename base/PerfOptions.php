@@ -129,7 +129,7 @@ final class PerfOptions {
 
   public ?string $remoteSiege;
   public ?string $siegeTmpDir;
-
+  public bool $runMultiple;
   public function __construct(Vector<string> $argv) {
     $def = Vector {
       'help',
@@ -192,6 +192,7 @@ final class PerfOptions {
       'server-threads:',
       'client-threads:',
       'remote-siege:',
+      'run-multiple',
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -357,6 +358,8 @@ final class PerfOptions {
     $this->srcDir = $this->getNullableString('src-dir');
 
     $this->remoteSiege = $this->getNullableString('remote-siege');
+
+    $this->runMultiple = $this->getBool('run-multiple');
   }
 
   public function validate() {
