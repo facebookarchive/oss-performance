@@ -111,4 +111,8 @@ abstract class PerfTarget {
   public function getSiegeRCPath(): ?string {
     return null;
   }
+
+  public function supportsMemcached(): bool {
+    return false;
+  }
 }
