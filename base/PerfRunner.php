@@ -155,6 +155,12 @@ final class PerfRunner {
       );
     }
 
+    self::PrintProgress('Server warmed, checking queue status.');
+    while (!$options->skipWarmUp && !$php_engine->queueEmpty()) {
+      self::PrintProgress('Server warmed, waiting for queue to drain.');
+      sleep(10);
+    }
+
     self::PrintProgress('Clearing nginx access.log');
     $nginx->clearAccessLog();
 

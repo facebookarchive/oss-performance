@@ -69,6 +69,15 @@ final class HHVMDaemon extends PHPEngine {
   }
 
   <<__Override>>
+  public function queueEmpty(): bool {
+    $status = $this->adminRequest('/check-queued');
+    if ($status === 'failure') {
+      return true;
+    }
+    return $status !== '' && $status === '0';
+  }
+
+  <<__Override>>
   protected function getArguments(): Vector<string> {
     if ($this->options->cpuBind) {
       $this->cpuRange = $this->options->daemonProcessors;
