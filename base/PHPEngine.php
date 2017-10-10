@@ -14,4 +14,5 @@ abstract class PHPEngine extends Process {
   public function writeStats(): void {}
 
   public function needsRetranslatePause(): bool { return false; }
+  public function queueEmpty(): bool { return true; }
 }
