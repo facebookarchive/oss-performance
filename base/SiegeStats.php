@@ -17,14 +17,14 @@ trait SiegeStats {
       explode("\n", trim(file_get_contents($this->getLogFilePath())));
     if (count($log_lines) > 1) {
       // Remove possible header line
-      array_splice($log_lines, 0, 1);
+      array_splice(&$log_lines, 0, 1);
     }
     invariant(
       count($log_lines) === 1,
       'Expected 1 line in siege log file, got %d',
       count($log_lines),
     );
-    $log_line = array_pop($log_lines);
+    $log_line = array_pop(&$log_lines);
     $data = (new Vector(explode(',', $log_line)))->map($x ==> trim($x));
     return Map {
       'Combined' => Map {

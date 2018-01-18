@@ -32,7 +32,7 @@ final class PHP5Daemon extends PHPEngine {
       if ($options->traceSubProcess) {
         fprintf(STDERR, "%s\n", $check_command);
       }
-      exec($check_command, $output);
+      exec($check_command, &$output);
       $check = array_search('Opcode Caching => Up and Running', $output, true);
       invariant($check, 'Got invalid output from php-fpm -i');
     } else {
@@ -51,7 +51,7 @@ final class PHP5Daemon extends PHPEngine {
       if ($options->traceSubProcess) {
         fprintf(STDERR, "%s\n", $check_command);
       }
-      exec($check_command, $output);
+      exec($check_command, &$output);
       $checks = json_decode(implode("\n", $output), /* as array = */ true);
       invariant($checks, 'Got invalid output from php-src_config_check.php');
       BuildChecker::Check(

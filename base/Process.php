@@ -79,7 +79,7 @@ abstract class Process {
       }
     }
 
-    $proc = proc_open($this->command, $spec, $pipes, null, $env);
+    $proc = proc_open($this->command, $spec, &$pipes, null, $env);
 
     // Give the shell some time to figure out if it could actually launch the
     // process
@@ -163,7 +163,7 @@ abstract class Process {
       return;
     }
     $status = null;
-    pcntl_waitpid($pid, $status);
+    pcntl_waitpid($pid, &$status);
   }
 
   public function __destruct() {

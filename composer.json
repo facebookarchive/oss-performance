@@ -1,4 +1,7 @@
 {
+    "require-dev": {
+        "hhvm": "^3.24"
+    },
     "autoload": {
         "classmap": ["base/", "targets/"]
     }

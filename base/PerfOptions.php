@@ -281,7 +281,7 @@ final class PerfOptions {
     if ($fraction !== 1.0) {
       $this->cpuBind = true;
       $output = [];
-      exec('nproc', $output);
+      exec('nproc', &$output);
       $numProcessors = (int)($output[0]);
       $numDaemonProcessors = (int)($numProcessors * $fraction);
       $this->helperProcessors = "$numDaemonProcessors-$numProcessors";
@@ -391,7 +391,7 @@ final class PerfOptions {
       $ret = 0;
       $output = "";
       $this->siegeTmpDir = exec('ssh ' .
-        $this->remoteSiege . ' mktemp -d ', $output, $ret);
+        $this->remoteSiege . ' mktemp -d ', &$output, &$ret);
       if ($ret) {
         invariant_violation('%s',
 	  'Invalid ssh credentials: ' . $this->remoteSiege);

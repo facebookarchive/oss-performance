@@ -52,7 +52,7 @@ abstract class PerfTarget {
     }
 
     $patches = glob($dir.'/*.patch');
-    sort($patches);
+    sort(&$patches);
 
     $dir = escapeshellarg($this->getSourceRoot());
 
