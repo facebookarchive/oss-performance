@@ -215,7 +215,7 @@ final class PerfRunner {
       $combined_stats =
         $combined_stats->filterWithKey(($k, $v) ==> $k === 'Combined');
     } else {
-      ksort($combined_stats);
+      ksort(&$combined_stats);
     }
     $combined_stats['Combined']['canonical'] =
       (int) !$options->notBenchmarking;

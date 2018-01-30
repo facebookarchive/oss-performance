@@ -90,8 +90,8 @@ final class DatabaseInstaller {
       Utils::EscapeCommand(
         Vector {'mysql', '-h', $dbHost.'', $db, '-u', $db, '-p'.$db},
       ),
-      $output,
-      $ret,
+      &$output,
+      &$ret,
     );
 
     if ($ret !== 0) {

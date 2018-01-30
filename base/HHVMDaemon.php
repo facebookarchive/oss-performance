@@ -32,7 +32,7 @@ final class HHVMDaemon extends PHPEngine {
     if ($options->traceSubProcess) {
       fprintf(STDERR, "%s\n", $check_command);
     }
-    exec($check_command, $output);
+    exec($check_command, &$output);
     $checks = json_decode(implode("\n", $output), /* as array = */ true);
     invariant($checks, 'Got invalid output from hhvm_config_check.php');
     if (array_key_exists('HHVM_VERSION', $checks)) {

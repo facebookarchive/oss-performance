@@ -125,7 +125,7 @@ final class Magento1Target extends PerfTarget {
       exit(0);
     }
     $status = null;
-    pcntl_waitpid($child, $status);
+    pcntl_waitpid($child, &$status);
   }
 
   private function getInstallerArgs(): array {

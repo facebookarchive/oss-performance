@@ -177,7 +177,7 @@ final class NginxDaemon extends Process {
     Vector<float> $times,
   ): Map<string, float> {
     $count = count($times);
-    sort($times);
+    sort(&$times);
     return Map {
       'Nginx P50 time' => $times[(int) ($count * 0.5)],
       'Nginx P90 time' => $times[(int) ($count * 0.9)],
