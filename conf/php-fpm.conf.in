@@ -20,6 +20,8 @@ listen = 127.0.0.1:__FASTCGI_PORT__
 ; List of addresses (IPv4/IPv6) of FastCGI clients which are allowed to connect.
 listen.allowed_clients = 127.0.0.1
 
+listen.backlog = __BACKLOG__
+
 ;   static  - a fixed number (pm.max_children) of child processes;
 pm = static
 

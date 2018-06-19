@@ -84,8 +84,13 @@ final class PHP5Daemon extends PHPEngine {
         $config
       );
       $config = str_replace(
+        "__BACKLOG__",
+        (string) $this->options->phpFCGIBacklog,
+        $config
+      );
+      $config = str_replace(
         "__CHILDREN__",
-        $this->options->serverThreads,
+        (string) $this->options->phpFCGIChildren,
         $config
       );
       $config = str_replace(
@@ -163,6 +168,7 @@ final class PHP5Daemon extends PHPEngine {
     return Map {
       'OSS_PERF_TARGET' => (string) $this->target,
       'PHP_FCGI_CHILDREN' => (string) $this->options->phpFCGIChildren,
+      'PHP_FCGI_BACKLOG' => (string) $this->options->phpFCGIBacklog,
       'PHP_FCGI_MAX_REQUESTS' => '0',
     };
   }

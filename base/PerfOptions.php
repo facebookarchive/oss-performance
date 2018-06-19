@@ -34,6 +34,7 @@ final class PerfOptions {
   public array $phpExtraArguments;
 
   public int $phpFCGIChildren;
+  public int $phpFCGIBacklog;
 
   public string $siege;
   public string $nginx;
@@ -117,6 +118,7 @@ final class PerfOptions {
   public ?string $scriptAfterWarmup;
   public ?string $scriptAfterBenchmark;
   public string $serverThreads = '100';
+  public string $serverBacklog = '256';
   public string $clientThreads = '200';
 
   public bool $notBenchmarking = false;
@@ -166,6 +168,7 @@ final class PerfOptions {
       'hhvm-extra-arguments:',
       'php-extra-arguments:',
       'php-fcgi-children:',
+      'php-fcgi-backlog:',
       'no-time-limit',
       'fetch-resources',
       'skip-sanity-check',
@@ -314,7 +317,12 @@ final class PerfOptions {
     $this->hhvmExtraArguments = $this->getArray('hhvm-extra-arguments');
     $this->phpExtraArguments = $this->getArray('php-extra-arguments');
 
-    $this->phpFCGIChildren = $this->getInt('php-fcgi-children', 100);
+    $output = [];
+    exec('nproc', $output);
+    $numProcessors = (int)($output[0]);
+
+    $this->phpFCGIChildren = $this->getInt('php-fcgi-children', $numProcessors * 2);
+    $this->phpFCGIBacklog = $this->getInt('php-fcgi-backlog', 256);
     $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);
     $this->delayPhpStartup = $this->getFloat('delay-php-startup', 1.0);
     $this->delayProcessLaunch = $this->getFloat('delay-process-launch', 0.0);
