@@ -24,7 +24,7 @@ Usage
 
 As a regular user:
 
-    composer.phar install # see https://getcomposer.org/download/
+    hhvm composer.phar install # see https://getcomposer.org/download/
     hhvm perf.php --wordpress --php5=/path/to/bin/php-cgi # also works with php7
     hhvm perf.php --wordpress --php=/path/to/bin/php-fpm # also works with php7
     hhvm perf.php --wordpress --hhvm=/path/to/hhvm
@@ -41,7 +41,7 @@ Batch Usage
 
 If you want to run multiple combinations:
 
-    composer.phar install # see https://getcomposer.org/download
+    hhvm composer.phar install # see https://getcomposer.org/download
     hhvm batch-run.php < batch-run.json > batch-run-out.json
 
 See batch-run.json.example to get an idea of how to create batch-run.json.
@@ -203,8 +203,8 @@ Perf
 perf.php can keep the suite running indefinitely:
 
     hhvm perf.php --i-am-not-benchmarking --no-time-limit --wordpress --hhvm=$HHVM_BIN
-  
-You can then attach 'perf' or another profiler to the running HHVM or php-cgi process, once the 'benchmarking' 
+
+You can then attach 'perf' or another profiler to the running HHVM or php-cgi process, once the 'benchmarking'
 phase has started.
 
 There is also a script to run perf for you at the apropriate moment:
@@ -217,21 +217,35 @@ dive into the data using perf, or use the perf rollup script as follows:
     sudo perf script -F comm,ip,sym | hhvm -vEval.EnableHipHopSyntax=true <HHVM SRC>/hphp/tools/perf-rollup.php
 
 In order to have all the symbols from the the translation cache you
-may need to change the owner of /tmp/hhvm-<PID>.map to root.
+may need to change the owner of /tmp/perf-<PID>.map to root.
 
 
 TC-print
 --------
 TC-print will use data from perf to determine the hotest functions and
-translations.  Run the benchmark as follows:
+translations.  TC-print supports a number of built in perf counters.
+To capture all relevant counters, run the benchmark as follows:
+NOTE: perf.sh uses sudo, so look for the password prompt or disable it.
 
-    hhvm perf.php --i-am-not-benchmarking --wordpress --hhvm=$HHVM_BIN --exec-after-warmup="./scripts/perf.sh -e cycles" --tcprint
+    # Just cycles
+    hhvm perf.php --i-am-not-benchmarking --mediawiki --hhvm=$HHVM_BIN --exec-after-warmup="./scripts/perf.sh -e cycles" --tcprint
+    
+    # All supported perf event types (Intel)
+    hhvm perf.php --i-am-not-benchmarking --mediawiki --hhvm=$HHVM_BIN --exec-after-warmup="./scripts/perf.sh -e cycles,branch-misses,L1-icache-misses,L1-dcache-misses,cache-misses,LLC-store-misses,iTLB-misses,dTLB-misses" --tcprint
+    
+    # All supported perf event types (ARM doesn't have LLC-store-misses)
+    hhvm perf.php --i-am-not-benchmarking --mediawiki --hhvm=$HHVM_BIN --exec-after-warmup="./scripts/perf.sh -e cycles,branch-misses,L1-icache-misses,L1-dcache-misses,cache-misses,iTLB-misses,dTLB-misses" --tcprint
 
 In order to have all the symbols from the the translation cache you
-may need to change the owner of /tmp/hhvm-<PID>.map to root.
+may need to change the owner of /tmp/perf-<PID>.map to root.
 
 We process the perf data before passing it along to tc-print
+
     sudo perf script -f -F hw:comm,event,ip,sym | <HHVM SRC>/hphp/tools/perf-script-raw.py > processed-perf.data
+
+If perf script is displaying additional fields, then re-run with -F <-field>,...
+
+    sudo perf script -f -F -tid,-pid,-time,-cpu,-period -F hw:comm,event,ip,sym | <HHVM SRC>/hphp/tools/perf-script-raw.py > processed-perf.data
 
 tc-print is only built if the appropriate disassembly tools are available.  On
 x86 this is LibXed.  Consider building hhvm using:
@@ -239,7 +253,8 @@ x86 this is LibXed.  Consider building hhvm using:
     cmake . -DLibXed_INCLUDE_DIR=<path to xed include> -DLibXed_LIBRARY=<path to libxed.a>
 
 Use tc-print with the generated perf.data:
-    <HHVM SRC>hphp/tools/tc-print/tc-print -c /tmp/<TMP DIR FOR BENCHMARK RUN>/conf.hdf -p processed-perf.data
+
+    <HHVM SRC>/hphp/tools/tc-print/tc-print -c /tmp/<TMP DIR FOR BENCHMARK RUN>/conf.hdf -p processed-perf.data
 
 
 Contributing
