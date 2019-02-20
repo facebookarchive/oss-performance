@@ -13,7 +13,53 @@ type PerfResult = Map<string, Map<string, num>>;
 final class PerfRunner {
   public static function RunWithArgv(Vector<string> $argv): PerfResult {
     $options = new PerfOptions($argv);
-    return self::RunWithOptions($options);
+    $data = self::RunWithOptions($options);
+
+    if ($options->runMultiple) {
+      print json_encode($data, JSON_PRETTY_PRINT)."\n";
+      $numRuns = PerfSettings::NumRuns();
+      $dataArr = Vector{$data};
+      for ($i = 0; $i<$numRuns-1; $i++) {
+        self::PrintProgress('Sleeping before run: ' . ($i+2) . '/' . $numRuns);
+        sleep(PerfSettings::SleepTime());
+        self::PrintProgress('Starting run: ' . ($i+2) . '/' . $numRuns);
+        $data = self::RunWithOptions($options);
+        $dataArr->add($data);
+        self::PrintProgress('Results for run: ' . ($i+2) . '/' . $numRuns);
+        print json_encode($data, JSON_PRETTY_PRINT)."\n";
+      }
+      $data = self::PostProcess($dataArr, $data);
+      self::PrintProgress('Average of ' . ($numRuns-2) . ':');
+    }
+
+    return $data;
+  }
+
+  public static function PerfSort($a, $b) {
+    if ($a['Combined']['Siege RPS'] == $b['Combined']['Siege RPS']) return 0;
+    return ($a['Combined']['Siege RPS'] < $b['Combined']['Siege RPS']) ? -1 : 1;
+  }
+
+  public static function PostProcess(Vector<PerfResult> $dataArr, PerfResult $data): PerfResult {
+    usort($dataArr, "self::PerfSort");
+    $dataArr->removeKey(0);
+    $dataArr->pop();
+    $keys = $dataArr->firstValue();
+
+    if ($keys) {
+      $keys = $keys->at('Combined')->toKeysArray();
+
+      for ($i=0; $i<count($keys)-1; $i++) {
+        $avg = 0;
+
+        for ($j=0; $j<$dataArr->count(); $j++) {
+          $avg += $dataArr->at($j)['Combined']->at($keys[$i]);
+        }
+        $avg = ($avg / $dataArr->count());
+        $data['Combined'][$keys[$i]] = $avg;
+      }
+    }
+    return $data;
   }
 
   public static function RunWithOptions(PerfOptions $options): PerfResult {
@@ -241,7 +287,7 @@ final class PerfRunner {
     } else {
       self::PrintProgress('There is no tearDownTest');
     }
-
+    $nginx->stop();
     return $combined_stats;
   }
 
