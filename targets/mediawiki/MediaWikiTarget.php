@@ -18,6 +18,13 @@ final class MediaWikiTarget extends PerfTarget {
     return 'Obama';
   }
 
+  private function replaceInFile(string $fileName, string $search, string $replace) {
+    $file = $this->getSourceRoot().'/'.$fileName;
+    $file_contents = file_get_contents($file);
+    $file_contents = str_replace($search, $replace, $file_contents);
+    file_put_contents($file, $file_contents);
+  }
+
   public function install(): void {
     $src_dir = $this->options->srcDir;
     if ($src_dir) {
@@ -40,16 +47,23 @@ final class MediaWikiTarget extends PerfTarget {
     mkdir($cache_dir);
     copy(__DIR__.'/LocalSettings.php', $this->getSourceRoot().'/LocalSettings.php');
 
-    $file = $this->getSourceRoot().'/LocalSettings.php';
-    $file_contents = file_get_contents($file);
-    $file_contents = str_replace('__DB_HOST__', $this->options->dbHost, $file_contents );
-    file_put_contents($file, $file_contents);
+    $this->replaceInFile('LocalSettings.php', '__DB_HOST__', $this->options->dbHost);
 
     file_put_contents(
       $this->getSourceRoot().'/LocalSettings.php',
-      '$wgCacheDirectory="'.$cache_dir.'";',
+      '$wgCacheDirectory="'.$cache_dir.'";'."\n",
       FILE_APPEND,
     );
+    if ($this->options->useMemcached) {
+      copy(__DIR__.'/Memcached.php', $this->getSourceRoot().'/Memcached.php');
+      $this->replaceInFile('Memcached.php', '__MEMCACHED_HOST__', '127.0.0.1');
+      $this->replaceInFile('Memcached.php', '__MEMCACHED_PORT__', (string) $this->options->memcachedPort);
+      file_put_contents(
+        $this->getSourceRoot().'/LocalSettings.php',
+        'require_once "'.$this->getSourceRoot().'/Memcached.php";'."\n",
+        FILE_APPEND,
+      );
+    }
   }
 
   <<__Override>>
@@ -65,5 +79,10 @@ final class MediaWikiTarget extends PerfTarget {
 
   public function getSourceRoot(): string {
     return $this->options->tempDir.'/'.self::MEDIAWIKI_VERSION;
+  }
+
+  <<__Override>>
+  public function supportsMemcached(): bool {
+    return true;
   }
 }

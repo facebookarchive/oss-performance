@@ -11,7 +11,7 @@
 class SystemChecks {
   public static function CheckAll(PerfOptions $options): void {
     self::CheckNotRoot();
-    self::CheckPortAvailability();
+    self::CheckPortAvailability($options);
     self::CheckCPUFreq();
     self::CheckTCPTimeWaitReuse();
     self::CheckForAuditd($options);
@@ -79,13 +79,18 @@ class SystemChecks {
     }
   }
 
-  private static function CheckPortAvailability(): void {
+  private static function CheckPortAvailability(PerfOptions $options): void {
     $ports = Vector {
       PerfSettings::HttpPort(),
       PerfSettings::HttpAdminPort(),
       PerfSettings::BackendPort(),
       PerfSettings::BackendAdminPort(),
     };
+    if ($options->useMemcached &&
+        $options->getTarget()->supportsMemcached()) {
+      $ports[] = $options->memcachedPort;
+    }
+
     $busy_ports = Vector {};
     foreach ($ports as $port) {
       $result = @fsockopen('localhost', $port);

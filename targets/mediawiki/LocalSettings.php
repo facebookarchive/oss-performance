@@ -161,6 +161,9 @@ require_once "$IP/extensions/SyntaxHighlight_GeSHi/SyntaxHighlight_GeSHi.php";
 require_once "$IP/extensions/TitleBlacklist/TitleBlacklist.php";
 require_once "$IP/extensions/WikiEditor/WikiEditor.php";
 
+# This option should be false if we are not using memcached, otherwise it will incur a significant performance penalty
+# source: https://www.mediawiki.org/wiki/Manual:$wgUseDatabaseMessages
+$wgUseDatabaseMessages = false;
 
 # End of automatically generated settings.
 # Add more configuration options below.

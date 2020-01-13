@@ -37,6 +37,7 @@ final class PerfOptions {
 
   public string $siege;
   public string $nginx;
+  public string $memcached;
 
   public ?string $dbUsername;
   public ?string $dbPassword;
@@ -86,6 +87,8 @@ final class PerfOptions {
 
   public bool $applyPatches = false;
 
+  public bool $useMemcached = true;
+
   //
   // All times are given in seconds, stored in a float.
   // For PHP code, the usleep timer is used, so fractional seconds work fine.
@@ -96,6 +99,7 @@ final class PerfOptions {
   //
   public float $delayNginxStartup;
   public float $delayPhpStartup;
+  public float $delayMemcachedStartup;
   public float $delayProcessLaunch; // secs to wait after start process
   public float $delayCheckHealth; // secs to wait before hit /check-health
 
@@ -122,6 +126,8 @@ final class PerfOptions {
   public bool $notBenchmarking = false;
 
   public string $dbHost = '127.0.0.1'; //The hostname/IP of server which hosts the database.
+  public int $memcachedPort; //The hostname/IP of server which hosts memcached.
+  public int $memcachedThreads; // Number of memcached threads
 
   private array $args;
   private Vector<string> $notBenchmarkingArgs = Vector {};
@@ -139,6 +145,7 @@ final class PerfOptions {
       'no-fpm',
       'siege:',
       'nginx:',
+      'memcached:',
       'wait-at-end',
       'wait-after-warmup',
       'no-proxygen',
@@ -175,6 +182,7 @@ final class PerfOptions {
       'trace',
       'delay-nginx-startup:',
       'delay-php-startup:',
+      'delay-memcached-startup:',
       'delay-process-launch:',
       'delay-check-health:',
       'max-delay-unfreeze:',
@@ -191,6 +199,9 @@ final class PerfOptions {
       'server-threads:',
       'client-threads:',
       'remote-siege:',
+      'memcached-port:',
+      'memcached-threads:',
+      'no-memcached', // do not use memcached (even if target supports it)
     };
     $targets = $this->getTargetDefinitions()->keys();
     $def->addAll($targets);
@@ -237,6 +248,9 @@ final class PerfOptions {
 
     $this->siege = hphp_array_idx($o, 'siege', 'siege');
     $this->nginx = hphp_array_idx($o, 'nginx', 'nginx');
+    $this->memcached = hphp_array_idx($o, 'memcached', 'memcached');
+    $this->memcachedPort = (int) hphp_array_idx($o, 'memcached-port', 11888);
+    $this->memcachedThreads = (int) hphp_array_idx($o, 'memcached-threads', 0);
 
     $isFacebook = array_key_exists('fbcode', $o);
     $fbcode = "";
@@ -275,6 +289,7 @@ final class PerfOptions {
     $this->statCache = $this->getBool('stat-cache');
     $this->jit = !$this->getBool('no-jit');
     $this->applyPatches = $this->getBool('apply-patches');
+    $this->useMemcached = !$this->getBool('no-memcached');
 
     $fraction = $this->getFloat('cpu-fraction', 1.0);
     if ($fraction !== 1.0) {
@@ -317,6 +332,7 @@ final class PerfOptions {
     $this->phpFCGIChildren = $this->getInt('php-fcgi-children', 100);
     $this->delayNginxStartup = $this->getFloat('delay-nginx-startup', 0.1);
     $this->delayPhpStartup = $this->getFloat('delay-php-startup', 1.0);
+    $this->delayMemcachedStartup = $this->getFloat('delay-memcached-startup', 1.0);
     $this->delayProcessLaunch = $this->getFloat('delay-process-launch', 0.0);
     $this->delayCheckHealth = $this->getFloat('delay-check-health', 1.0);
     $this->maxdelayUnfreeze = $this->getFloat('max-delay-unfreeze', 60.0);
@@ -343,7 +359,7 @@ final class PerfOptions {
     if (array_key_exists('client-threads', $o)) {
       $this->clientThreads = $this->args['client-threads']; 
     }
-    
+
     if ($argTempDir === null) {
       $this->tempDir = tempnam('/tmp', 'hhvm-nginx');
       // Currently a file - change to a dir

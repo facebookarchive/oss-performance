@@ -78,6 +78,14 @@ final class PerfRunner {
     Process::sleepSeconds($options->delayNginxStartup);
     invariant($nginx->isRunning(), 'Failed to start nginx');
 
+    if ($options->useMemcached && $target->supportsMemcached()) {
+      $memcached = new MemcachedDaemon($options, $target);
+      self::PrintProgress('Starting Memcached ('.
+                          $memcached->getNumThreads().' threads)');
+      Process::sleepSeconds($options->delayMemcachedStartup);
+      $memcached->start();
+    }
+
     self::PrintProgress('Starting PHP Engine');
     $php_engine->start();
     Process::sleepSeconds($options->delayPhpStartup);
