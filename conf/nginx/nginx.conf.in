@@ -8,7 +8,7 @@
 #
 # This file was created on: __DATE__
 
-worker_processes  5;
+worker_processes  auto;
 error_log __NGINX_TEMP_DIR__/nginx-error.log;
 pid __NGINX_PID_FILE__;
 
@@ -21,7 +21,7 @@ http {
   default_type  application/octet-stream;
 
   log_format main '$status $body_bytes_sent $request_time "$request"';
-  
+
   types_hash_max_size 4096;
   types_hash_bucket_size 64;
 
