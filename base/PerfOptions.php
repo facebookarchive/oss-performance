@@ -357,7 +357,7 @@ final class PerfOptions {
     }
 
     if (array_key_exists('client-threads', $o)) {
-      $this->clientThreads = $this->args['client-threads']; 
+      $this->clientThreads = $this->args['client-threads'];
     }
 
     if ($argTempDir === null) {
@@ -564,6 +564,7 @@ final class PerfOptions {
       'drupal8-page-cache' => () ==> new Drupal8PageCacheTarget($this),
       'drupal8-no-cache' => () ==> new Drupal8NoCacheTarget($this),
       'mediawiki' => () ==> new MediaWikiTarget($this),
+      'mediawiki-mlp' => () ==> new MediaWikiMLPTarget($this),
       'laravel4-hello-world' => () ==> new Laravel4Target($this),
       'laravel5-hello-world' => () ==> new Laravel5Target($this),
       'sugarcrm-login-page' => () ==> new SugarCRMLoginPageTarget($this),
