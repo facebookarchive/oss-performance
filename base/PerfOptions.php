@@ -125,7 +125,7 @@ final class PerfOptions {
 
   public bool $notBenchmarking = false;
 
-  public string $dbHost = '127.0.0.1'; //The hostname/IP of server which hosts the database.
+  public string $dbHost = 'localhost'; //The hostname/IP of server which hosts the database.
   public int $memcachedPort; //The hostname/IP of server which hosts memcached.
   public int $memcachedThreads; // Number of memcached threads
 
