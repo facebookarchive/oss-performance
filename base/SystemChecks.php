@@ -10,15 +10,26 @@
 
 class SystemChecks {
   public static function CheckAll(PerfOptions $options): void {
-    self::CheckNotRoot();
+    self::CheckNotRoot($options);
     self::CheckPortAvailability($options);
     self::CheckCPUFreq();
     self::CheckTCPTimeWaitReuse();
     self::CheckForAuditd($options);
   }
 
-  private static function CheckNotRoot(): void {
-    invariant(getmyuid() !== 0, 'Run this script as a regular user.');
+  private static function CheckNotRoot(PerfOptions $options): void {
+    if ($options->runAsRoot) {
+      fprintf(
+          STDERR,
+          "WARNING: Running as root. This is dangerous.\n"
+        );
+    } else {
+      invariant(
+        getmyuid() !== 0,
+        'Run this script as a regular user. Alternatively, '.
+        'pass the --run-as-root --i-am-not-benchmarking to continue anway.'
+      );
+    }
   }
 
   private static function CheckForAuditd(PerfOptions $options): void {

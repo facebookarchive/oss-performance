@@ -128,20 +128,49 @@ final class NginxDaemon extends Process {
   protected function getGeneratedConfigFile(): string {
     $path = $this->options->tempDir.'/nginx.conf';
 
+    $nameservers = self::GetNameServers();
+    $nginx_resolver_servers = [];
+    foreach ($nameservers as $nameserver) {
+      if (strpos($nameserver, ':')) {
+        // IPv6
+        $nginx_resolver_servers[] = '['.$nameserver.']';
+      } else if (strpos($nameserver, '.')) {
+        // IPv4
+        $nginx_resolver_servers[] = $nameserver;
+      }
+    }
+    $nginx_resolver_line = $nginx_resolver_servers
+      ? 'resolver '.implode(" ", $nginx_resolver_servers).';'
+      : '';
+
+
+    if ($nginx_resolver_line) {
+      $hostname = 'localhost';
+    } else {
+      # Could not find resolver, assuming IPv4 (default behavior)
+      $hostname = '127.0.0.1';
+    }
+
     if ($this->options->proxygen) {
       $proxy_pass = sprintf(
-        'proxy_pass http://127.0.0.1:%d$request_uri',
+        'proxy_pass http://%s:%d$request_uri',
+        $hostname,
         PerfSettings::BackendPort(),
       );
       $admin_proxy_pass = sprintf(
-        'proxy_pass http://127.0.0.1:%d$request_uri',
+        'proxy_pass http://%s:%d$request_uri',
+        $hostname,
         PerfSettings::BackendAdminPort(),
       );
     } else {
-      $proxy_pass =
-        sprintf('fastcgi_pass 127.0.0.1:%d', PerfSettings::BackendPort());
+      $proxy_pass = sprintf(
+        'fastcgi_pass %s:%d',
+        $hostname,
+        PerfSettings::BackendPort()
+      );
       $admin_proxy_pass = sprintf(
-        'fastcgi_pass 127.0.0.1:%d',
+        'fastcgi_pass %s:%d',
+        $hostname,
         PerfSettings::BackendAdminPort(),
       );
     }
@@ -161,6 +190,7 @@ final class NginxDaemon extends Process {
       '__FRAMEWORK_ROOT__' => $this->target->getSourceRoot(),
       '__NGINX_PID_FILE__' => $this->getPidFilePath(),
       '__DATE__' => date(DATE_W3C),
+      '__NGINX_RESOLVER__' => $nginx_resolver_line,
     };
 
     $config =
@@ -171,6 +201,19 @@ final class NginxDaemon extends Process {
     file_put_contents($path, $config);
 
     return $path;
+  }
+
+  private static function GetNameServers(): Vector<string> {
+    $config = file('/etc/resolv.conf');
+    $matches = [];
+    $nameservers = Vector{};
+    foreach ($config as $line) {
+      $match = preg_match("/nameserver\s+(\S+)/", $line, &$matches);
+      if ($match) {
+        $nameservers[] = $matches[1];
+      }
+    }
+    return $nameservers;
   }
 
   private static function GetPercentiles(

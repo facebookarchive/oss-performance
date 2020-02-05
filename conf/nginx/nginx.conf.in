@@ -33,6 +33,8 @@ http {
 
   #gzip  on;
 
+  __NGINX_RESOLVER__
+
   server {
     listen [::]:__HTTP_PORT__ default_server;
     listen __HTTP_PORT__ default_server;
