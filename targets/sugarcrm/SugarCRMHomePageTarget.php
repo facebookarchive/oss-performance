@@ -31,7 +31,7 @@ final class SugarCRMHomePageTarget extends SugarCRMTarget {
     );
     $config = sprintf(
       "login-url = http://%s:%d/index.php POST %s\n",
-      gethostname(),
+      'localhost',
       PerfSettings::HttpPort(),
       $query_data,
     );

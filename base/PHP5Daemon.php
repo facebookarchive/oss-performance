@@ -105,7 +105,7 @@ final class PHP5Daemon extends PHPEngine {
     } else {
       $args = Vector {
         '-b',
-        '127.0.0.1:'.PerfSettings::BackendPort(),
+        'localhost:'.PerfSettings::BackendPort(),
         '-c',
         OSS_PERFORMANCE_ROOT.'/conf/',
       };

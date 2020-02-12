@@ -21,9 +21,7 @@ abstract class PerfTarget {
   final public function sanityCheck(): void {
     $ctx = stream_context_create(['http' => ['timeout' => 30]]);
     $url =
-      'http://'.
-      gethostname().
-      ':'.
+      'http://localhost:'.
       PerfSettings::HttpPort().
       $this->getSanityCheckPath();
     $content = file_get_contents($url, /* include path = */ false, $ctx);
