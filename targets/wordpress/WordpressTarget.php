@@ -47,7 +47,7 @@ final class WordpressTarget extends PerfTarget {
       $this->options->proxygen
         ? PerfSettings::BackendPort()
         : PerfSettings::HttpPort();
-    $root = 'http://'.gethostname().':'.$visible_port;
+    $root = 'http://localhost:'.$visible_port;
 
     $conn = mysql_connect($this->options->dbHost, 'wp_bench', 'wp_bench');
     $db_selected = mysql_select_db('wp_bench', $conn);
@@ -97,7 +97,7 @@ final class WordpressTarget extends PerfTarget {
   }
 
   private function unfreezeRequest(PerfOptions $options): void {
-    $url = 'http://'.gethostname().':'.PerfSettings::HttpPort().'/';
+    $url = 'http://localhost:'.PerfSettings::HttpPort().'/';
     $ctx = stream_context_create(
       ['http' => ['timeout' => $options->maxdelayUnfreeze]],
     );
