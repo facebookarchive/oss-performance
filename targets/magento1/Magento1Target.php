@@ -128,7 +128,7 @@ final class Magento1Target extends PerfTarget {
   }
 
   private function getInstallerArgs(): array {
-    $url = 'http://'.gethostname().':'.PerfSettings::HttpPort().'/';
+    $url = 'http://localhost:'.PerfSettings::HttpPort().'/';
     return array(
       'db_host' => $this->options->dbHost,
       'db_name' => $this->getDatabaseName(),

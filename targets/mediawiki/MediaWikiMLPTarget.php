@@ -55,7 +55,7 @@ final class MediaWikiMLPTarget extends PerfTarget {
     );
     if ($this->options->useMemcached) {
       copy(__DIR__.'/Memcached.php', $this->getSourceRoot().'/Memcached.php');
-      $this->replaceInFile('Memcached.php', '__MEMCACHED_HOST__', '127.0.0.1');
+      $this->replaceInFile('Memcached.php', '__MEMCACHED_HOST__', 'localhost');
       $this->replaceInFile('Memcached.php', '__MEMCACHED_PORT__', (string) $this->options->memcachedPort);
       file_put_contents(
         $this->getSourceRoot().'/LocalSettings.php',

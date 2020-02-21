@@ -99,7 +99,7 @@ final class Siege extends Process {
     $urls =
       str_replace('__HTTP_PORT__', (string) PerfSettings::HttpPort(), $urls);
     // Siege doesn't support ipv6
-    $urls = str_replace('__HTTP_HOST__', gethostname(), $urls);
+    $urls = str_replace('__HTTP_HOST__', 'localhost', $urls);
     file_put_contents($urls_file, $urls);
 
     if ($this->options->remoteSiege) {

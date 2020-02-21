@@ -59,17 +59,18 @@ final class MemcachedDaemon extends Process {
     if ($this->options->cpuBind) {
       $this->cpuRange = $this->options->helperProcessors;
     }
+    $processUser = posix_getpwuid(posix_geteuid());
     return Vector {
       '-m',
       (string) $this->maxMemory,
-      '-l',
-      '127.0.0.1',
       '-t',
       (string) $this->getNumThreads(),
       '-p',
       (string) $this->options->memcachedPort,
       '-P', # pid file
-      $this->getPidFilePath()
+      $this->getPidFilePath(),
+      '-u',
+      $processUser['name'],
     };
   }
 }

@@ -17,6 +17,7 @@ final class HHVMDaemon extends PHPEngine {
     parent::__construct((string) $options->hhvm);
 
     $this->serverType = $options->proxygen ? 'proxygen' : 'fastcgi';
+    $runAsRoot = $options->runAsRoot ? '1' : '0';
 
     $output = [];
     $check_command = implode(
@@ -25,6 +26,8 @@ final class HHVMDaemon extends PHPEngine {
          $options->hhvm,
          '-v',
          'Eval.Jit=1',
+         '-v',
+         'Server.AllowRunAsRoot='.$runAsRoot,
          __DIR__.'/hhvm_config_check.php',
        })->map($x ==> escapeshellarg($x)),
     );
@@ -103,6 +106,10 @@ final class HHVMDaemon extends PHPEngine {
       '-c',
       OSS_PERFORMANCE_ROOT.'/conf/php.ini',
     };
+
+    if ($this->options->runAsRoot) {
+      $args->addAll(Vector {'-v', 'Server.AllowRunAsRoot=1'});
+    }
     if ($this->options->jit) {
       $args->addAll(Vector {'-v', 'Eval.Jit=1'});
     } else {

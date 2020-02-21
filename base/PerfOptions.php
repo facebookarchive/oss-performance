@@ -55,6 +55,7 @@ final class PerfOptions {
   public bool $dumpIsCompressed = true;
   public bool $traceSubProcess = false;
   public bool $noTimeLimit = false;
+  public bool $runAsRoot = false;
 
   // Pause once benchmarking is complete to allow for manual inspection of the
   // HHVM or PHP process.
@@ -125,7 +126,7 @@ final class PerfOptions {
 
   public bool $notBenchmarking = false;
 
-  public string $dbHost = '127.0.0.1'; //The hostname/IP of server which hosts the database.
+  public string $dbHost = 'localhost'; //The hostname/IP of server which hosts the database.
   public int $memcachedPort; //The hostname/IP of server which hosts memcached.
   public int $memcachedThreads; // Number of memcached threads
 
@@ -174,6 +175,7 @@ final class PerfOptions {
       'php-extra-arguments:',
       'php-fcgi-children:',
       'no-time-limit',
+      'run-as-root',
       'fetch-resources',
       'skip-sanity-check',
       'skip-warmup',
@@ -284,6 +286,7 @@ final class PerfOptions {
     $this->skipVersionChecks = $this->getBool('skip-version-checks');
     $this->skipDatabaseInstall = $this->getBool('skip-database-install');
     $this->noTimeLimit = $this->getBool('no-time-limit');
+    $this->runAsRoot = $this->getBool('run-as-root');
     $this->waitAtEnd = $this->getBool('wait-at-end');
     $this->proxygen = !$this->getBool('no-proxygen');
     $this->statCache = $this->getBool('stat-cache');
