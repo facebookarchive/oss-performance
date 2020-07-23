@@ -1,6 +1,9 @@
 <?hh // strict
 
-class MLPChase {
+ini_set('memory_limit', '1024M');
+
+
+class MemMLPChase {
   const ARRAY_LENGTH = 1 << 22;
 
   async public function mlp(array $bigArray, int $hits): Awaitable<string> {
@@ -26,10 +29,26 @@ class MLPChase {
 <<__EntryPoint>>
 async function main(): Awaitable<void> {
   $hits = 1 * 4 * 5 * 6 * 7 * 8 * 9 * 6;
-  $bigArray = \apc_fetch("my-array");
+  $arrayIdx = rand(1, 30);
+  $arrayName = "big-array-".\strval($arrayIdx);
+  printf("%s\n",$arrayName);
+  $bigArray = \apc_fetch($arrayName);
   if (!$bigArray) {
+    $tagName = "array-tag-".\strval($arrayIdx);
+    $arrayTag = \apc_fetch($tagName);
+    if ($arrayTag) {
+      exit(0);
+    } else {
+      $backoffTime = 1000 * rand(1, 1000);
+      usleep($backoffTime);
+      $arrayTag = \apc_fetch($tagName);
+      if ($arrayTag) {
+        exit(0);
+      }
+    }
+    \apc_add($tagName, $arrayName);
     $a = [];
-    for ($i = 0; $i < MLPChase::ARRAY_LENGTH-1; $i++) {
+    for ($i = 0; $i < MemMLPChase::ARRAY_LENGTH-1; $i++) {
       $i_next = $i+1;
       $a['index'.\strval($i)] = 'index'.\strval($i_next);
     }
@@ -38,11 +57,11 @@ async function main(): Awaitable<void> {
     foreach ($keys as $key) {
       $bigArray[$key] = $a[$key];
     }
-    $bigArray['index'.\strval(MLPChase::ARRAY_LENGTH-1)] = 'index0';
-    \apc_add("my-array", $bigArray);
+    $bigArray['index'.\strval(MemMLPChase::ARRAY_LENGTH-1)] = 'index0';
+    \apc_add($arrayName, $bigArray);
   }
 
-  $chase = new MLPChase();
+  $chase = new MemMLPChase();
   $count = await $chase->mlp(
 	$bigArray,
 	$hits,

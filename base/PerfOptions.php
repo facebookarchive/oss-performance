@@ -568,6 +568,7 @@ final class PerfOptions {
       'drupal8-no-cache' => () ==> new Drupal8NoCacheTarget($this),
       'mediawiki' => () ==> new MediaWikiTarget($this),
       'mediawiki-mlp' => () ==> new MediaWikiMLPTarget($this),
+      'mediawiki-mem' => () ==> new MediaWikiMemTarget($this),
       'laravel4-hello-world' => () ==> new Laravel4Target($this),
       'laravel5-hello-world' => () ==> new Laravel5Target($this),
       'sugarcrm-login-page' => () ==> new SugarCRMLoginPageTarget($this),
