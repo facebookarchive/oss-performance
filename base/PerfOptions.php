@@ -136,6 +136,9 @@ final class PerfOptions {
   public ?string $remoteSiege;
   public ?string $siegeTmpDir;
 
+  public string $siegeDuration = '1M';
+  public string $siegeTimeout = '5m';
+
   public function __construct(Vector<string> $argv) {
     $def = Vector {
       'help',
@@ -201,6 +204,8 @@ final class PerfOptions {
       'server-threads:',
       'client-threads:',
       'remote-siege:',
+      'siege-duration:',
+      'siege-timeout:',
       'memcached-port:',
       'memcached-threads:',
       'no-memcached', // do not use memcached (even if target supports it)
@@ -375,6 +380,17 @@ final class PerfOptions {
     $this->srcDir = $this->getNullableString('src-dir');
 
     $this->remoteSiege = $this->getNullableString('remote-siege');
+
+    $duration = $this->getNullableString('siege-duration');
+    if ($duration) {
+      $this->siegeDuration = $duration;
+    }
+
+    $timeout = $this->getNullableString('siege-timeout');
+    if ($timeout) {
+      $this->siegeTimeout = $timeout;
+    }
+
   }
 
   public function validate() {

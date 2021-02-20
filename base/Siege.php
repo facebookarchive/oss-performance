@@ -114,7 +114,7 @@ final class Siege extends Process {
         // See Siege::getExecutablePath()  - these arguments get passed to
         // timeout
         '--signal=9',
-        '5m',
+        $this->options->siegeTimeout,
         parent::getExecutablePath(),
       };
     }
@@ -176,7 +176,7 @@ final class Siege extends Process {
 
         if (!$this->options->noTimeLimit) {
           $arguments->add('-t');
-          $arguments->add(PerfSettings::BenchmarkTime());
+          $arguments->add($this->options->siegeDuration);
         }
         return $arguments;
       default:
