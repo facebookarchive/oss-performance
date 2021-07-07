@@ -219,7 +219,7 @@ final class PerfOptions {
     $GLOBALS['argv'] = $original_argv;
 
     $this->help = array_key_exists('help', $o);
-    if ($this->help) {
+    if ($this->help || (!$this->sanitizeInput($argv, $def))) {
       fprintf(
         STDERR,
         "Usage: %s \\\n".
@@ -476,6 +476,73 @@ final class PerfOptions {
 
     // Validates that one was defined
     $this->getTarget();
+  }
+
+  private function sanitizeInput(Vector<string> $given, Vector<string> $allowed
+  ): bool {
+    //skip perf.php from the count
+    $given = $given->skip(1);
+    $skip = false;
+    $argMap = new Map<string, bool>(null);
+
+    // Create the argMap, where the keys are all the arguments that the
+    // script can take, and the values are boolean values: false for
+    // standalone argument and true for arguments that require a value
+    foreach ($allowed as $ap) {
+      // argument needs value
+      if (substr($ap, -1) == ':') {
+        $argMap[substr($ap, 0, -1)] = true;
+      // standalone argument
+      } else {
+        $argMap[$ap] = false;
+      }
+    }
+
+    // Iterate through all the arguments passed to the script and check
+    // if they are valid. Skip values of arguments that were given like
+    // "--arg value" instead of "--arg=value"
+    foreach($given as $currentArg) {
+      $shouldBreak = false;
+
+      if ($skip) {
+        $skip = false;
+        continue;
+      } else {
+        // Argument should be at least 3 characters, in order
+        // to have something after the "--"
+        if (strlen($currentArg) > 2 && substr($currentArg, 0, 2) == "--") {
+          // drop "--" from argument
+          $currentArg = substr($currentArg, 2);
+          $shouldSkip = false;
+
+          $pos = strpos($currentArg, "=");
+          // we received the parameter in the format "--arg=value"
+          if ($pos !== false) {
+            $currentArg = explode("=", $currentArg)[0];
+          // we received the parameter in the format "--arg value"
+          } else {
+            $shouldSkip = true;
+          }
+
+          if ($argMap->contains($currentArg)) {
+            $skip = $argMap[$currentArg] && $shouldSkip;
+          // argument not valid
+          } else {
+            $shouldBreak = true;
+          }
+        // argument too short
+        } else {
+            $shouldBreak = true;
+        }
+      }
+
+      if ($shouldBreak) {
+        fprintf(STDERR, "Invalid argument near %s\n", $currentArg);
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private function getBool(string $name): bool {
